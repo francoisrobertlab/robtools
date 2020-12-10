@@ -1,6 +1,29 @@
 import click
 
-from robtools import Bam2Bed, Bowtie2, Bwa, CenterAnnotations, ChipexoQual, Download, FilterBam, Fixmd5, GenomeCoverage, IgnoreStrand, Intersect, IntersectAnnotations, Merge, MergeBam, MergeBigwigs, Plot2do, RemoveSecondMate, Rename, ShiftAnnotations, SlowSplit, Split, Statistics, Vap
+from robtools import Bam2Bed
+from robtools import Bowtie2
+from robtools import Bwa
+from robtools import CenterAnnotations
+from robtools import ChipexoQual
+from robtools import Download
+from robtools import FilterBam
+from robtools import Fixmd5
+from robtools import GenomeCoverage
+from robtools import IgnoreStrand
+from robtools import Intersect
+from robtools import IntersectAnnotations
+from robtools import Merge
+from robtools import MergeBam
+from robtools import MergeBigwigs
+from robtools import Plot2do
+from robtools import PrintSample
+from robtools import RemoveSecondMate
+from robtools import Rename
+from robtools import ShiftAnnotations
+from robtools import SlowSplit
+from robtools import Split
+from robtools import Statistics
+from robtools import Vap
 
 
 @click.group()
@@ -24,6 +47,7 @@ robtools.add_command(Merge.merge)
 robtools.add_command(MergeBam.mergebam)
 robtools.add_command(MergeBigwigs.mergebw)
 robtools.add_command(Plot2do.plot2do)
+robtools.add_command(PrintSample.printsample)
 robtools.add_command(RemoveSecondMate.removesecondmate)
 robtools.add_command(Rename.rename)
 robtools.add_command(ShiftAnnotations.shiftannotations)

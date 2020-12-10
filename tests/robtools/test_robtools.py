@@ -6,7 +6,7 @@ import click
 from click.testing import CliRunner
 import pytest
 
-from robtools import robtools, Bam2Bed, Bowtie2, Bwa, CenterAnnotations, ChipexoQual, Download, FilterBam, Fixmd5, GenomeCoverage, IgnoreStrand, Intersect, Merge, MergeBam, MergeBigwigs, Plot2do, RemoveSecondMate, Rename, ShiftAnnotations, SlowSplit, Split, Statistics, Vap
+from robtools import robtools, Bam2Bed, Bowtie2, Bwa, CenterAnnotations, ChipexoQual, Download, FilterBam, Fixmd5, GenomeCoverage, IgnoreStrand, Intersect, Merge, MergeBam, MergeBigwigs, Plot2do, PrintSample, RemoveSecondMate, Rename, ShiftAnnotations, SlowSplit, Split, Statistics, Vap
 
 
 @pytest.fixture
@@ -26,6 +26,7 @@ def mock_testclass():
     merge_datasets_bam = MergeBam.merge_datasets
     merge_datasets_bw = MergeBigwigs.merge_datasets
     plot2do_samples = Plot2do.plot2do_samples
+    print_sample = PrintSample.print_sample
     removesecondmate_samples = RemoveSecondMate.removesecondmate_samples
     rename = Rename.rename_
     shift_annotations_samples = ShiftAnnotations.shift_annotations_samples
@@ -49,6 +50,7 @@ def mock_testclass():
     MergeBam.merge_datasets = merge_datasets_bam
     MergeBigwigs.merge_datasets = merge_datasets_bw
     Plot2do.plot2do_samples = plot2do_samples
+    PrintSample.print_sample = print_sample
     RemoveSecondMate.removesecondmate_samples = removesecondmate_samples
     Rename.rename_ = rename
     ShiftAnnotations.shift_annotations_samples = shift_annotations_samples
@@ -222,6 +224,17 @@ def test_robtools_plot2do(testdir, mock_testclass):
     logging.warning(result.output)
     assert result.exit_code == 0
     Plot2do.plot2do_samples.assert_called_once_with(samples, '', index, ('--type', type,))
+
+
+def test_robtools_printsample(testdir, mock_testclass):
+    samples = Path(__file__).parent.joinpath('samples.txt')
+    index = 1
+    PrintSample.print_sample = MagicMock()
+    runner = CliRunner()
+    result = runner.invoke(robtools.robtools, ['printsample', '--samples', samples, '--index', index])
+    logging.warning(result.output)
+    assert result.exit_code == 0
+    PrintSample.print_sample.assert_called_once_with(samples, index)
 
 
 def test_robtools_removesecondmate(testdir, mock_testclass):
