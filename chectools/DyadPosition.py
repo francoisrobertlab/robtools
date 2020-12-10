@@ -24,7 +24,7 @@ NEGATIVE_STRAND = -1
               help='Output file.')
 def dyadposition(genes, signal, dyad, mind, maxd, output):
     '''Finds the most plausible dyad position.'''
-    logging.basicConfig(filename='seqtools.log', level=logging.DEBUG, format='%(asctime)s %(levelname)-8s %(message)s', datefmt='%Y-%m-%d %H:%M:%S')
+    logging.basicConfig(filename='robtools.log', level=logging.DEBUG, format='%(asctime)s %(levelname)-8s %(message)s', datefmt='%Y-%m-%d %H:%M:%S')
     dyad_position(genes, signal, dyad, mind, maxd, output)
 
 

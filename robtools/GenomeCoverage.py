@@ -78,7 +78,7 @@ def genomecov(samples, genome, scale, strand, input_suffix, output_suffix, spike
         - If --spike-suffix and --control-suffix are both present, scaling becomes
           1000000 * spiked reads / (reads * control reads).
     '''
-    logging.basicConfig(filename='seqtools.log', level=logging.DEBUG, format='%(asctime)s %(levelname)-8s %(message)s', datefmt='%Y-%m-%d %H:%M:%S')
+    logging.basicConfig(filename='robtools.log', level=logging.DEBUG, format='%(asctime)s %(levelname)-8s %(message)s', datefmt='%Y-%m-%d %H:%M:%S')
     genome_coverage_samples(samples, genome, scale, strand, input_suffix, output_suffix, spike_suffix, control_suffix, index, genomecov_args)
 
 

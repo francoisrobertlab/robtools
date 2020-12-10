@@ -21,7 +21,7 @@ import robtools.Split as sb
               help='Index of sample to process in samples file.')
 def removesecondmate(samples, input_suffix, output_suffix, threads, index):
     '''Removes second mate from BAM.'''
-    logging.basicConfig(filename='seqtools.log', level=logging.DEBUG, format='%(asctime)s %(levelname)-8s %(message)s', datefmt='%Y-%m-%d %H:%M:%S')
+    logging.basicConfig(filename='robtools.log', level=logging.DEBUG, format='%(asctime)s %(levelname)-8s %(message)s', datefmt='%Y-%m-%d %H:%M:%S')
     removesecondmate_samples(samples, input_suffix, output_suffix, threads, index)
 
 

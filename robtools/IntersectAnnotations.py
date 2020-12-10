@@ -16,7 +16,7 @@ from robtools.txt import Parser
               help='Bed output.')
 def intersectannotations(input, annotations, output):
     '''Filter BED file to keep only annotations present in annotations.'''
-    logging.basicConfig(filename='seqtools.log', level=logging.DEBUG, format='%(asctime)s %(levelname)-8s %(message)s', datefmt='%Y-%m-%d %H:%M:%S')
+    logging.basicConfig(filename='robtools.log', level=logging.DEBUG, format='%(asctime)s %(levelname)-8s %(message)s', datefmt='%Y-%m-%d %H:%M:%S')
     genes = Parser.first(annotations)
     incolumns = Parser.columns(input)
     with open(output, 'w') as outfile:

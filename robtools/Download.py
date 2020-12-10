@@ -22,7 +22,7 @@ from robtools.txt import Parser
               help='Index of sample to process in samples file.')
 def download(samples, fast, threads, mem, index):
     '''Download reads of all samples.'''
-    logging.basicConfig(filename='seqtools.log', level=logging.DEBUG, format='%(asctime)s %(levelname)-8s %(message)s', datefmt='%Y-%m-%d %H:%M:%S')
+    logging.basicConfig(filename='robtools.log', level=logging.DEBUG, format='%(asctime)s %(levelname)-8s %(message)s', datefmt='%Y-%m-%d %H:%M:%S')
     download_samples(samples, fast, threads, mem, index)
 
 

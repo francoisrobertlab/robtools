@@ -23,7 +23,7 @@ from robtools.txt import Parser
               help='Last bin maximum length.')
 def split(samples, index, binlength, binminlength, binmaxlength):
     '''Split BED files from samples based on lenght of annotations.'''
-    logging.basicConfig(filename='seqtools.log', level=logging.DEBUG, format='%(asctime)s %(levelname)-8s %(message)s', datefmt='%Y-%m-%d %H:%M:%S')
+    logging.basicConfig(filename='robtools.log', level=logging.DEBUG, format='%(asctime)s %(levelname)-8s %(message)s', datefmt='%Y-%m-%d %H:%M:%S')
     split_samples(samples, index, binlength, binminlength, binmaxlength)
 
 

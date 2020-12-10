@@ -22,7 +22,7 @@ from robtools.txt import Parser
               help='Index of sample to process in samples file.')
 def bam2bed(samples, paired, threads, input_suffix, index):
     '''Converts BAM file to BED for samples.'''
-    logging.basicConfig(filename='seqtools.log', level=logging.DEBUG, format='%(asctime)s %(levelname)-8s %(message)s', datefmt='%Y-%m-%d %H:%M:%S')
+    logging.basicConfig(filename='robtools.log', level=logging.DEBUG, format='%(asctime)s %(levelname)-8s %(message)s', datefmt='%Y-%m-%d %H:%M:%S')
     bam2bed_samples(samples, paired, threads, input_suffix, index)
 
 

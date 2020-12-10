@@ -31,7 +31,7 @@ def validate_output_suffix(ctx, param, value):
 @click.argument('bedtools_args', nargs=-1, type=click.UNPROCESSED)
 def shiftannotations(samples, input_suffix, output_suffix, index, bedtools_args):
     '''Moves annotations contained in BED files.'''
-    logging.basicConfig(filename='seqtools.log', level=logging.DEBUG, format='%(asctime)s %(levelname)-8s %(message)s', datefmt='%Y-%m-%d %H:%M:%S')
+    logging.basicConfig(filename='robtools.log', level=logging.DEBUG, format='%(asctime)s %(levelname)-8s %(message)s', datefmt='%Y-%m-%d %H:%M:%S')
     shift_annotations_samples(samples, input_suffix, output_suffix, index, bedtools_args)
 
 

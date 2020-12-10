@@ -28,7 +28,7 @@ def validate_output_suffix(ctx, param, value):
               help='Index of sample to process in samples file.')
 def ignorestrand(samples, input_suffix, output_suffix, index):
     '''Prepare BED file used for genome coverage on samples.'''
-    logging.basicConfig(filename='seqtools.log', level=logging.DEBUG, format='%(asctime)s %(levelname)-8s %(message)s', datefmt='%Y-%m-%d %H:%M:%S')
+    logging.basicConfig(filename='robtools.log', level=logging.DEBUG, format='%(asctime)s %(levelname)-8s %(message)s', datefmt='%Y-%m-%d %H:%M:%S')
     ignore_strand_samples(samples, input_suffix, output_suffix, index)
 
 

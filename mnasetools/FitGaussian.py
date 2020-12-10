@@ -41,7 +41,7 @@ from robtools.txt import Parser
               help='Index of sample to process in samples file.')
 def fitgaussian(samples, absolute, components, svg, verbose, center, cmin, cmax, amp, amin, sigma, smin, suffix, index):
     '''Fits gaussian curve to dyad coverage.'''
-    logging.basicConfig(filename='seqtools.log', level=logging.DEBUG, format='%(asctime)s %(levelname)-8s %(message)s', datefmt='%Y-%m-%d %H:%M:%S')
+    logging.basicConfig(filename='robtools.log', level=logging.DEBUG, format='%(asctime)s %(levelname)-8s %(message)s', datefmt='%Y-%m-%d %H:%M:%S')
     fit_gaussian(samples, absolute, components, svg, verbose, center, cmin, cmax, amp, amin, sigma, smin, suffix, index)
 
 

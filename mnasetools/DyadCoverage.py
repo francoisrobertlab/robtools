@@ -36,7 +36,7 @@ NEGATIVE_STRAND = '-'
               help='Index of sample to process in samples file.')
 def dyadcov(samples, genes, selection, absolute, minp, maxp, smoothing, suffix, index):
     '''Finds the distribution of ditances between fragments and dyad.'''
-    logging.basicConfig(filename='seqtools.log', level=logging.DEBUG, format='%(asctime)s %(levelname)-8s %(message)s', datefmt='%Y-%m-%d %H:%M:%S')
+    logging.basicConfig(filename='robtools.log', level=logging.DEBUG, format='%(asctime)s %(levelname)-8s %(message)s', datefmt='%Y-%m-%d %H:%M:%S')
     dyad_coverage(samples, genes, selection, absolute, minp, maxp, smoothing, suffix, index)
 
 

@@ -21,7 +21,7 @@ from robtools.txt import Parser
 @click.argument('plot2do_args', nargs=-1, type=click.UNPROCESSED)
 def plot2do(file, input_suffix, index, plot2do_args):
     '''Run plot2DO on samples.'''
-    logging.basicConfig(filename='seqtools.log', level=logging.DEBUG, format='%(asctime)s %(levelname)-8s %(message)s', datefmt='%Y-%m-%d %H:%M:%S')
+    logging.basicConfig(filename='robtools.log', level=logging.DEBUG, format='%(asctime)s %(levelname)-8s %(message)s', datefmt='%Y-%m-%d %H:%M:%S')
     plot2do_samples(file, input_suffix, index, plot2do_args)
 
 

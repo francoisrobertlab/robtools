@@ -19,7 +19,7 @@ from robtools.txt import Parser
 @click.argument('chipexoqual_args', nargs=-1, type=click.UNPROCESSED)
 def chipexoqual(datasets, suffix, index, chipexoqual_args):
     '''Run ChIPexoQual on datasets.'''
-    logging.basicConfig(filename='seqtools.log', level=logging.DEBUG, format='%(asctime)s %(levelname)-8s %(message)s', datefmt='%Y-%m-%d %H:%M:%S')
+    logging.basicConfig(filename='robtools.log', level=logging.DEBUG, format='%(asctime)s %(levelname)-8s %(message)s', datefmt='%Y-%m-%d %H:%M:%S')
     chipexoqual_datasets(datasets, suffix, index, chipexoqual_args)
 
 

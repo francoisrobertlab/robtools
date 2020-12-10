@@ -17,7 +17,7 @@ import pandas as pd
               help='Shows file name being processed.')
 def dyadstatistics(minp, maxp, output, verbose):
     '''Creates statistics file for dyads.'''
-    logging.basicConfig(filename='seqtools.log', level=logging.DEBUG, format='%(asctime)s %(levelname)-8s %(message)s', datefmt='%Y-%m-%d %H:%M:%S')
+    logging.basicConfig(filename='robtools.log', level=logging.DEBUG, format='%(asctime)s %(levelname)-8s %(message)s', datefmt='%Y-%m-%d %H:%M:%S')
     dyad_statistics(minp, maxp, output, verbose)
 
 
