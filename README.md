@@ -16,7 +16,6 @@ pip install git+https://git@github.com/francoisrobertlab/robtools.git
 The following executables are installed:
 * robtools - tools used by most ChIP-seq analysis.
 * mnasetools - tools specific to MNase-ChIP-seq analysis.
-* exotools - tools specific to ChIP-exo analysis.
 * chectools - tools specific to ChEC-seq analysis.
 
 You can see the parameters details by using the `-h` parameter:
