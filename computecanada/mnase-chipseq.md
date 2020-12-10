@@ -117,9 +117,9 @@ An example of such files for yeast is available [here](mnase-chipseq/vap/sacCer3
 For yeast, you can copy the example files using these commands
 
 ```
-curl https://raw.githubusercontent.com/francoisrobertlab/seqtools/master/computecanada/mnase-chipseq/vap/sacCer3/vap_parameters.txt >> vap_parameters.txt
-curl https://raw.githubusercontent.com/francoisrobertlab/seqtools/master/computecanada/mnase-chipseq/vap/sacCer3/Group_AllLongGenes_TxSorted.txt >> Group_AllLongGenes_TxSorted.txt
-curl https://raw.githubusercontent.com/francoisrobertlab/seqtools/master/computecanada/mnase-chipseq/vap/sacCer3/sgdGeneAndOthers_UTR_TIF-seq_sacCer3_july_2018.txt >> sgdGeneAndOthers_UTR_TIF-seq_sacCer3_july_2018.txt
+curl https://raw.githubusercontent.com/francoisrobertlab/robtools/master/computecanada/mnase-chipseq/vap/sacCer3/vap_parameters.txt >> vap_parameters.txt
+curl https://raw.githubusercontent.com/francoisrobertlab/robtools/master/computecanada/mnase-chipseq/vap/sacCer3/Group_AllLongGenes_TxSorted.txt >> Group_AllLongGenes_TxSorted.txt
+curl https://raw.githubusercontent.com/francoisrobertlab/robtools/master/computecanada/mnase-chipseq/vap/sacCer3/sgdGeneAndOthers_UTR_TIF-seq_sacCer3_july_2018.txt >> sgdGeneAndOthers_UTR_TIF-seq_sacCer3_july_2018.txt
 ```
 
 ### Run the analysis
@@ -158,8 +158,8 @@ sbatch plot2do.sh -f ~/scratch/$dataset_name/dataset.txt -t dyads -r Plus1 -L 40
 Copy [first dyad positions](mnase-chipseq/dyads/sacCer3/first_dyad.txt) and [second dyad positions](mnase-chipseq/dyads/sacCer3/second_dyad.txt) to Compute Canada
 
 ```
-curl https://raw.githubusercontent.com/francoisrobertlab/seqtools/master/computecanada/mnase-chipseq/dyads/sacCer3/first_dyad.txt >> first_dyad.txt
-curl https://raw.githubusercontent.com/francoisrobertlab/seqtools/master/computecanada/mnase-chipseq/dyads/sacCer3/second_dyad.txt >> second_dyad.txt
+curl https://raw.githubusercontent.com/francoisrobertlab/robtools/master/computecanada/mnase-chipseq/dyads/sacCer3/first_dyad.txt >> first_dyad.txt
+curl https://raw.githubusercontent.com/francoisrobertlab/robtools/master/computecanada/mnase-chipseq/dyads/sacCer3/second_dyad.txt >> second_dyad.txt
 ```
 
 ### Run the analysis

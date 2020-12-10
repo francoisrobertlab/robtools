@@ -4,7 +4,7 @@
 
 ```
 ssh beluga.computecanada.ca
-module load seqtools
+module load robtools
 cd scratch
 ls
 cd $dataset_name

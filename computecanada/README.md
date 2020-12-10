@@ -1,9 +1,9 @@
-# seqtools on Compute Canada servers
+# robtools on Compute Canada servers
 
 #### General tutorials
 
-* [Install seqtools](install.md)
-* [Connecting to Compute Canada to use seqtools](connect.md)
+* [Install robtools](install.md)
+* [Connecting to Compute Canada to use robtools](connect.md)
 * [Uploading dataset files to Compute Canada](upload.md)
 
 #### Analysis of data

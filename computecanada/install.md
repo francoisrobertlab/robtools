@@ -1,4 +1,4 @@
-# Install seqtools on Compute Canada servers
+# Install robtools on Compute Canada servers
 
 :memo: *The examples use Beluga server*
 
@@ -15,7 +15,7 @@ ssh beluga.computecanada.ca
 ## Run the configuration script
 
 ```
-curl https://raw.githubusercontent.com/francoisrobertlab/seqtools/master/install/configure.sh >> configure.sh
+curl https://raw.githubusercontent.com/francoisrobertlab/robtools/master/install/configure.sh >> configure.sh
 chmod 744 configure.sh
 ./configure.sh $email@ircm.qc.ca
 ```
@@ -30,12 +30,12 @@ source .bash_profile
 ## Run installation script
 
 ```
-module load seqtools
+module load robtools
 install.sh
 ```
 
-## Try seqtools
+## Try robtools
 
 ```
-seqtools --help
+robtools --help
 ```
