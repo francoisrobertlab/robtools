@@ -34,7 +34,7 @@ pip install git+https://git@github.com/francoisrobertlab/robtools.git@"$BRANCH"
 echo "Updating bash scripts"
 rm -R "$BASH"
 mkdir "$BASH"
-git clone --depth 1 --branch "$BRANCH" https://github.com/francoisrobertlab/robtools.git "$ROBTOOLS"
+git clone --depth 1 -c advice.detachedHead=false --branch "$BRANCH" https://github.com/francoisrobertlab/robtools.git "$ROBTOOLS"
 cp "$ROBTOOLS_BASH"/*.sh "$BASH"
 find "$BASH" -type f -name "*.sh" -exec sed -i "s/christian\.poitras@ircm\.qc\.ca/$EMAIL/g" {} \;
 rm -Rf "$ROBTOOLS"
