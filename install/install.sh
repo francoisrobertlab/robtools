@@ -38,7 +38,7 @@ git clone --depth 1 --branch "$BRANCH" https://github.com/francoisrobertlab/robt
 cp "$ROBTOOLS_BASH"/*.sh "$BASH"
 find "$BASH" -type f -name "*.sh" -exec sed -i "s/christian\.poitras@ircm\.qc\.ca/$EMAIL/g" {} \;
 rm -Rf "$ROBTOOLS"
-if [ ! -f "$ROBTOOLS_BASH"/install.sh ]
+if [ -f "$BASH"/install.sh ]
 then
     rm "$BASH"/install.sh
 fi
