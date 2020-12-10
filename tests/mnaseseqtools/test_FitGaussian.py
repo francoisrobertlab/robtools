@@ -10,8 +10,8 @@ from click.testing import CliRunner
 import pytest
 
 from mnaseseqtools import FitGaussian as f
-from seqtools import Split as sb
-from seqtools.txt import Parser
+from robtools import Split as sb
+from robtools.txt import Parser
 
 
 @pytest.fixture

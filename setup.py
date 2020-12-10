@@ -25,7 +25,7 @@ setup(
         'console_scripts': [
             'chectools = checseqtools.chectools:chectools',
             'mnasetools = mnaseseqtools.mnasetools:mnasetools',
-            'robtools = seqtools.seqtools:seqtools'
+            'robtools = robtools.robtools:robtools'
         ]
     }
 )

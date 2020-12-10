@@ -8,8 +8,8 @@ from numpy import mean
 import matplotlib.pyplot as plt
 import pandas as pd
 import pyBigWig as pbw
-import seqtools.Split as sb
-from seqtools.txt import Parser
+import robtools.Split as sb
+from robtools.txt import Parser
 
 POSITIVE_STRAND = '+'
 NEGATIVE_STRAND = '-'

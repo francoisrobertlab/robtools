@@ -6,8 +6,8 @@ from lmfit.models import GaussianModel, ConstantModel
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
-import seqtools.Split as sb
-from seqtools.txt import Parser
+import robtools.Split as sb
+from robtools.txt import Parser
 
 
 @click.command()
