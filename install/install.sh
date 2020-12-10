@@ -29,7 +29,7 @@ then
     echo "Selected branch $BRANCH for robtools"
 fi
 echo "Updating python libraries"
-pip uninstall -y RobTools
+pip uninstall -y RobTools SeqTools
 pip install git+https://git@github.com/francoisrobertlab/robtools.git@"$BRANCH"
 echo "Updating bash scripts"
 rm -R "$BASH"
