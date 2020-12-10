@@ -6,7 +6,7 @@ import click
 from click.testing import CliRunner
 import pytest
 
-from checseqtools import chectools, DyadPosition
+from chectools import chectools, DyadPosition
 
 
 @pytest.fixture

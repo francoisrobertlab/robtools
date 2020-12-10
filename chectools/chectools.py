@@ -1,6 +1,6 @@
 import click
 
-from checseqtools import DyadPosition
+from chectools import DyadPosition
 
 
 @click.group()
