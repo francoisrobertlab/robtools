@@ -1,14 +1,14 @@
 from setuptools import setup, find_packages
 
 setup(
-    name='SeqTools',
+    name='RobTools',
     version='2.0-SNAPSHOT',
     packages=find_packages(),
     author='Christian Poitras',
     author_email='christian.poitras@ircm.qc.ca',
-    description='Tools to analyze NGS data',
+    description='Tools to analyze next-generation sequencing (NGS) data',
     keywords='bioinformatics, NGS',
-    url='https://github.com/francoisrobertlab/seqtools',
+    url='https://github.com/francoisrobertlab/robtools',
     license='GNU General Public License version 3',
     classifiers=[
         'License :: OSI Approved :: GNU General Public License version 3'
@@ -25,7 +25,7 @@ setup(
         'console_scripts': [
             'chectools = checseqtools.chectools:chectools',
             'mnasetools = mnaseseqtools.mnasetools:mnasetools',
-            'seqtools = seqtools.seqtools:seqtools'
+            'robtools = seqtools.seqtools:seqtools'
         ]
     }
 )

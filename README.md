@@ -1,20 +1,20 @@
-# seqtools
+# robtools: Tools to analyse next-generation sequencing data
 
 ### Install
 Install requirements:
 * [python version 3.7.4 or newer](https://www.python.org)
 * [Git](https://git-scm.com)
 
-Install seqtools.
+Install robtools.
 
 ```
-pip install git+https://git@github.com/francoisrobertlab/seqtools.git
+pip install git+https://git@github.com/francoisrobertlab/robtools.git
 ```
 
 ### Usage
 
 The following executables are installed:
-* seqtools - tools used by most ChIP-seq analysis.
+* robtools - tools used by most ChIP-seq analysis.
 * mnasetools - tools specific to MNase-ChIP-seq analysis.
 * exotools - tools specific to ChIP-exo analysis.
 * chectools - tools specific to ChEC-seq analysis.
@@ -22,7 +22,7 @@ The following executables are installed:
 You can see the parameters details by using the `-h` parameter:
 
 ```
-seqtools -h
+robtools -h
 ```
 
 ### Requirements
