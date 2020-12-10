@@ -6,7 +6,7 @@ import click
 from click.testing import CliRunner
 import pytest
 
-from mnaseseqtools import mnasetools, DyadCoverage, DyadStatistics, FirstDyadPosition, FitDoubleGaussian, FitGaussian
+from mnasetools import mnasetools, DyadCoverage, DyadStatistics, FirstDyadPosition, FitDoubleGaussian, FitGaussian
 
 
 @pytest.fixture

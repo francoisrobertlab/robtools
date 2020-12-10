@@ -9,7 +9,7 @@ import click
 from click.testing import CliRunner
 import pytest
 
-from mnaseseqtools import FitGaussian as f
+from mnasetools import FitGaussian as f
 from robtools import Split as sb
 from robtools.txt import Parser
 

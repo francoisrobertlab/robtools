@@ -1,6 +1,6 @@
 import click
 
-from mnaseseqtools import DyadCoverage, DyadStatistics, FitDoubleGaussian, FitGaussian, FirstDyadPosition
+from mnasetools import DyadCoverage, DyadStatistics, FitDoubleGaussian, FitGaussian, FirstDyadPosition
 
 
 @click.group()
