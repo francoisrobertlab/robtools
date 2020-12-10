@@ -1,6 +1,6 @@
 help([[
 For detailed instructions, go to:
-    https://github.com/francoisrobertlab/seqtools
+    https://github.com/francoisrobertlab/robtools
 
 This module loads the following modules and their requirements:
     - python/3.7.4
@@ -17,8 +17,8 @@ This module loads the following modules and their requirements:
 
 whatis("Version: 1.0.0")
 whatis("Keywords: NGS, Utility")
-whatis("URL: https://github.com/francoisrobertlab/seqtools")
-whatis("Description: Tools to analyze NGS data")
+whatis("URL: https://github.com/francoisrobertlab/robtools")
+whatis("Description: Tools to analyze next-generation sequencing (NGS) data")
 
 always_load("nixpkgs/16.09")
 always_load("gcc/7.3.0")
@@ -34,9 +34,9 @@ always_load("kentutils/20180716")
 always_load("vap")
 
 local home = os.getenv("HOME") or ""
-local venv = pathJoin(home, "seqtools-venv")
+local venv = pathJoin(home, "robtools-venv")
 local call_nucleosomes = pathJoin(home, "projects/def-robertf/CallNucleosomes")
-local installation = pathJoin(home, "projects/def-robertf/seqtools")
+local installation = pathJoin(home, "projects/def-robertf/robtools")
 prepend_path("PATH", pathJoin(installation, "install"))
 prepend_path("PATH", pathJoin(venv, "bash"))
 prepend_path("PATH", pathJoin(venv, "bin"))

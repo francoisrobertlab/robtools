@@ -18,4 +18,4 @@ then
   args+=("-t" "$SLURM_CPUS_PER_TASK")
 fi
 
-seqtools removesecondmate "${args[@]}"
+robtools removesecondmate "${args[@]}"

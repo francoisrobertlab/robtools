@@ -1,4 +1,4 @@
-VENV="$HOME/seqtools-venv"
+VENV="$HOME/robtools-venv"
 BASH="$VENV"/bash
 ACCOUNT=$1
 

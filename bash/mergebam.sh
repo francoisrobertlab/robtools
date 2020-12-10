@@ -18,4 +18,4 @@ then
   args+=("--threads" "$SLURM_CPUS_PER_TASK")
 fi
 
-seqtools mergebam "${args[@]}"
+robtools mergebam "${args[@]}"

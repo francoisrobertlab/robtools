@@ -20,4 +20,4 @@ fi
 
 # Index FASTA file first
 # bwa index sacCer3.fa
-seqtools bwa "${args[@]}"
+robtools bwa "${args[@]}"

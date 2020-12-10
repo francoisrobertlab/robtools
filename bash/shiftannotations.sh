@@ -14,4 +14,4 @@ then
   args+=("-i" "$SLURM_ARRAY_TASK_ID")
 fi
 
-seqtools shiftannotations "${args[@]}"
+robtools shiftannotations "${args[@]}"

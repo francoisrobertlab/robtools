@@ -9,4 +9,4 @@
 
 args=("$@")
 
-seqtools statistics "${args[@]}"
+robtools statistics "${args[@]}"

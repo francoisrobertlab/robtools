@@ -14,4 +14,4 @@ then
   args+=("-i" "$SLURM_ARRAY_TASK_ID")
 fi
 
-seqtools intersect "${args[@]}"
+robtools intersect "${args[@]}"

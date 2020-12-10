@@ -18,4 +18,4 @@ then
   args+=("--threads" "$SLURM_CPUS_PER_TASK")
 fi
 
-seqtools chipexoqual "${args[@]}"
+robtools chipexoqual "${args[@]}"

@@ -1,9 +1,9 @@
 #!/bin/bash
 
-VENV="$HOME/seqtools-venv"
+VENV="$HOME/robtools-venv"
 BASH="$VENV"/bash
-SEQTOOLS="$VENV"/seqtools
-SEQTOOLS_BASH="$SEQTOOLS"/bash
+ROBTOOLS="$VENV"/robtools
+ROBTOOLS_BASH="$ROBTOOLS"/bash
 EMAIL="$JOB_MAIL"
 BRANCH="master"
 
@@ -26,19 +26,19 @@ fi
 if [ ! -z "$1" ]
 then
     BRANCH="$1"
-    echo "Selected branch $BRANCH for seqtools"
+    echo "Selected branch $BRANCH for robtools"
 fi
 echo "Updating python libraries"
-pip uninstall -y SeqTools
-pip install git+https://git@github.com/francoisrobertlab/seqtools.git@"$BRANCH"
+pip uninstall -y RobTools
+pip install git+https://git@github.com/francoisrobertlab/robtools.git@"$BRANCH"
 echo "Updating bash scripts"
 rm -R "$BASH"
 mkdir "$BASH"
-git clone --depth 1 --branch "$BRANCH" https://github.com/francoisrobertlab/seqtools.git "$SEQTOOLS"
-cp "$SEQTOOLS_BASH"/*.sh "$BASH"
+git clone --depth 1 --branch "$BRANCH" https://github.com/francoisrobertlab/robtools.git "$ROBTOOLS"
+cp "$ROBTOOLS_BASH"/*.sh "$BASH"
 find "$BASH" -type f -name "*.sh" -exec sed -i "s/christian\.poitras@ircm\.qc\.ca/$EMAIL/g" {} \;
-rm -Rf "$SEQTOOLS"
-if [ ! -f "$SEQTOOLS_BASH"/install.sh ]
+rm -Rf "$ROBTOOLS"
+if [ ! -f "$ROBTOOLS_BASH"/install.sh ]
 then
     rm "$BASH"/install.sh
 fi
