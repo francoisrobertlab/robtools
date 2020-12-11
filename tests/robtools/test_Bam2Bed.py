@@ -61,59 +61,63 @@ def test_bam2bed(testdir, mock_testclass):
     runner = CliRunner()
     result = runner.invoke(bb.bam2bed, ['-s', samples])
     assert result.exit_code == 0
-    bb.bam2bed_samples.assert_called_once_with(samples, True, threads, '-dedup', None)
+    bb.bam2bed_samples.assert_called_once_with(samples, True, threads, '-dedup', '', None)
 
 
 def test_bam2bed_parameters(testdir, mock_testclass):
     samples = Path(__file__).parent.joinpath('samples.txt')
     threads = 2
     input_suffix = '-test'
+    output_suffix = '-out'
     index = 1
     bb.bam2bed_samples = MagicMock()
     runner = CliRunner()
-    result = runner.invoke(bb.bam2bed, ['-s', samples, '--unpaired', '--threads', threads, '-is', input_suffix, '--index', index])
+    result = runner.invoke(bb.bam2bed, ['-s', samples, '--unpaired', '--threads', threads, '-is', input_suffix, '-os', output_suffix, '--index', index])
     assert result.exit_code == 0
-    bb.bam2bed_samples.assert_called_once_with(samples, False, threads, input_suffix, index)
+    bb.bam2bed_samples.assert_called_once_with(samples, False, threads, input_suffix, output_suffix, index)
 
 
 def test_bam2bed_samples(testdir, mock_testclass):
     samples = Path(__file__).parent.joinpath('samples.txt')
     bb.bam2bed_sample = MagicMock()
     bb.bam2bed_samples(samples)
-    bb.bam2bed_sample.assert_any_call('POLR2A', True, None, '')
-    bb.bam2bed_sample.assert_any_call('ASDURF', True, None, '')
-    bb.bam2bed_sample.assert_any_call('POLR1C', True, None, '')
+    bb.bam2bed_sample.assert_any_call('POLR2A', True, None, '', '')
+    bb.bam2bed_sample.assert_any_call('ASDURF', True, None, '', '')
+    bb.bam2bed_sample.assert_any_call('POLR1C', True, None, '', '')
 
 
 def test_bam2bed_samples_all_threads(testdir, mock_testclass):
     samples = Path(__file__).parent.joinpath('samples.txt')
     threads = 2
     input_suffix = '-test'
+    output_suffix = '-out'
     bb.bam2bed_sample = MagicMock()
-    bb.bam2bed_samples(samples, threads=threads, input_suffix=input_suffix)
-    bb.bam2bed_sample.assert_any_call('POLR2A', True, threads, input_suffix)
-    bb.bam2bed_sample.assert_any_call('ASDURF', True, threads, input_suffix)
-    bb.bam2bed_sample.assert_any_call('POLR1C', True, threads, input_suffix)
+    bb.bam2bed_samples(samples, threads=threads, input_suffix=input_suffix, output_suffix=output_suffix)
+    bb.bam2bed_sample.assert_any_call('POLR2A', True, threads, input_suffix, output_suffix)
+    bb.bam2bed_sample.assert_any_call('ASDURF', True, threads, input_suffix, output_suffix)
+    bb.bam2bed_sample.assert_any_call('POLR1C', True, threads, input_suffix, output_suffix)
 
 
 def test_bam2bed_samples_all_notpaired(testdir, mock_testclass):
     samples = Path(__file__).parent.joinpath('samples.txt')
     threads = 2
     input_suffix = '-test'
+    output_suffix = '-out'
     bb.bam2bed_sample = MagicMock()
-    bb.bam2bed_samples(samples, False, threads, input_suffix)
-    bb.bam2bed_sample.assert_any_call('POLR2A', False, threads, input_suffix)
-    bb.bam2bed_sample.assert_any_call('ASDURF', False, threads, input_suffix)
-    bb.bam2bed_sample.assert_any_call('POLR1C', False, threads, input_suffix)
+    bb.bam2bed_samples(samples, False, threads, input_suffix=input_suffix, output_suffix=output_suffix)
+    bb.bam2bed_sample.assert_any_call('POLR2A', False, threads, input_suffix, output_suffix)
+    bb.bam2bed_sample.assert_any_call('ASDURF', False, threads, input_suffix, output_suffix)
+    bb.bam2bed_sample.assert_any_call('POLR1C', False, threads, input_suffix, output_suffix)
 
 
 def test_bam2bed_samples_second_threads(testdir, mock_testclass):
     samples = Path(__file__).parent.joinpath('samples.txt')
     threads = 2
     input_suffix = '-test'
+    output_suffix = '-out'
     bb.bam2bed_sample = MagicMock()
-    bb.bam2bed_samples(samples, True, threads, input_suffix, 1)
-    bb.bam2bed_sample.assert_called_once_with('ASDURF', True, threads, input_suffix)
+    bb.bam2bed_samples(samples, True, threads, input_suffix=input_suffix, output_suffix=output_suffix, index=1)
+    bb.bam2bed_sample.assert_called_once_with('ASDURF', True, threads, input_suffix, output_suffix)
 
     
 def test_bam2bed_sample_paired(testdir, mock_testclass):
@@ -129,15 +133,16 @@ def test_bam2bed_sample_paired(testdir, mock_testclass):
     assert bb.bam2bedpe.call_args.args[1] == bb.bedpe2bed.call_args.args[0]
 
 
-def test_bam2bed_sample_paired_inputsuffix(testdir, mock_testclass):
+def test_bam2bed_sample_paired_suffixes(testdir, mock_testclass):
     sample = 'POLR2A'
     input_suffix = '-test'
+    output_suffix = '-out'
     bam = sample + input_suffix + '.bam'
-    bed = sample + '.bed'
+    bed = sample + output_suffix + '.bed'
     threads = 2
     bb.bam2bedpe = MagicMock(side_effect=create_file_bam2bedpe)
     bb.bedpe2bed = MagicMock()
-    bb.bam2bed_sample(sample, True, threads, input_suffix)
+    bb.bam2bed_sample(sample, True, threads=threads, input_suffix=input_suffix, output_suffix=output_suffix)
     bb.bam2bedpe.assert_called_with(bam, ANY, threads)
     bb.bedpe2bed.assert_called_with(ANY, bed)
     assert bb.bam2bedpe.call_args.args[1] == bb.bedpe2bed.call_args.args[0]
@@ -152,13 +157,14 @@ def test_bam2bed_sample_notpaired(testdir, mock_testclass):
     bb.bam2bed_unpaired.assert_called_with(bam, bed)
 
 
-def test_bam2bed_sample_notpaired_inputsuffix(testdir, mock_testclass):
+def test_bam2bed_sample_notpaired_suffixes(testdir, mock_testclass):
     sample = 'POLR2A'
     input_suffix = '-test'
+    output_suffix = '-out'
     bam = sample + input_suffix + '.bam'
-    bed = sample + '.bed'
+    bed = sample + output_suffix + '.bed'
     bb.bam2bed_unpaired = MagicMock()
-    bb.bam2bed_sample(sample, False, input_suffix=input_suffix)
+    bb.bam2bed_sample(sample, False, input_suffix=input_suffix, output_suffix=output_suffix)
     bb.bam2bed_unpaired.assert_called_with(bam, bed)
 
 

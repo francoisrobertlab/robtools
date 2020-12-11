@@ -68,7 +68,7 @@ def test_robtools_bam2bed(testdir, mock_testclass):
     runner = CliRunner()
     result = runner.invoke(robtools.robtools, ['bam2bed', '--samples', samples, '--unpaired', '--threads', threads, '--index', index])
     assert result.exit_code == 0
-    Bam2Bed.bam2bed_samples.assert_called_once_with(samples, False, threads, '-dedup', index)
+    Bam2Bed.bam2bed_samples.assert_called_once_with(samples, False, threads, '-dedup', '', index)
 
 
 def test_robtools_bowtie2(testdir, mock_testclass):

@@ -18,28 +18,30 @@ from robtools.txt import Parser
               help='Number of threads used to process data per sample.')
 @click.option('--input-suffix', '-is', default='-dedup', show_default=True,
               help='Suffix added to sample name in BAM filename for input.')
+@click.option('--output-suffix', '-os', default='', show_default=True,
+              help='Suffix added to sample name in BED filename for output.')
 @click.option('--index', '-i', type=int, default=None,
               help='Index of sample to process in samples file.')
-def bam2bed(samples, paired, threads, input_suffix, index):
+def bam2bed(samples, paired, threads, input_suffix, output_suffix, index):
     '''Converts BAM file to BED for samples.'''
     logging.basicConfig(filename='robtools.log', level=logging.DEBUG, format='%(asctime)s %(levelname)-8s %(message)s', datefmt='%Y-%m-%d %H:%M:%S')
-    bam2bed_samples(samples, paired, threads, input_suffix, index)
+    bam2bed_samples(samples, paired, threads, input_suffix, output_suffix, index)
 
 
-def bam2bed_samples(samples='samples.txt', paired=True, threads=None, input_suffix='', index=None):
+def bam2bed_samples(samples='samples.txt', paired=True, threads=None, input_suffix='', output_suffix='', index=None):
     '''Converts BAM file to BED for samples.'''
     sample_names = Parser.first(samples)
     if index != None:
         sample_names = [sample_names[index]]
     for sample in sample_names:
-        bam2bed_sample(sample, paired, threads, input_suffix)
+        bam2bed_sample(sample, paired, threads, input_suffix, output_suffix)
 
 
-def bam2bed_sample(sample, paired, threads=None, input_suffix=''):
+def bam2bed_sample(sample, paired, threads=None, input_suffix='', output_suffix=''):
     '''Converts BAM file to BED for a single sample.'''
     print ('Converting BAM to BED for sample {}'.format(sample))
     bam = sample + input_suffix + '.bam'
-    bed = sample + '.bed'
+    bed = sample + output_suffix + '.bed'
     if paired:
         bedpe_o, bedpe = tempfile.mkstemp(suffix='.bedpe')
         bam2bedpe(bam, bedpe, threads)
