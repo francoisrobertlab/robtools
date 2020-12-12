@@ -3,6 +3,7 @@ For detailed instructions, go to:
     https://github.com/francoisrobertlab/robtools
 
 This module loads the following modules and their requirements:
+    - robtools-core
     - python/3.7.4
     - perl/5.22.4
     - fastqc/0.11.8
@@ -32,12 +33,8 @@ always_load("bedtools/2.27.1")
 always_load("sra-toolkit/2.9.6")
 always_load("kentutils/20180716")
 always_load("vap")
+always_load("robtools-core")
 
 local home = os.getenv("HOME") or ""
-local venv = pathJoin(home, "robtools-venv")
 local call_nucleosomes = pathJoin(home, "projects/def-robertf/CallNucleosomes")
-local installation = pathJoin(home, "projects/def-robertf/robtools")
-prepend_path("PATH", pathJoin(installation, "install"))
-prepend_path("PATH", pathJoin(venv, "bash"))
-prepend_path("PATH", pathJoin(venv, "bin"))
 prepend_path("PERL5LIB", pathJoin(call_nucleosomes, "perl_library"))
