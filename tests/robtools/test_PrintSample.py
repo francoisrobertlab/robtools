@@ -26,7 +26,18 @@ def test_printsample(testdir, mock_testclass):
     runner = CliRunner()
     result = runner.invoke(ps.printsample, ['-s', samples, '-i', index])
     assert result.exit_code == 0
-    ps.print_sample.assert_called_once_with(samples, index)
+    ps.print_sample.assert_called_once_with(samples, '', index)
+
+
+def test_printsample_suffix(testdir, mock_testclass):
+    samples = Path(__file__).parent.joinpath('samples.txt')
+    suffix = '-dedup'
+    index = 0
+    ps.print_sample = MagicMock()
+    runner = CliRunner()
+    result = runner.invoke(ps.printsample, ['-s', samples, '--suffix', suffix, '-i', index])
+    assert result.exit_code == 0
+    ps.print_sample.assert_called_once_with(samples, suffix, index)
 
 
 def test_printsample_samplesnotexists(testdir, mock_testclass):
@@ -51,15 +62,30 @@ def test_printsample_noindex(testdir, mock_testclass):
 def test_print_sample_first(testdir, capsys, mock_testclass):
     samples = Path(__file__).parent.joinpath('samples.txt')
     index = 0
-    ps.print_sample(samples, index)
+    ps.print_sample(samples, index=index)
     captured = capsys.readouterr()
     assert captured.out == "POLR2A\n"
+
+
+def test_print_sample_firstsuffix(testdir, capsys, mock_testclass):
+    samples = Path(__file__).parent.joinpath('samples.txt')
+    index = 0
+    ps.print_sample(samples, '-dedup', index)
+    captured = capsys.readouterr()
+    assert captured.out == "POLR2A-dedup\n"
 
 
 def test_print_sample_second(testdir, capsys, mock_testclass):
     samples = Path(__file__).parent.joinpath('samples.txt')
     index = 1
-    ps.print_sample(samples, index)
+    ps.print_sample(samples, index=index)
     captured = capsys.readouterr()
     assert captured.out == "ASDURF\n"
 
+
+def test_print_sample_secondsuffix(testdir, capsys, mock_testclass):
+    samples = Path(__file__).parent.joinpath('samples.txt')
+    index = 1
+    ps.print_sample(samples, '-dedup', index)
+    captured = capsys.readouterr()
+    assert captured.out == "ASDURF-dedup\n"
