@@ -8,7 +8,7 @@ This module loads the following modules and their requirements:
     - robtools-core
 ]])
 
-whatis("Version: 1.0.0")
+whatis("Version: 0.5")
 whatis("Keywords: NGS, Peak Calling")
 whatis("URL: http://mahonylab.org/software/chexmix")
 whatis("Description: ChExMix: the ChIP-exo mixture model")
