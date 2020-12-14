@@ -16,7 +16,7 @@ This module loads the following modules and their requirements:
     - vap
 ]])
 
-whatis("Version: 1.0.0")
+whatis("Version: 2.0")
 whatis("Keywords: NGS, Utility")
 whatis("URL: https://github.com/francoisrobertlab/robtools")
 whatis("Description: Tools to analyze next-generation sequencing (NGS) data")
