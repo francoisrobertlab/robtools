@@ -234,7 +234,7 @@ def test_robtools_printsample(testdir, mock_testclass):
     result = runner.invoke(robtools.robtools, ['printsample', '--samples', samples, '--index', index])
     logging.warning(result.output)
     assert result.exit_code == 0
-    PrintSample.print_sample.assert_called_once_with(samples, index)
+    PrintSample.print_sample.assert_called_once_with(samples, '', index)
 
 
 def test_robtools_removesecondmate(testdir, mock_testclass):
