@@ -46,7 +46,7 @@ sbatch bwa.sh --fasta Schizosaccharomyces_pombe_all_chromosomes.fa -os -pombe
 ## Filter reads to remove poorly map reads and duplicates
 
 ```
-sbatch filterbam.sh -is -pombe -os pombe
+sbatch filterbam.sh -is -pombe -os -pombe
 ```
 
 :bulb: To prevent out of memory errors, use `--array` argument for `sbatch`, see [sbatch](sbatch.md)
