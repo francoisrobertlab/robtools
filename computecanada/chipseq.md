@@ -10,8 +10,8 @@
 * [Align FASTQ files](#align-fastq-files-with-genome)
 * [Filter reads](#filter-reads-to-remove-poorly-map-reads-and-duplicates)
 * [Quality control check](#quality-control-check)
-* [Convert BAM to BED](#convert-bam-files-to-fragment-bed-files)
 * [Merge samples into dataset](#merge-dataset-samples-data)
+* [Convert BAM to BED](#convert-bam-files-to-fragment-bed-files)
 * [Genome converage](#genome-coverage)
 * [Statistics](#statistics)
 
@@ -64,19 +64,20 @@ Copy the HTML and ZIP files produced by FastQC on your local computer using an F
 
 :bulb: Check HTML files ending with "-dedup.bam" first!
 
+## Merge dataset samples data
+
+```
+sbatch mergebam.sh --suffix -dedup
+```
+
 ## Convert BAM files to fragment BED files
 
 ```
 sbatch bam2bed.sh
+sbatch bam2bed.sh -s dataset.txt
 ```
 
-:bulb: To prevent out of memory errors, use `--array` argument for `sbatch`, see [sbatch](sbatch.md)
-
-## Merge dataset samples data
-
-```
-sbatch merge.sh
-```
+:bulb: The previous commands can be called simultaneously
 
 ## Genome coverage
 

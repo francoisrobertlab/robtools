@@ -10,9 +10,9 @@
 * [Align FASTQ files](#align-fastq-files-with-genome)
 * [Filter reads](#filter-reads-to-remove-poorly-map-reads-and-duplicates)
 * [Quality control check](#quality-control-check)
+* [Merge samples into dataset](#merge-dataset-samples-data)
 * [Remove second mate](#remove-second-mate)
 * [Convert BAM to BED](#convert-bam-files-to-fragment-bed-files)
-* [Merge samples into dataset](#merge-dataset-samples-data)
 * [Move annotations](#move-annotations)
 * [Genome converage](#genome-coverage)
 * [Statistics](#statistics)
@@ -77,23 +77,29 @@ sbatch chipexoqual.sh --datasets dataset.txt
 
 Copy the PDF files produced by ChIPexoQual on your local computer using an FTP software and check the result. [See the documentation for ChIPexoQual](https://www.bioconductor.org/packages/release/bioc/vignettes/ChIPexoQual/inst/doc/vignette.html)
 
+## Merge dataset samples data
+
+```
+sbatch mergebam.sh --suffix -dedup
+```
+
 ## Remove second mate
 
 ```
 sbatch removesecondmate.sh
+sbatch removesecondmate.sh -s dataset.txt
 ```
+
+:bulb: The previous commands can be called simultaneously
 
 ## Convert BAM files to fragment BED files
 
 ```
 sbatch bam2bed.sh --unpaired -is -mate1
+sbatch bam2bed.sh -s dataset.txt --unpaired -is -mate1
 ```
 
-## Merge dataset samples data
-
-```
-sbatch merge.sh
-```
+:bulb: The previous commands can be called simultaneously
 
 ## Move annotations
 
