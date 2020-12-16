@@ -1,4 +1,4 @@
-# Genome converage using spiking
+# Genome coverage using spiking
 
 :information_source: *[Connecting to Compute Canada server](connect.md)*
 
@@ -10,7 +10,7 @@
 * [Filter reads](#filter-reads-to-remove-poorly-map-reads-and-duplicates)
 * [Merge samples into dataset](#merge-dataset-samples-data)
 * [Convert BAM to BED](#convert-bam-files-to-fragment-bed-files)
-* [Genome converage](#genome-coverage)
+* [Genome coverage](#genome-coverage)
 
 ## Align FASTQ files with spiked genome
 

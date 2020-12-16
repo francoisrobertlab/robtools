@@ -12,7 +12,7 @@
 * [Quality control check](#quality-control-check)
 * [Merge samples into dataset](#merge-dataset-samples-data)
 * [Convert BAM to BED](#convert-bam-files-to-fragment-bed-files)
-* [Genome converage](#genome-coverage)
+* [Genome coverage](#genome-coverage)
 * [Statistics](#statistics)
 
 ## Upload dataset files to Compute Canada

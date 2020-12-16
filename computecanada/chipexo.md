@@ -14,7 +14,7 @@
 * [Remove second mate](#remove-second-mate)
 * [Convert BAM to BED](#convert-bam-files-to-fragment-bed-files)
 * [Move annotations](#move-annotations)
-* [Genome converage](#genome-coverage)
+* [Genome coverage](#genome-coverage)
 * [Statistics](#statistics)
 
 ## Upload dataset files to Compute Canada

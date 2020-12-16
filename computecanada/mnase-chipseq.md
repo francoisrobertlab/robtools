@@ -13,7 +13,7 @@
 * [Merge samples into dataset](#merge-dataset-samples-data)
 * [Convert BAM to BED](#convert-bam-files-to-fragment-bed-files)
 * [Keep only middle nucleotide](#keep-only-middle-nucleotide)
-* [Genome converage](#genome-coverage)
+* [Genome coverage](#genome-coverage)
 * [Statistics](#statistics)
 * [Heatmaps of coverage over genes versus fragment size (Optional)](#heatmaps-of-coverage-over-genes-versus-fragment-size-optional)
 * [Two-dimensional occupancy (2DO) plots (Optional)](#two-dimensional-occupancy-2do-plots-optional)
