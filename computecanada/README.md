@@ -12,3 +12,4 @@
 * [ChIP-exo](chipexo.md)
 * [MNase-ChIP-seq](mnase-chipseq.md)
 * [ChEC-seq](checseq.md)
+* [Genome converage using spiking](genomecov-spiking.md)
