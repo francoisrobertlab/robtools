@@ -8,10 +8,10 @@ This module loads the following modules and their requirements:
     - robtools-core
 ]])
 
-whatis("Version: 1.0.0")
+whatis("Version: 0.5")
 whatis("Keywords: NGS, Peak Calling")
 whatis("URL: http://mahonylab.org/software/chexmix")
-whatis("Description: Tools to analyze next-generation sequencing (NGS) data")
+whatis("Description: ChExMix: the ChIP-exo mixture model")
 
 always_load("nixpkgs/16.09")
 always_load("StdEnv/2020")
