@@ -2,7 +2,7 @@
 
 #### General tutorials
 
-* [Install robtools](install.md)
+* [Install/Update/Delete robtools](install.md)
 * [Connecting to Compute Canada to use robtools](connect.md)
 * [Uploading dataset files to Compute Canada](upload.md)
 
