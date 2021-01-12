@@ -156,7 +156,7 @@ sbatch plot2do.sh -f ~/scratch/$dataset_name/dataset.txt -t dyads -r Plus1 -L 40
 
 ## Distributions of MNase-ChIP-seq fragments relative to nucleosome dyads (Optional)
 
-:warning: For other organisms than yeast, please contact François Robert
+:rat: For other organisms than yeast, please contact François Robert
 
 ### Copy dyad positions files
 
