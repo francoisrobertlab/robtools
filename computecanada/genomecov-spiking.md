@@ -1,8 +1,12 @@
 # Genome coverage using spiking
 
-:information_source: *[Connecting to Compute Canada server](connect.md)*
+:link: *[Connecting to Compute Canada server](connect.md)*
 
-:bulb: Most `sbatch` commands can be optimized using `--array` argument, see [sbatch](sbatch.md)
+:pill: Load the `robtools` module before running any command in this page
+
+```
+module load robtools
+```
 
 #### Steps
 
