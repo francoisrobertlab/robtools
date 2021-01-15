@@ -53,7 +53,7 @@ def filter_mapped(bam_input, bam_output, paired, threads=None):
     '''Filter BAM file to remove poorly mapped sequences.'''
     print ('Filtering BAM {} to remove poorly mapped sequences'.format(bam_input))
     temp_o, temp = tempfile.mkstemp(suffix='.bam')
-    cmd = ['samtools', 'view', '-b', '-F', '2048']
+    cmd = ['samtools', 'view', '-b', '-F', '2048', '-F', '256']
     if bool(paired):
         cmd.extend(['-f', '2'])
     else:
