@@ -1,1 +1,2 @@
 chrI	15
+chrII	20

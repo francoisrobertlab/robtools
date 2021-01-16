@@ -20,6 +20,8 @@ from robtools import PrintSample
 from robtools import RemoveSecondMate
 from robtools import Rename
 from robtools import ShiftAnnotations
+from robtools import Siqchip
+from robtools import SiqchipBed
 from robtools import SlowSplit
 from robtools import Split
 from robtools import Statistics
@@ -51,6 +53,8 @@ robtools.add_command(PrintSample.printsample)
 robtools.add_command(RemoveSecondMate.removesecondmate)
 robtools.add_command(Rename.rename)
 robtools.add_command(ShiftAnnotations.shiftannotations)
+robtools.add_command(Siqchip.siqchip)
+robtools.add_command(SiqchipBed.siqchipbed)
 robtools.add_command(SlowSplit.slowsplit)
 robtools.add_command(Split.split)
 robtools.add_command(Statistics.statistics)

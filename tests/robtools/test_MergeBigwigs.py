@@ -104,7 +104,7 @@ def test_merge_dataset(testdir, mock_testclass):
     sample1_bw = sample1 + '.bw'
     sample2 = dataset + '_2'
     sample2_bw = sample2 + '.bw'
-    sizes = Path(__file__).parent.joinpath('sizes.txt')
+    sizes = Path(__file__).parent.joinpath('sizes-single.txt')
     copyfile(Path(__file__).parent.joinpath('sample.bw'), sample1_bw)
     copyfile(Path(__file__).parent.joinpath('sample2.bw'), sample2_bw)
     Bed.sort = MagicMock()
