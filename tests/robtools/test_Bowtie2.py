@@ -52,19 +52,20 @@ def test_bowtie2(testdir, mock_testclass):
     runner = CliRunner()
     result = runner.invoke(b.bowtie2, ['--samples', samples])
     assert result.exit_code == 0
-    b.bowtie_samples.assert_called_once_with(samples, 1, '', None, ())
+    b.bowtie_samples.assert_called_once_with(samples, 1, '', '', None, ())
 
 
 def test_bowtie2_parameters(testdir, mock_testclass):
     samples = Path(__file__).parent.joinpath('samples.txt')
     threads = 2
+    input_suffix = '-trim'
     output_suffix = '-sacCer'
     index = 1
     b.bowtie_samples = MagicMock()
     runner = CliRunner()
-    result = runner.invoke(b.bowtie2, ['--samples', samples, '-x', 'sacCer3.fa', '--threads', threads, '--output-suffix', output_suffix, '--index', index])
+    result = runner.invoke(b.bowtie2, ['--samples', samples, '-x', 'sacCer3.fa', '--threads', threads, '--input-suffix', input_suffix, '--output-suffix', output_suffix, '--index', index])
     assert result.exit_code == 0
-    b.bowtie_samples.assert_called_once_with(samples, threads, output_suffix, index, ('-x', 'sacCer3.fa',))
+    b.bowtie_samples.assert_called_once_with(samples, threads, input_suffix, output_suffix, index, ('-x', 'sacCer3.fa',))
 
 
 def test_bowtie2_filenotexists(testdir, mock_testclass):
@@ -80,28 +81,29 @@ def test_bowtie_samples(testdir, mock_testclass):
     samples = Path(__file__).parent.joinpath('samples.txt')
     b.bowtie_sample = MagicMock()
     b.bowtie_samples(samples)
-    b.bowtie_sample.assert_any_call('POLR2A', None, '', ())
-    b.bowtie_sample.assert_any_call('ASDURF', None, '', ())
-    b.bowtie_sample.assert_any_call('POLR1C', None, '', ())
+    b.bowtie_sample.assert_any_call('POLR2A', None, '', '', ())
+    b.bowtie_sample.assert_any_call('ASDURF', None, '', '', ())
+    b.bowtie_sample.assert_any_call('POLR1C', None, '', '', ())
 
 
 def test_bowtie_samples_second(testdir, mock_testclass):
     samples = Path(__file__).parent.joinpath('samples.txt')
     b.bowtie_sample = MagicMock()
     b.bowtie_samples(samples, index=1)
-    b.bowtie_sample.assert_called_once_with('ASDURF', None, '', ())
+    b.bowtie_sample.assert_called_once_with('ASDURF', None, '', '', ())
 
 
 def test_bowtie_samples_parameters(testdir, mock_testclass):
     samples = Path(__file__).parent.joinpath('samples.txt')
     threads = 2
+    input_suffix = '-trim'
     output_suffix = '-sacCer'
     bowtie_args = ('-x', 'sacCer3.fa',)
     b.bowtie_sample = MagicMock()
-    b.bowtie_samples(samples, threads, output_suffix, bowtie_args=bowtie_args)
-    b.bowtie_sample.assert_any_call('POLR2A', threads, output_suffix, bowtie_args)
-    b.bowtie_sample.assert_any_call('ASDURF', threads, output_suffix, bowtie_args)
-    b.bowtie_sample.assert_any_call('POLR1C', threads, output_suffix, bowtie_args)
+    b.bowtie_samples(samples, threads, input_suffix, output_suffix, bowtie_args=bowtie_args)
+    b.bowtie_sample.assert_any_call('POLR2A', threads, input_suffix, output_suffix, bowtie_args)
+    b.bowtie_sample.assert_any_call('ASDURF', threads, input_suffix, output_suffix, bowtie_args)
+    b.bowtie_sample.assert_any_call('POLR1C', threads, input_suffix, output_suffix, bowtie_args)
 
 
 def test_bowtie_sample(testdir, mock_testclass):
@@ -112,24 +114,25 @@ def test_bowtie_sample(testdir, mock_testclass):
     b.run_bowtie = MagicMock()
     Fastq.fastq = MagicMock(side_effect=[fastq, fastq2])
     b.bowtie_sample(sample)
-    Fastq.fastq.assert_any_call(sample, 1)
-    Fastq.fastq.assert_any_call(sample, 2)
+    Fastq.fastq.assert_any_call(sample, 1, '')
+    Fastq.fastq.assert_any_call(sample, 2, '')
     b.run_bowtie.assert_called_once_with(fastq, fastq2, bam, None, ())
 
 
 def test_bowtie_sample_parameters(testdir, mock_testclass):
     sample = 'PORL2A'
+    input_suffix = '-trim'
     output_suffix = '-sacCer'
     bam = sample + output_suffix + '.bam'
-    fastq = sample + '_1.fastq'
-    fastq2 = sample + '_2.fastq'
+    fastq = sample + input_suffix + '_1.fastq'
+    fastq2 = sample + input_suffix + '_2.fastq'
     threads = 2
     bowtie_args = ('-x', 'sacCer3.fa',)
     b.run_bowtie = MagicMock()
     Fastq.fastq = MagicMock(side_effect=[fastq, fastq2])
-    b.bowtie_sample(sample, threads, output_suffix, bowtie_args=bowtie_args)
-    Fastq.fastq.assert_any_call(sample, 1)
-    Fastq.fastq.assert_any_call(sample, 2)
+    b.bowtie_sample(sample, threads, input_suffix, output_suffix, bowtie_args=bowtie_args)
+    Fastq.fastq.assert_any_call(sample, 1, input_suffix)
+    Fastq.fastq.assert_any_call(sample, 2, input_suffix)
     b.run_bowtie.assert_called_once_with(fastq, fastq2, bam, threads, bowtie_args)
 
 
@@ -140,8 +143,8 @@ def test_bowtie_sample_single(testdir, mock_testclass):
     b.run_bowtie = MagicMock()
     Fastq.fastq = MagicMock(side_effect=[fastq, None])
     b.bowtie_sample(sample)
-    Fastq.fastq.assert_any_call(sample, 1)
-    Fastq.fastq.assert_any_call(sample, 2)
+    Fastq.fastq.assert_any_call(sample, 1, '')
+    Fastq.fastq.assert_any_call(sample, 2, '')
     b.run_bowtie.assert_called_once_with(fastq, None, bam, None, ())
 
 

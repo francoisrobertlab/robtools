@@ -79,7 +79,7 @@ def test_robtools_bowtie2(testdir, mock_testclass):
     runner = CliRunner()
     result = runner.invoke(robtools.robtools, ['bowtie2', '--samples', samples, '--threads', threads, '--index', index, '-x', 'sacCer3.fa'])
     assert result.exit_code == 0
-    Bowtie2.bowtie_samples.assert_called_once_with(samples, threads, '', index, ('-x', 'sacCer3.fa'))
+    Bowtie2.bowtie_samples.assert_called_once_with(samples, threads, '', '', index, ('-x', 'sacCer3.fa'))
 
 
 def test_robtools_bwa(testdir, mock_testclass):
@@ -91,7 +91,7 @@ def test_robtools_bwa(testdir, mock_testclass):
     runner = CliRunner()
     result = runner.invoke(robtools.robtools, ['bwa', '--samples', samples, '--fasta', fasta, '--threads', threads, '--index', index])
     assert result.exit_code == 0
-    Bwa.bwa_sample.assert_called_once_with('POLR1C', fasta, threads, '', ())
+    Bwa.bwa_sample.assert_called_once_with('POLR1C', fasta, threads, '', '', ())
 
 
 def test_robtools_centerannotations(testdir, mock_testclass):

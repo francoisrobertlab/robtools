@@ -16,33 +16,35 @@ from robtools.txt import Parser
               help='Sample names listed one sample name by line.')
 @click.option('--threads', '-p', default=1, show_default=True,
               help='Number of threads used to process data per sample.')
+@click.option('--input-suffix', '-is', default='', show_default=True,
+              help='Suffix added to sample name in FASTQ filename for input.')
 @click.option('--output-suffix', '-os', default='', show_default=True,
               help='Suffix added to sample name in BAM filename for output.')
 @click.option('--index', type=int, default=None,
               help='Index of sample to process in samples file.')
 @click.argument('bowtie_args', nargs=-1, type=click.UNPROCESSED)
-def bowtie2(samples, threads, output_suffix, index, bowtie_args):
+def bowtie2(samples, threads, input_suffix, output_suffix, index, bowtie_args):
     '''Align samples using bowtie2 program.'''
     logging.basicConfig(filename='robtools.log', level=logging.DEBUG, format='%(asctime)s %(levelname)-8s %(message)s', datefmt='%Y-%m-%d %H:%M:%S')
-    bowtie_samples(samples, threads, output_suffix, index, bowtie_args)
+    bowtie_samples(samples, threads, input_suffix, output_suffix, index, bowtie_args)
 
 
-def bowtie_samples(samples='samples.txt', threads=None, output_suffix='', index=None, bowtie_args=()):
+def bowtie_samples(samples='samples.txt', threads=None, input_suffix='', output_suffix='', index=None, bowtie_args=()):
     '''Align samples using bowtie2 program.'''
     sample_names = Parser.first(samples)
     if index != None:
         sample_names = [sample_names[index]]
     for sample in sample_names:
-        bowtie_sample(sample, threads, output_suffix, bowtie_args)
+        bowtie_sample(sample, threads, input_suffix, output_suffix, bowtie_args)
 
 
-def bowtie_sample(sample, threads=None, output_suffix='', bowtie_args=()):
+def bowtie_sample(sample, threads=None, input_suffix='', output_suffix='', bowtie_args=()):
     '''Align one sample using bowtie2 program.'''
     print ('Running bowtie2 on sample {}'.format(sample))
-    fastq1 = Fastq.fastq(sample, 1)
+    fastq1 = Fastq.fastq(sample, 1, input_suffix)
     if fastq1 is None:
         raise AssertionError('Cannot find FASTQ files for sample ' + sample)
-    fastq2 = Fastq.fastq(sample, 2)
+    fastq2 = Fastq.fastq(sample, 2, input_suffix)
     paired = fastq2 is not None and os.path.isfile(fastq2)
     bam = sample + output_suffix + '.bam'
     run_bowtie(fastq1, fastq2, bam, threads, bowtie_args)

@@ -47,20 +47,21 @@ def test_bwa(testdir, mock_testclass):
     runner = CliRunner()
     result = runner.invoke(b.bwa, ['--samples', samples, '--fasta', fasta])
     assert result.exit_code == 0
-    b.bwa_samples.assert_called_once_with(samples, fasta, 1, '', None, ())
+    b.bwa_samples.assert_called_once_with(samples, fasta, 1, '', '', None, ())
 
 
 def test_bwa_parameters(testdir, mock_testclass):
     samples = Path(__file__).parent.joinpath('samples.txt')
     fasta = Path(__file__).parent.joinpath('sacCer3.fa')
     threads = 2
+    input_suffix = '-trim'
     output_suffix = '-sacCer'
     index = 1
     b.bwa_samples = MagicMock()
     runner = CliRunner()
-    result = runner.invoke(b.bwa, ['--samples', samples, '--fasta', fasta, '-x', 'sacCer3.fa', '--threads', threads, '--output-suffix', output_suffix, '--index', index])
+    result = runner.invoke(b.bwa, ['--samples', samples, '--fasta', fasta, '-x', 'sacCer3.fa', '--threads', threads, '--input-suffix', input_suffix, '--output-suffix', output_suffix, '--index', index])
     assert result.exit_code == 0
-    b.bwa_samples.assert_called_once_with(samples, fasta, threads, output_suffix, index, ('-x', 'sacCer3.fa',))
+    b.bwa_samples.assert_called_once_with(samples, fasta, threads, input_suffix, output_suffix, index, ('-x', 'sacCer3.fa',))
 
 
 def test_bwa_samplesnotexists(testdir, mock_testclass):
@@ -88,9 +89,9 @@ def test_bwa_samples(testdir, mock_testclass):
     fasta = Path(__file__).parent.joinpath('sacCer3.fa')
     b.bwa_sample = MagicMock()
     b.bwa_samples(samples, fasta)
-    b.bwa_sample.assert_any_call('POLR2A', fasta, None, '', ())
-    b.bwa_sample.assert_any_call('ASDURF', fasta, None, '', ())
-    b.bwa_sample.assert_any_call('POLR1C', fasta, None, '', ())
+    b.bwa_sample.assert_any_call('POLR2A', fasta, None, '', '', ())
+    b.bwa_sample.assert_any_call('ASDURF', fasta, None, '', '', ())
+    b.bwa_sample.assert_any_call('POLR1C', fasta, None, '', '', ())
 
 
 def test_bwa_samples_second(testdir, mock_testclass):
@@ -98,20 +99,21 @@ def test_bwa_samples_second(testdir, mock_testclass):
     fasta = Path(__file__).parent.joinpath('sacCer3.fa')
     b.bwa_sample = MagicMock()
     b.bwa_samples(samples, fasta, index=1)
-    b.bwa_sample.assert_called_once_with('ASDURF', fasta, None, '', ())
+    b.bwa_sample.assert_called_once_with('ASDURF', fasta, None, '', '', ())
 
 
 def test_bwa_samples_parameters(testdir, mock_testclass):
     samples = Path(__file__).parent.joinpath('samples.txt')
     fasta = Path(__file__).parent.joinpath('sacCer3.fa')
     threads = 2
+    input_suffix = '-trim'
     output_suffix = '-sacCer'
     bwa_args = ('-x', 'sacCer3.fa',)
     b.bwa_sample = MagicMock()
-    b.bwa_samples(samples, fasta, threads, output_suffix, bwa_args=bwa_args)
-    b.bwa_sample.assert_any_call('POLR2A', fasta, threads, output_suffix, bwa_args)
-    b.bwa_sample.assert_any_call('ASDURF', fasta, threads, output_suffix, bwa_args)
-    b.bwa_sample.assert_any_call('POLR1C', fasta, threads, output_suffix, bwa_args)
+    b.bwa_samples(samples, fasta, threads, input_suffix, output_suffix, bwa_args=bwa_args)
+    b.bwa_sample.assert_any_call('POLR2A', fasta, threads, input_suffix, output_suffix, bwa_args)
+    b.bwa_sample.assert_any_call('ASDURF', fasta, threads, input_suffix, output_suffix, bwa_args)
+    b.bwa_sample.assert_any_call('POLR1C', fasta, threads, input_suffix, output_suffix, bwa_args)
 
 
 def test_bwa_sample(testdir, mock_testclass):
@@ -123,14 +125,15 @@ def test_bwa_sample(testdir, mock_testclass):
     b.run_bwa = MagicMock()
     Fastq.fastq = MagicMock(side_effect=[fastq, fastq2])
     b.bwa_sample(sample, fasta)
-    Fastq.fastq.assert_any_call(sample, 1)
-    Fastq.fastq.assert_any_call(sample, 2)
+    Fastq.fastq.assert_any_call(sample, 1, '')
+    Fastq.fastq.assert_any_call(sample, 2, '')
     b.run_bwa.assert_called_once_with(fastq, fastq2, fasta, bam, None, ())
 
 
 def test_bwa_sample_parameters(testdir, mock_testclass):
     sample = 'PORL2A'
     fasta = 'sacCer3.fa'
+    input_suffix = '-trim'
     output_suffix = '-sacCer'
     bam = sample + output_suffix + '.bam'
     fastq = sample + '_1.fastq'
@@ -139,9 +142,9 @@ def test_bwa_sample_parameters(testdir, mock_testclass):
     bwa_args = ('-x', 'sacCer3.fa',)
     b.run_bwa = MagicMock()
     Fastq.fastq = MagicMock(side_effect=[fastq, fastq2])
-    b.bwa_sample(sample, fasta, threads, output_suffix, bwa_args=bwa_args)
-    Fastq.fastq.assert_any_call(sample, 1)
-    Fastq.fastq.assert_any_call(sample, 2)
+    b.bwa_sample(sample, fasta, threads, input_suffix, output_suffix, bwa_args=bwa_args)
+    Fastq.fastq.assert_any_call(sample, 1, input_suffix)
+    Fastq.fastq.assert_any_call(sample, 2, input_suffix)
     b.run_bwa.assert_called_once_with(fastq, fastq2, fasta, bam, threads, bwa_args)
 
 
@@ -153,8 +156,8 @@ def test_bwa_sample_single(testdir, mock_testclass):
     b.run_bwa = MagicMock()
     Fastq.fastq = MagicMock(side_effect=[fastq, None])
     b.bwa_sample(sample, fasta)
-    Fastq.fastq.assert_any_call(sample, 1)
-    Fastq.fastq.assert_any_call(sample, 2)
+    Fastq.fastq.assert_any_call(sample, 1, '')
+    Fastq.fastq.assert_any_call(sample, 2, '')
     b.run_bwa.assert_called_once_with(fastq, None, fasta, bam, None, ())
 
 
