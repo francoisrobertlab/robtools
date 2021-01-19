@@ -61,7 +61,7 @@ def filter_mapped(bam_input, bam_output, paired, quality=None, threads=None):
     else:
         cmd.extend(['-F', '4'])
     if quality:
-        cmd.extend(['-q', quality])
+        cmd.extend(['-q', str(quality)])
     if not threads is None and threads > 1:
         cmd.extend(['--threads', str(threads - 1)])
     cmd.extend(['-o', temp, bam_input])
