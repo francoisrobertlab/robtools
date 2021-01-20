@@ -2,7 +2,6 @@ import logging
 import os
 from pathlib import Path
 from shutil import copyfile
-import subprocess
 from unittest.mock import MagicMock, call, ANY, patch
 
 import click
@@ -19,13 +18,11 @@ def mock_testclass():
     siqchipbed_samples = sb.siqchipbed_samples
     siqchipbed_sample = sb.siqchipbed_sample
     sort = Bed.sort
-    run = subprocess.run
     yield
     sb.siqchipbed_samples = siqchipbed_samples
     sb.siqchipbed_sample = siqchipbed_sample
     Bed.sort = sort
-    subprocess.run = run
-            
+ 
     
 def temp2file(*args, **kwargs):
     input = args[0]
@@ -33,13 +30,28 @@ def temp2file(*args, **kwargs):
     copyfile(input, output)
 
 
-def create_sam(*args, **kwargs):
-    if 'stdout' in kwargs:
-        output = kwargs['stdout']
-        copyfile(Path(__file__).parent.joinpath('sample.sam'), output)
-    elif '-o' in args[0]:
-        output = args[0][args[0].index('-o') + 1]
-        copyfile(Path(__file__).parent.joinpath('sample.sam'), output)
+def create_alignment(reverse, name, start, length):
+    aln = MagicMock()
+    aln.is_reverse = reverse
+    aln.reference_name = name
+    aln.reference_start = start
+    aln.template_length = length
+    return aln
+
+    
+def pysam_alignments(*args, **kwargs):
+    alns = []
+    alns.append(create_alignment(False, 'chr2L', 4612, 641))
+    alns.append(create_alignment(False, 'chr3R', 4689, 507))
+    alns.append(create_alignment(False, 'chr2L', 4703, 514))
+    alns.append(create_alignment(False, 'chr3R', 4755, 481))
+    alns.append(create_alignment(False, 'chr2L', 4797, 425))
+    alns.append(create_alignment(False, 'chr3R', 4841, 325))
+    alns.append(create_alignment(False, 'chrY_CP007108v1_random', 65943, 178))
+    alns.append(create_alignment(True, 'chrY_CP007108v1_random', 63827, -664))
+    alns.append(create_alignment(True, 'chrY_CP007108v1_random', 66070, -178))
+    alns.append(create_alignment(False, 'chr3R', 4880, 0))
+    return alns
 
     
 def test_siqchipbed(testdir, mock_testclass):
@@ -91,15 +103,17 @@ def test_siqchip_samples_parameters(testdir, mock_testclass):
     sb.siqchipbed_sample.assert_called_once_with('ASDURF', input_suffix, output_suffix)
 
     
-def test_siqchipbed_sample(testdir, mock_testclass):
+@patch('pysam.AlignmentFile')
+def test_siqchipbed_sample(mockalignmentfile, testdir, mock_testclass):
     sample = 'POLR2A'
     input = sample + '-dedup.bam'
     output = sample + '-reads.bed'
     Bed.sort = MagicMock(side_effect=temp2file)
-    subprocess.run = MagicMock(side_effect=create_sam)
+    mockalignmentfile_instance = mockalignmentfile().__enter__()
+    mockalignmentfile_instance.fetch.side_effect = pysam_alignments
     sb.siqchipbed_sample(sample)
-    subprocess.run.assert_called_with(['samtools', 'view', '-o', ANY, input], check=True)
-    assert isinstance(subprocess.run.call_args[0][0][3], str)
+    mockalignmentfile.assert_any_call(input, 'rb')
+    mockalignmentfile_instance.fetch.assert_any_call(until_eof=True)
     Bed.sort.assert_called_with(ANY, output)
     with open(output, 'r') as outfile:
         assert 'chr2L\t4613\t5253\t640\n' == outfile.readline()

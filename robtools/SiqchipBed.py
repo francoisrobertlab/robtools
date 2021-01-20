@@ -1,10 +1,9 @@
-from distutils.command.check import check
 import logging
-import subprocess
 import tempfile
 
 import click
 
+import pysam
 from robtools.bed import Bed
 from robtools.txt import Parser
 
@@ -38,20 +37,16 @@ def siqchipbed_sample(sample, input_suffix='-dedup', output_suffix='-reads'):
     print ('Converting BAM to BED for siQ-ChIP for sample {}'.format(sample))
     input = sample + input_suffix + '.bam'
     output = sample + output_suffix + '.bed'
-    with tempfile.NamedTemporaryFile(mode='w+t') as sam:
-        cmd = ['samtools', 'view', '-o', sam.name, input]
-        logging.debug('Running {}'.format(cmd))
-        subprocess.run(cmd, check=True)
-        sam.seek(0)
-        with tempfile.NamedTemporaryFile(mode='w+t') as bed:
-            for line in sam:
-                columns = line.rstrip('\r\n').split('\t')
-                flags = int(columns[1])
-                if flags == 99 or flags == 163:
-                    start = int(columns[3])
-                    length = int(columns[8]) - 1
-                    end = start + length
-                    bed.write(columns[2])
+    with pysam.AlignmentFile(input, 'rb') as samfile, tempfile.NamedTemporaryFile(mode='w+t') as bed:
+        for aln in samfile.fetch(until_eof=True):
+            reverse = aln.is_reverse
+            if not reverse:
+                name = aln.reference_name
+                start = aln.reference_start + 1
+                length = aln.template_length - 1
+                end = start + length
+                if length > 0:
+                    bed.write(name)
                     bed.write('\t')
                     bed.write(str(start))
                     bed.write('\t')
@@ -59,8 +54,8 @@ def siqchipbed_sample(sample, input_suffix='-dedup', output_suffix='-reads'):
                     bed.write('\t')
                     bed.write(str(length))
                     bed.write('\n')
-            bed.seek(0)
-            Bed.sort(bed.name, output)
+        bed.seek(0)
+        Bed.sort(bed.name, output)
 
 
 if __name__ == '__main__':
