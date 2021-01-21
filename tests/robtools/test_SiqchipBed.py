@@ -122,3 +122,26 @@ def test_siqchipbed_sample(mockalignmentfile, testdir, mock_testclass):
         assert 'chr3R\t4756\t5236\t480\n' == outfile.readline()
         assert 'chr2L\t4798\t5222\t424\n' == outfile.readline()
         assert 'chr3R\t4842\t5166\t324\n' == outfile.readline()
+
+
+@patch('pysam.AlignmentFile')
+def test_siqchipbed_sample_parameters(mockalignmentfile, testdir, mock_testclass):
+    sample = 'POLR2A'
+    input_suffix = '-myinput'
+    output_suffix = '-myoutput'
+    input = sample + input_suffix + '.bam'
+    output = sample + output_suffix + '.bed'
+    Bed.sort = MagicMock(side_effect=temp2file)
+    mockalignmentfile_instance = mockalignmentfile().__enter__()
+    mockalignmentfile_instance.fetch.side_effect = pysam_alignments
+    sb.siqchipbed_sample(sample, input_suffix, output_suffix)
+    mockalignmentfile.assert_any_call(input, 'rb')
+    mockalignmentfile_instance.fetch.assert_any_call(until_eof=True)
+    Bed.sort.assert_called_with(ANY, output)
+    with open(output, 'r') as outfile:
+        assert 'chr2L\t4613\t5253\t640\n' == outfile.readline()
+        assert 'chr3R\t4690\t5196\t506\n' == outfile.readline()
+        assert 'chr2L\t4704\t5217\t513\n' == outfile.readline()
+        assert 'chr3R\t4756\t5236\t480\n' == outfile.readline()
+        assert 'chr2L\t4798\t5222\t424\n' == outfile.readline()
+        assert 'chr3R\t4842\t5166\t324\n' == outfile.readline()
