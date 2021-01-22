@@ -4,12 +4,12 @@ import multiprocessing
 import os
 import re
 from shutil import copyfile
-import shutil
 import subprocess
 import tempfile
 
 import click
 
+from robtools.bed import Bed
 from robtools.txt import Parser
 
 
@@ -50,7 +50,10 @@ def siqchip_sample(sample, chromosomes='sacCer3.chrom.sizes', input_suffix='-inp
     print ('Running siQ-ChIP for sample {}'.format(sample))
     input = sample + input_suffix + '.bed'
     ip = sample + ip_suffix + '.bed'
-    output = sample + output_suffix + '.bed'
+    ce_output = sample + output_suffix + '.ce'
+    bed_output = sample + output_suffix + '.bed'
+    track = 'track type=bedGraph name="' + sample + output_suffix + '"'
+    bigwig = sample + output_suffix + '.bw'
     params = sample + params_suffix + '.in'
     chromosome_names = Parser.first(chromosomes)
     chromosome_pattern = re.compile('chr(.*)')
@@ -60,10 +63,28 @@ def siqchip_sample(sample, chromosomes='sacCer3.chrom.sizes', input_suffix='-inp
         with multiprocessing.Pool(processes=threads) as pool:
             pool.starmap(run_siqchip, [(cmd, folder) for cmd in cmds])
         siqchip_outputs = [folder + '/' + chromosome + '.ce' for chromosome in chromosome_names]
-        with open(output, 'wb') as wfd:
+        with open(ce_output, 'w') as wfd:
             for f in siqchip_outputs:
-                with open(f, 'rb') as fd:
-                    shutil.copyfileobj(fd, wfd)
+                with open(f, 'r') as fd:
+                    for line in fd:
+                        wfd.write('\t'.join(line.lstrip().split()))
+                        wfd.write('\n')
+        sort_output = folder + '/' + bed_output
+        Bed.sort(ce_output, sort_output)
+        with open(sort_output, 'r') as infile, open(bed_output, 'w') as outfile:
+            outfile.write(track)
+            outfile.write('\n')
+            for line in infile:
+                columns = line.rstrip('\n\r').split('\t')
+                outfile.write(columns[0])
+                outfile.write('\t')
+                outfile.write(columns[1])
+                outfile.write('\t')
+                outfile.write(columns[2])
+                outfile.write('\t')
+                outfile.write(columns[3])
+                outfile.write('\n')
+        Bed.bedgraph_to_bigwig(bed_output, bigwig, chromosomes)
 
 
 def prepare_parameters(folder, input, ip, params):

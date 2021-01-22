@@ -14,6 +14,7 @@ from more_itertools.more import side_effect
 import pytest
 
 from robtools import Siqchip as sc
+from robtools.bed import Bed
 
 
 @pytest.fixture
@@ -22,12 +23,16 @@ def mock_testclass():
     siqchip_sample = sc.siqchip_sample
     prepare_parameters = sc.prepare_parameters
     run_siqchip = sc.run_siqchip
+    sort = Bed.sort
+    bedgraph_to_bigwig = Bed.bedgraph_to_bigwig
     run = subprocess.run
     yield
     sc.siqchip_samples = siqchip_samples
     sc.siqchip_sample = siqchip_sample
     sc.prepare_parameters = prepare_parameters
     sc.run_siqchip = run_siqchip
+    Bed.sort = sort
+    Bed.bedgraph_to_bigwig = bedgraph_to_bigwig
     subprocess.run = run
     
 
@@ -35,12 +40,12 @@ def siqchip_cmd_output(*args, **kwargs):
     folder = args[1][0][1]
     output = folder + '/chrI.ce'
     with open(output, 'w') as outfile:
-        outfile.write('chrI\t10\t20\t0.1\n')
-        outfile.write('chrI\t20\t30\t0.2\n')
+        outfile.write(' chrI  10  20  0.1  0.11\n')
+        outfile.write(' chrI  20  30  0.2  0.19\n')
     output = folder + '/chrII.ce'
     with open(output, 'w') as outfile:
-        outfile.write('chrII\t10\t20\t0.1\n')
-        outfile.write('chrII\t20\t30\t0.2\n')
+        outfile.write(' chrII  10  20  0.1  0.09\n')
+        outfile.write(' chrII   20 30   0.2 0.21\n')
 
     
 def temp2file(*args, **kwargs):
@@ -115,8 +120,12 @@ def test_siqchip_sample(mockpool, testdir, mock_testclass):
     input = sample + '-input-reads.bed'
     ip = sample + '-reads.bed'
     params = sample + '-params.in'
-    output = sample + '-siqchip.bed'
+    ce_output = sample + '-siqchip.ce'
+    bed_output = sample + '-siqchip.bed'
+    bigwig = sample + '-siqchip.bw'
     sc.prepare_parameters = MagicMock()
+    Bed.sort = MagicMock(side_effect=temp2file)
+    Bed.bedgraph_to_bigwig = MagicMock()
     mockpool_instance = mockpool().__enter__()
     mockpool_instance.starmap.side_effect = siqchip_cmd_output
     sc.siqchip_sample(sample)
@@ -124,8 +133,19 @@ def test_siqchip_sample(mockpool, testdir, mock_testclass):
     folder = sc.prepare_parameters.call_args[0][0]
     mockpool.assert_any_call(processes=1)
     mockpool_instance.starmap.assert_any_call(sc.run_siqchip, [(['Slave.sh', 'I', input, ip], folder), (['Slave.sh', 'II', input, ip], folder)])
-    os.path.isfile(output)
-    with open(output, 'r') as outfile:
+    Bed.sort.assert_called_with(ANY, ANY)
+    assert isinstance(Bed.sort.call_args[0][0], str)
+    assert isinstance(Bed.sort.call_args[0][1], str)
+    Bed.bedgraph_to_bigwig.assert_called_with(bed_output, bigwig, chromosomes)
+    os.path.isfile(ce_output)
+    with open(ce_output, 'r') as outfile:
+        assert 'chrI\t10\t20\t0.1\t0.11\n' == outfile.readline()
+        assert 'chrI\t20\t30\t0.2\t0.19\n' == outfile.readline()
+        assert 'chrII\t10\t20\t0.1\t0.09\n' == outfile.readline()
+        assert 'chrII\t20\t30\t0.2\t0.21\n' == outfile.readline()
+    os.path.isfile(bed_output)
+    with open(bed_output, 'r') as outfile:
+        assert 'track type=bedGraph name="' + sample + '-siqchip"\n' == outfile.readline()
         assert 'chrI\t10\t20\t0.1\n' == outfile.readline()
         assert 'chrI\t20\t30\t0.2\n' == outfile.readline()
         assert 'chrII\t10\t20\t0.1\n' == outfile.readline()
@@ -144,8 +164,12 @@ def test_siqchip_sample_parameters(mockpool, testdir, mock_testclass):
     input = sample + input_suffix + '.bed'
     ip = sample + ip_suffix + '.bed'
     params = sample + params_suffix + '.in'
-    output = sample + output_suffix + '.bed'
+    ce_output = sample + output_suffix + '.ce'
+    bed_output = sample + output_suffix + '.bed'
+    bigwig = sample + output_suffix + '.bw'
     sc.prepare_parameters = MagicMock()
+    Bed.sort = MagicMock(side_effect=temp2file)
+    Bed.bedgraph_to_bigwig = MagicMock()
     mockpool_instance = mockpool().__enter__()
     mockpool_instance.starmap.side_effect = siqchip_cmd_output
     sc.siqchip_sample(sample, chromosomes, input_suffix, ip_suffix, params_suffix, output_suffix, threads)
@@ -153,8 +177,19 @@ def test_siqchip_sample_parameters(mockpool, testdir, mock_testclass):
     folder = sc.prepare_parameters.call_args[0][0]
     mockpool.assert_any_call(processes=threads)
     mockpool_instance.starmap.assert_any_call(sc.run_siqchip, [(['Slave.sh', 'I', input, ip], folder), (['Slave.sh', 'II', input, ip], folder)])
-    os.path.isfile(output)
-    with open(output, 'r') as outfile:
+    Bed.sort.assert_called_with(ANY, ANY)
+    assert isinstance(Bed.sort.call_args[0][0], str)
+    assert isinstance(Bed.sort.call_args[0][1], str)
+    Bed.bedgraph_to_bigwig.assert_called_with(bed_output, bigwig, chromosomes)
+    os.path.isfile(ce_output)
+    with open(ce_output, 'r') as outfile:
+        assert 'chrI\t10\t20\t0.1\t0.11\n' == outfile.readline()
+        assert 'chrI\t20\t30\t0.2\t0.19\n' == outfile.readline()
+        assert 'chrII\t10\t20\t0.1\t0.09\n' == outfile.readline()
+        assert 'chrII\t20\t30\t0.2\t0.21\n' == outfile.readline()
+    os.path.isfile(bed_output)
+    with open(bed_output, 'r') as outfile:
+        assert 'track type=bedGraph name="' + sample + output_suffix + '"\n' == outfile.readline()
         assert 'chrI\t10\t20\t0.1\n' == outfile.readline()
         assert 'chrI\t20\t30\t0.2\n' == outfile.readline()
         assert 'chrII\t10\t20\t0.1\n' == outfile.readline()
