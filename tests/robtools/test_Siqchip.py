@@ -57,17 +57,26 @@ def temp2file(*args, **kwargs):
 
 
 def test_siqchip(testdir, mock_testclass):
-    samples = Path(__file__).parent.joinpath('samples.txt')
+    samples_src = Path(__file__).parent.joinpath('samples.txt')
+    samples = 'samples.txt'
+    copyfile(samples_src, samples)
+    sizes = Path(__file__).parent.joinpath('sizes.txt')
+    chromosomes = 'sacCer3.chrom.sizes'
+    copyfile(sizes, chromosomes)
+    resolution = Path(__file__).parent.joinpath('siqchip-resi.txt')
+    resi = 'resi'
+    copyfile(resolution, resi)
     sc.siqchip_samples = MagicMock()
     runner = CliRunner()
-    result = runner.invoke(sc.siqchip, ['--samples', samples])
+    result = runner.invoke(sc.siqchip, [])
     assert result.exit_code == 0
-    sc.siqchip_samples.assert_called_once_with(samples, 'sacCer3.chrom.sizes', '-input-reads', '-reads', '-params', '-siqchip', 1, None)
+    sc.siqchip_samples.assert_called_once_with(samples, chromosomes, resi, '-input-reads', '-reads', '-params', '-siqchip', 1, None)
 
 
 def test_siqchip_parameters(testdir, mock_testclass):
     samples = Path(__file__).parent.joinpath('samples.txt')
-    chromosomes = 'human.chroms'
+    chromosomes = Path(__file__).parent.joinpath('sizes.txt')
+    resolution = Path(__file__).parent.joinpath('siqchip-resi.txt')
     input_suffix = '-myinput'
     ip_suffix = '-myip'
     params_suffix = '-params'
@@ -76,16 +85,52 @@ def test_siqchip_parameters(testdir, mock_testclass):
     index = 1
     sc.siqchip_samples = MagicMock()
     runner = CliRunner()
-    result = runner.invoke(sc.siqchip, ['--samples', samples, '--chromosomes', chromosomes, '--input-suffix', input_suffix, '--ip-suffix', ip_suffix, '--params-suffix', params_suffix, '--output-suffix', output_suffix, '--threads', threads, '--index', index])
+    result = runner.invoke(sc.siqchip, ['--samples', samples, '--chromosomes', chromosomes, '--resolution', resolution, '--input-suffix', input_suffix, '--ip-suffix', ip_suffix, '--params-suffix', params_suffix, '--output-suffix', output_suffix, '--threads', threads, '--index', index])
     assert result.exit_code == 0
-    sc.siqchip_samples.assert_called_once_with(samples, chromosomes, input_suffix, ip_suffix, params_suffix, output_suffix, threads, index)
+    sc.siqchip_samples.assert_called_once_with(samples, chromosomes, resolution, input_suffix, ip_suffix, params_suffix, output_suffix, threads, index)
 
 
 def test_siqchip_samplesnotexists(testdir, mock_testclass):
     samples = 'samples.txt'
+    sizes = Path(__file__).parent.joinpath('sizes.txt')
+    chromosomes = 'sacCer3.chrom.sizes'
+    copyfile(sizes, chromosomes)
+    resolution = Path(__file__).parent.joinpath('siqchip-resi.txt')
+    resi = 'resi'
+    copyfile(resolution, resi)
     sc.siqchip_samples = MagicMock()
     runner = CliRunner()
-    result = runner.invoke(sc.siqchip, ['--samples', samples])
+    result = runner.invoke(sc.siqchip, [])
+    assert result.exit_code > 0
+    sc.siqchip_samples.assert_not_called()
+
+
+def test_siqchip_chomosomesnotexists(testdir, mock_testclass):
+    samples_src = Path(__file__).parent.joinpath('samples.txt')
+    samples = 'samples.txt'
+    copyfile(samples_src, samples)
+    chromosomes = 'sacCer3.chrom.sizes'
+    resolution = Path(__file__).parent.joinpath('siqchip-resi.txt')
+    resi = 'resi'
+    copyfile(resolution, resi)
+    sc.siqchip_samples = MagicMock()
+    runner = CliRunner()
+    result = runner.invoke(sc.siqchip, [])
+    assert result.exit_code > 0
+    sc.siqchip_samples.assert_not_called()
+
+
+def test_siqchip_resolutionnotexists(testdir, mock_testclass):
+    samples_src = Path(__file__).parent.joinpath('samples.txt')
+    samples = 'samples.txt'
+    copyfile(samples_src, samples)
+    sizes = Path(__file__).parent.joinpath('sizes.txt')
+    chromosomes = 'sacCer3.chrom.sizes'
+    copyfile(sizes, chromosomes)
+    resi = 'resi'
+    sc.siqchip_samples = MagicMock()
+    runner = CliRunner()
+    result = runner.invoke(sc.siqchip, [])
     assert result.exit_code > 0
     sc.siqchip_samples.assert_not_called()
 
@@ -94,14 +139,15 @@ def test_siqchip_samples(testdir, mock_testclass):
     samples = Path(__file__).parent.joinpath('samples.txt')
     sc.siqchip_sample = MagicMock()
     sc.siqchip_samples(samples)
-    sc.siqchip_sample.assert_any_call('POLR2A', 'sacCer3.chrom.sizes', '-input-reads', '-reads', '-params', '-siqchip', 1)
-    sc.siqchip_sample.assert_any_call('ASDURF', 'sacCer3.chrom.sizes', '-input-reads', '-reads', '-params', '-siqchip', 1)
-    sc.siqchip_sample.assert_any_call('POLR1C', 'sacCer3.chrom.sizes', '-input-reads', '-reads', '-params', '-siqchip', 1)
+    sc.siqchip_sample.assert_any_call('POLR2A', 'sacCer3.chrom.sizes', 'resi', '-input-reads', '-reads', '-params', '-siqchip', 1)
+    sc.siqchip_sample.assert_any_call('ASDURF', 'sacCer3.chrom.sizes', 'resi', '-input-reads', '-reads', '-params', '-siqchip', 1)
+    sc.siqchip_sample.assert_any_call('POLR1C', 'sacCer3.chrom.sizes', 'resi', '-input-reads', '-reads', '-params', '-siqchip', 1)
 
 
 def test_siqchip_samples_parameters(testdir, mock_testclass):
     samples = Path(__file__).parent.joinpath('samples.txt')
     chromosomes = 'human.chroms'
+    resolution = 'resolution.txt'
     input_suffix = '-myinput'
     ip_suffix = '-myip'
     params_suffix = '-params'
@@ -109,8 +155,8 @@ def test_siqchip_samples_parameters(testdir, mock_testclass):
     threads = 3
     index = 1
     sc.siqchip_sample = MagicMock()
-    sc.siqchip_samples(samples, chromosomes, input_suffix, ip_suffix, params_suffix, output_suffix, threads, index)
-    sc.siqchip_sample.assert_called_once_with('ASDURF', chromosomes, input_suffix, ip_suffix, params_suffix, output_suffix, threads)
+    sc.siqchip_samples(samples, chromosomes, resolution, input_suffix, ip_suffix, params_suffix, output_suffix, threads, index)
+    sc.siqchip_sample.assert_called_once_with('ASDURF', chromosomes, resolution, input_suffix, ip_suffix, params_suffix, output_suffix, threads)
 
     
 @patch('multiprocessing.Pool')
@@ -132,7 +178,7 @@ def test_siqchip_sample(mockpool, testdir, mock_testclass):
     mockpool_instance = mockpool().__enter__()
     mockpool_instance.starmap.side_effect = siqchip_cmd_output
     sc.siqchip_sample(sample)
-    sc.prepare_parameters.assert_called_with(ANY, input, ip, params)
+    sc.prepare_parameters.assert_called_with(ANY, input, ip, params, 'resi')
     folder = sc.prepare_parameters.call_args[0][0]
     sc.read_chromosomes.assert_any_call(input, 2)
     sc.read_chromosomes.assert_any_call(ip, 2)
@@ -161,6 +207,7 @@ def test_siqchip_sample(mockpool, testdir, mock_testclass):
 def test_siqchip_sample_parameters(mockpool, testdir, mock_testclass):
     sample = 'POLR2A'
     chromosomes = Path(__file__).parent.joinpath('sizes.txt')
+    resolution = 'resolution.txt'
     input_suffix = '-myinput'
     ip_suffix = '-myip'
     params_suffix = '-params'
@@ -178,8 +225,8 @@ def test_siqchip_sample_parameters(mockpool, testdir, mock_testclass):
     Bed.bedgraph_to_bigwig = MagicMock()
     mockpool_instance = mockpool().__enter__()
     mockpool_instance.starmap.side_effect = siqchip_cmd_output
-    sc.siqchip_sample(sample, chromosomes, input_suffix, ip_suffix, params_suffix, output_suffix, threads)
-    sc.prepare_parameters.assert_called_with(ANY, input, ip, params)
+    sc.siqchip_sample(sample, chromosomes, resolution, input_suffix, ip_suffix, params_suffix, output_suffix, threads)
+    sc.prepare_parameters.assert_called_with(ANY, input, ip, params, resolution)
     folder = sc.prepare_parameters.call_args[0][0]
     sc.read_chromosomes.assert_any_call(input, 2)
     sc.read_chromosomes.assert_any_call(ip, 2)
@@ -223,7 +270,7 @@ def test_siqchip_sample_missingchromosomeinput(mockpool, testdir, mock_testclass
     mockpool_instance = mockpool().__enter__()
     mockpool_instance.starmap.side_effect = siqchip_cmd_output
     sc.siqchip_sample(sample)
-    sc.prepare_parameters.assert_called_with(ANY, input, ip, params)
+    sc.prepare_parameters.assert_called_with(ANY, input, ip, params, 'resi')
     folder = sc.prepare_parameters.call_args[0][0]
     sc.read_chromosomes.assert_any_call(input, 2)
     sc.read_chromosomes.assert_any_call(ip, 2)
@@ -262,7 +309,7 @@ def test_siqchip_sample_missingchromosomeip(mockpool, testdir, mock_testclass):
     mockpool_instance = mockpool().__enter__()
     mockpool_instance.starmap.side_effect = siqchip_cmd_output
     sc.siqchip_sample(sample)
-    sc.prepare_parameters.assert_called_with(ANY, input, ip, params)
+    sc.prepare_parameters.assert_called_with(ANY, input, ip, params, 'resi')
     folder = sc.prepare_parameters.call_args[0][0]
     mockpool.assert_any_call(processes=1)
     mockpool_instance.starmap.assert_any_call(sc.run_siqchip, [(['Slave.sh', 'II', input, ip], folder)])
@@ -312,9 +359,8 @@ def test_prepare_parameters(testdir, mock_testclass):
     copyfile(Path(__file__).parent.joinpath('intersect.txt'), siqchip_folder + '/' + siqchip_exec)
     params = sample + '-params.in'
     copyfile(Path(__file__).parent.joinpath('names.txt'), params)
-    resi = 'resi'
-    copyfile(Path(__file__).parent.joinpath('dataset.txt'), resi)
-    sc.prepare_parameters(folder, input, ip, params)
+    resolution = Path(__file__).parent.joinpath('siqchip-resi.txt')
+    sc.prepare_parameters(folder, input, ip, params, resolution)
     assert os.path.isfile(folder + '/' + input)
     filecmp.cmp(Path(__file__).parent.joinpath('sample2.bed'), folder + '/' + input)
     assert os.path.isfile(folder + '/' + ip)
@@ -325,8 +371,8 @@ def test_prepare_parameters(testdir, mock_testclass):
     filecmp.cmp(Path(__file__).parent.joinpath('intersect.txt'), folder + '/' + siqchip_exec)
     assert os.path.isfile(folder + '/params.in')
     filecmp.cmp(Path(__file__).parent.joinpath('names.txt'), folder + '/params.in')
-    assert os.path.isfile(folder + '/' + resi)
-    filecmp.cmp(Path(__file__).parent.joinpath('dataset.txt'), folder + '/' + resi)
+    assert os.path.isfile(folder + '/resi')
+    filecmp.cmp(resolution, folder + '/resi')
 
 
 def test_run_siqchip(testdir, mock_testclass):

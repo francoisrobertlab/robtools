@@ -297,11 +297,13 @@ def test_robtools_shiftannotations(testdir, mock_testclass):
 
 def test_robtools_siqchip(testdir, mock_testclass):
     samples = Path(__file__).parent.joinpath('samples.txt')
+    sizes = Path(__file__).parent.joinpath('sizes.txt')
+    resi = Path(__file__).parent.joinpath('siqchip-resi.txt')
     Siqchip.siqchip_samples = MagicMock()
     runner = CliRunner()
-    result = runner.invoke(robtools.robtools, ['siqchip', '--samples', samples])
+    result = runner.invoke(robtools.robtools, ['siqchip', '--samples', samples, '--chromosomes', sizes, '--resolution', resi])
     assert result.exit_code == 0
-    Siqchip.siqchip_samples.assert_called_once_with(samples, 'sacCer3.chrom.sizes', '-input-reads', '-reads', '-params', '-siqchip', 1, None)
+    Siqchip.siqchip_samples.assert_called_once_with(samples, sizes, resi, '-input-reads', '-reads', '-params', '-siqchip', 1, None)
 
 
 def test_robtools_siqchipbed(testdir, mock_testclass):
