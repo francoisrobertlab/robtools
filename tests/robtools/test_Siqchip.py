@@ -7,6 +7,7 @@ from shutil import copyfile
 import subprocess
 from unittest.mock import MagicMock, call, ANY, patch
 
+from attr.validators import instance_of
 import click
 from click.testing import CliRunner, make_input_stream
 from more_itertools.more import side_effect
@@ -32,16 +33,22 @@ def mock_testclass():
 
 def siqchip_cmd_output(*args, **kwargs):
     folder = args[1][0][1]
-    output = folder + '/chrchrI.ce'
+    output = folder + '/chrI.ce'
     with open(output, 'w') as outfile:
         outfile.write('chrI\t10\t20\t0.1\n')
         outfile.write('chrI\t20\t30\t0.2\n')
-    output = folder + '/chrchrII.ce'
+    output = folder + '/chrII.ce'
     with open(output, 'w') as outfile:
         outfile.write('chrII\t10\t20\t0.1\n')
         outfile.write('chrII\t20\t30\t0.2\n')
 
     
+def temp2file(*args, **kwargs):
+    input = args[0]
+    output = args[1]
+    copyfile(input, output)
+
+
 def test_siqchip(testdir, mock_testclass):
     samples = Path(__file__).parent.joinpath('samples.txt')
     sc.siqchip_samples = MagicMock()
@@ -102,8 +109,9 @@ def test_siqchip_samples_parameters(testdir, mock_testclass):
 @patch('multiprocessing.Pool')
 def test_siqchip_sample(mockpool, testdir, mock_testclass):
     sample = 'POLR2A'
-    chromosomes = Path(__file__).parent.joinpath('sizes.txt')
-    copyfile(chromosomes, 'sacCer3.chrom.sizes')
+    sizes = Path(__file__).parent.joinpath('sizes.txt')
+    chromosomes = 'sacCer3.chrom.sizes'
+    copyfile(sizes, chromosomes)
     input = sample + '-input-reads.bed'
     ip = sample + '-reads.bed'
     params = sample + '-params.in'
@@ -115,7 +123,7 @@ def test_siqchip_sample(mockpool, testdir, mock_testclass):
     sc.prepare_parameters.assert_called_with(ANY, input, ip, params)
     folder = sc.prepare_parameters.call_args[0][0]
     mockpool.assert_any_call(processes=1)
-    mockpool_instance.starmap.assert_any_call(sc.run_siqchip, [(['Slave.sh', 'chrI', input, ip], folder), (['Slave.sh', 'chrII', input, ip], folder)])
+    mockpool_instance.starmap.assert_any_call(sc.run_siqchip, [(['Slave.sh', 'I', input, ip], folder), (['Slave.sh', 'II', input, ip], folder)])
     os.path.isfile(output)
     with open(output, 'r') as outfile:
         assert 'chrI\t10\t20\t0.1\n' == outfile.readline()
@@ -144,7 +152,7 @@ def test_siqchip_sample_parameters(mockpool, testdir, mock_testclass):
     sc.prepare_parameters.assert_called_with(ANY, input, ip, params)
     folder = sc.prepare_parameters.call_args[0][0]
     mockpool.assert_any_call(processes=threads)
-    mockpool_instance.starmap.assert_any_call(sc.run_siqchip, [(['Slave.sh', 'chrI', input, ip], folder), (['Slave.sh', 'chrII', input, ip], folder)])
+    mockpool_instance.starmap.assert_any_call(sc.run_siqchip, [(['Slave.sh', 'I', input, ip], folder), (['Slave.sh', 'II', input, ip], folder)])
     os.path.isfile(output)
     with open(output, 'r') as outfile:
         assert 'chrI\t10\t20\t0.1\n' == outfile.readline()

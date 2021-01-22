@@ -2,6 +2,7 @@ from distutils.command.check import check
 import logging
 import multiprocessing
 import os
+import re
 from shutil import copyfile
 import shutil
 import subprocess
@@ -51,14 +52,14 @@ def siqchip_sample(sample, chromosomes='sacCer3.chrom.sizes', input_suffix='-inp
     ip = sample + ip_suffix + '.bed'
     output = sample + output_suffix + '.bed'
     params = sample + params_suffix + '.in'
-    siqchip_exec = 'Slave.sh'
     chromosome_names = Parser.first(chromosomes)
-    cmds = [[siqchip_exec, chromosome, input, ip] for chromosome in chromosome_names]
+    chromosome_pattern = re.compile('chr(.*)')
+    cmds = [['Slave.sh', chromosome_pattern.match(chromosome).group(1), input, ip] for chromosome in chromosome_names]
     with tempfile.TemporaryDirectory() as folder:
         prepare_parameters(folder, input, ip, params)
         with multiprocessing.Pool(processes=threads) as pool:
             pool.starmap(run_siqchip, [(cmd, folder) for cmd in cmds])
-        siqchip_outputs = [folder + '/chr' + chromosome + '.ce' for chromosome in chromosome_names]
+        siqchip_outputs = [folder + '/' + chromosome + '.ce' for chromosome in chromosome_names]
         with open(output, 'wb') as wfd:
             for f in siqchip_outputs:
                 with open(f, 'rb') as fd:
