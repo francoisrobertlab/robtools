@@ -38,3 +38,5 @@ always_load("robtools-core")
 local home = os.getenv("HOME") or ""
 local call_nucleosomes = pathJoin(home, "projects/def-robertf/CallNucleosomes")
 prepend_path("PERL5LIB", pathJoin(call_nucleosomes, "perl_library"))
+local siqchip = pathJoin(home, "projects/def-robertf/siQ-ChIP")
+setenv("SIQ_CHIP_BASE", siqchip)
