@@ -6,7 +6,33 @@ import click
 from click.testing import CliRunner
 import pytest
 
-from robtools import robtools, Bam2Bed, Bowtie2, Bwa, CenterAnnotations, ChipexoQual, Download, FilterBam, Fixmd5, GenomeCoverage, IgnoreStrand, Intersect, Merge, MergeBam, MergeBigwigs, Plot2do, PrintSample, RemoveSecondMate, Rename, ShiftAnnotations, SlowSplit, Split, Statistics, Vap
+from robtools import Bam2Bed
+from robtools import Bowtie2
+from robtools import Bwa
+from robtools import CenterAnnotations
+from robtools import ChipexoQual
+from robtools import Download
+from robtools import FilterBam
+from robtools import Fixmd5
+from robtools import GenomeCoverage
+from robtools import IgnoreStrand
+from robtools import Intersect
+from robtools import IntersectAnnotations
+from robtools import Merge
+from robtools import MergeBam
+from robtools import MergeBigwigs
+from robtools import Plot2do
+from robtools import PrintSample
+from robtools import RemoveSecondMate
+from robtools import Rename
+from robtools import ShiftAnnotations
+from robtools import Siqchip
+from robtools import SiqchipBed
+from robtools import SlowSplit
+from robtools import Split
+from robtools import Statistics
+from robtools import Vap
+from robtools import robtools
 
 
 @pytest.fixture
@@ -30,6 +56,8 @@ def mock_testclass():
     removesecondmate_samples = RemoveSecondMate.removesecondmate_samples
     rename = Rename.rename_
     shift_annotations_samples = ShiftAnnotations.shift_annotations_samples
+    siqchip_samples = Siqchip.siqchip_samples
+    siqchipbed_samples = SiqchipBed.siqchipbed_samples
     slow_split_samples = SlowSplit.split_samples
     split_samples = Split.split_samples
     statistics_samples = Statistics.statistics_samples
@@ -54,6 +82,8 @@ def mock_testclass():
     RemoveSecondMate.removesecondmate_samples = removesecondmate_samples
     Rename.rename_ = rename
     ShiftAnnotations.shift_annotations_samples = shift_annotations_samples
+    Siqchip.siqchip_samples = siqchip_samples
+    SiqchipBed.siqchipbed_samples = siqchipbed_samples
     SlowSplit.split_samples = slow_split_samples
     Split.split_samples = split_samples
     Statistics.statistics_samples = statistics_samples
@@ -263,6 +293,26 @@ def test_robtools_shiftannotations(testdir, mock_testclass):
     result = runner.invoke(robtools.robtools, ['shiftannotations', '--samples', samples])
     assert result.exit_code == 0
     ShiftAnnotations.shift_annotations_samples.assert_called_once_with(samples, '', '-forcov', None, ())
+
+
+def test_robtools_siqchip(testdir, mock_testclass):
+    samples = Path(__file__).parent.joinpath('samples.txt')
+    sizes = Path(__file__).parent.joinpath('sizes.txt')
+    resi = Path(__file__).parent.joinpath('siqchip-resi.txt')
+    Siqchip.siqchip_samples = MagicMock()
+    runner = CliRunner()
+    result = runner.invoke(robtools.robtools, ['siqchip', '--samples', samples, '--chromosomes', sizes, '--resolution', resi])
+    assert result.exit_code == 0
+    Siqchip.siqchip_samples.assert_called_once_with(samples, sizes, resi, '-input-reads', '-reads', '-params', '-siqchip', 1, None)
+
+
+def test_robtools_siqchipbed(testdir, mock_testclass):
+    samples = Path(__file__).parent.joinpath('samples.txt')
+    SiqchipBed.siqchipbed_samples = MagicMock()
+    runner = CliRunner()
+    result = runner.invoke(robtools.robtools, ['siqchipbed', '--samples', samples])
+    assert result.exit_code == 0
+    SiqchipBed.siqchipbed_samples.assert_called_once_with(samples, '-dedup', '-reads', None)
 
 
 def test_robtools_slowsplit(testdir, mock_testclass):
