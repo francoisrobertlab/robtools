@@ -23,6 +23,7 @@ def mock_testclass():
     siqchip_sample = sc.siqchip_sample
     prepare_parameters = sc.prepare_parameters
     run_siqchip = sc.run_siqchip
+    read_chromosomes = sc.read_chromosomes
     sort = Bed.sort
     bedgraph_to_bigwig = Bed.bedgraph_to_bigwig
     run = subprocess.run
@@ -31,6 +32,7 @@ def mock_testclass():
     sc.siqchip_sample = siqchip_sample
     sc.prepare_parameters = prepare_parameters
     sc.run_siqchip = run_siqchip
+    sc.read_chromosomes = read_chromosomes
     Bed.sort = sort
     Bed.bedgraph_to_bigwig = bedgraph_to_bigwig
     subprocess.run = run
@@ -124,6 +126,7 @@ def test_siqchip_sample(mockpool, testdir, mock_testclass):
     bed_output = sample + '-siqchip.bed'
     bigwig = sample + '-siqchip.bw'
     sc.prepare_parameters = MagicMock()
+    sc.read_chromosomes = MagicMock(return_value=['chrI', 'chrII'])
     Bed.sort = MagicMock(side_effect=temp2file)
     Bed.bedgraph_to_bigwig = MagicMock()
     mockpool_instance = mockpool().__enter__()
@@ -131,6 +134,8 @@ def test_siqchip_sample(mockpool, testdir, mock_testclass):
     sc.siqchip_sample(sample)
     sc.prepare_parameters.assert_called_with(ANY, input, ip, params)
     folder = sc.prepare_parameters.call_args[0][0]
+    sc.read_chromosomes.assert_any_call(input, 2)
+    sc.read_chromosomes.assert_any_call(ip, 2)
     mockpool.assert_any_call(processes=1)
     mockpool_instance.starmap.assert_any_call(sc.run_siqchip, [(['Slave.sh', 'I', input, ip], folder), (['Slave.sh', 'II', input, ip], folder)])
     Bed.sort.assert_called_with(ANY, ANY)
@@ -168,6 +173,7 @@ def test_siqchip_sample_parameters(mockpool, testdir, mock_testclass):
     bed_output = sample + output_suffix + '.bed'
     bigwig = sample + output_suffix + '.bw'
     sc.prepare_parameters = MagicMock()
+    sc.read_chromosomes = MagicMock(return_value=['chrI', 'chrII'])
     Bed.sort = MagicMock(side_effect=temp2file)
     Bed.bedgraph_to_bigwig = MagicMock()
     mockpool_instance = mockpool().__enter__()
@@ -175,6 +181,8 @@ def test_siqchip_sample_parameters(mockpool, testdir, mock_testclass):
     sc.siqchip_sample(sample, chromosomes, input_suffix, ip_suffix, params_suffix, output_suffix, threads)
     sc.prepare_parameters.assert_called_with(ANY, input, ip, params)
     folder = sc.prepare_parameters.call_args[0][0]
+    sc.read_chromosomes.assert_any_call(input, 2)
+    sc.read_chromosomes.assert_any_call(ip, 2)
     mockpool.assert_any_call(processes=threads)
     mockpool_instance.starmap.assert_any_call(sc.run_siqchip, [(['Slave.sh', 'I', input, ip], folder), (['Slave.sh', 'II', input, ip], folder)])
     Bed.sort.assert_called_with(ANY, ANY)
@@ -196,6 +204,97 @@ def test_siqchip_sample_parameters(mockpool, testdir, mock_testclass):
         assert 'chrII\t20\t30\t0.2\n' == outfile.readline()
 
 
+@patch('multiprocessing.Pool')
+def test_siqchip_sample_missingchromosomeinput(mockpool, testdir, mock_testclass):
+    sample = 'POLR2A'
+    sizes = Path(__file__).parent.joinpath('sizes.txt')
+    chromosomes = 'sacCer3.chrom.sizes'
+    copyfile(sizes, chromosomes)
+    input = sample + '-input-reads.bed'
+    ip = sample + '-reads.bed'
+    params = sample + '-params.in'
+    ce_output = sample + '-siqchip.ce'
+    bed_output = sample + '-siqchip.bed'
+    bigwig = sample + '-siqchip.bw'
+    sc.prepare_parameters = MagicMock()
+    sc.read_chromosomes = MagicMock(side_effect=[['chrII'], ['chrI', 'chrII']])
+    Bed.sort = MagicMock(side_effect=temp2file)
+    Bed.bedgraph_to_bigwig = MagicMock()
+    mockpool_instance = mockpool().__enter__()
+    mockpool_instance.starmap.side_effect = siqchip_cmd_output
+    sc.siqchip_sample(sample)
+    sc.prepare_parameters.assert_called_with(ANY, input, ip, params)
+    folder = sc.prepare_parameters.call_args[0][0]
+    sc.read_chromosomes.assert_any_call(input, 2)
+    sc.read_chromosomes.assert_any_call(ip, 2)
+    mockpool.assert_any_call(processes=1)
+    mockpool_instance.starmap.assert_any_call(sc.run_siqchip, [(['Slave.sh', 'II', input, ip], folder)])
+    Bed.sort.assert_called_with(ANY, ANY)
+    assert isinstance(Bed.sort.call_args[0][0], str)
+    Bed.bedgraph_to_bigwig.assert_called_with(bed_output, bigwig, chromosomes)
+    os.path.isfile(ce_output)
+    with open(ce_output, 'r') as outfile:
+        assert 'chrII\t10\t20\t0.1\t0.09\n' == outfile.readline()
+        assert 'chrII\t20\t30\t0.2\t0.21\n' == outfile.readline()
+    os.path.isfile(bed_output)
+    with open(bed_output, 'r') as outfile:
+        assert 'track type=bedGraph name="' + sample + '-siqchip"\n' == outfile.readline()
+        assert 'chrII\t10\t20\t0.1\n' == outfile.readline()
+        assert 'chrII\t20\t30\t0.2\n' == outfile.readline()
+
+
+@patch('multiprocessing.Pool')
+def test_siqchip_sample_missingchromosomeip(mockpool, testdir, mock_testclass):
+    sample = 'POLR2A'
+    sizes = Path(__file__).parent.joinpath('sizes.txt')
+    chromosomes = 'sacCer3.chrom.sizes'
+    copyfile(sizes, chromosomes)
+    input = sample + '-input-reads.bed'
+    ip = sample + '-reads.bed'
+    params = sample + '-params.in'
+    ce_output = sample + '-siqchip.ce'
+    bed_output = sample + '-siqchip.bed'
+    bigwig = sample + '-siqchip.bw'
+    sc.prepare_parameters = MagicMock()
+    sc.read_chromosomes = MagicMock(side_effect=[['chrI', 'chrII'], ['chrII']])
+    Bed.sort = MagicMock(side_effect=temp2file)
+    Bed.bedgraph_to_bigwig = MagicMock()
+    mockpool_instance = mockpool().__enter__()
+    mockpool_instance.starmap.side_effect = siqchip_cmd_output
+    sc.siqchip_sample(sample)
+    sc.prepare_parameters.assert_called_with(ANY, input, ip, params)
+    folder = sc.prepare_parameters.call_args[0][0]
+    mockpool.assert_any_call(processes=1)
+    mockpool_instance.starmap.assert_any_call(sc.run_siqchip, [(['Slave.sh', 'II', input, ip], folder)])
+    Bed.sort.assert_called_with(ANY, ANY)
+    assert isinstance(Bed.sort.call_args[0][0], str)
+    Bed.bedgraph_to_bigwig.assert_called_with(bed_output, bigwig, chromosomes)
+    os.path.isfile(ce_output)
+    with open(ce_output, 'r') as outfile:
+        assert 'chrII\t10\t20\t0.1\t0.09\n' == outfile.readline()
+        assert 'chrII\t20\t30\t0.2\t0.21\n' == outfile.readline()
+    os.path.isfile(bed_output)
+    with open(bed_output, 'r') as outfile:
+        assert 'track type=bedGraph name="' + sample + '-siqchip"\n' == outfile.readline()
+        assert 'chrII\t10\t20\t0.1\n' == outfile.readline()
+        assert 'chrII\t20\t30\t0.2\n' == outfile.readline()
+
+
+def test_read_chromosomes(testdir, mock_testclass):
+    bed = Path(__file__).parent.joinpath('siqchip-reads.bed')
+    chromosomes = sc.read_chromosomes(bed)
+    assert 2 == len(chromosomes)
+    assert 'chr1' in chromosomes
+    assert 'chr2' in chromosomes
+
+
+def test_read_chromosomes_minimumcount(testdir, mock_testclass):
+    bed = Path(__file__).parent.joinpath('siqchip-reads.bed')
+    chromosomes = sc.read_chromosomes(bed, 2)
+    assert 1 == len(chromosomes)
+    assert 'chr1' in chromosomes
+
+    
 def test_prepare_parameters(testdir, mock_testclass):
     siqchip_folder = str(testdir) + '/siq-chip'
     os.mkdir(siqchip_folder)

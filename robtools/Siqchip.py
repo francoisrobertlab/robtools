@@ -56,6 +56,9 @@ def siqchip_sample(sample, chromosomes='sacCer3.chrom.sizes', input_suffix='-inp
     bigwig = sample + output_suffix + '.bw'
     params = sample + params_suffix + '.in'
     chromosome_names = Parser.first(chromosomes)
+    input_chromosomes = read_chromosomes(input, 2)
+    ip_chromosomes = read_chromosomes(ip, 2)
+    chromosome_names = [chromosome for chromosome in chromosome_names if chromosome in input_chromosomes and chromosome in ip_chromosomes]
     chromosome_pattern = re.compile('chr(.*)')
     cmds = [['Slave.sh', chromosome_pattern.match(chromosome).group(1), input, ip] for chromosome in chromosome_names]
     with tempfile.TemporaryDirectory() as folder:
@@ -87,6 +90,19 @@ def siqchip_sample(sample, chromosomes='sacCer3.chrom.sizes', input_suffix='-inp
         Bed.bedgraph_to_bigwig(bed_output, bigwig, chromosomes)
 
 
+def read_chromosomes(bed, minimum_count=1):
+    chromosomes = dict()
+    with open(bed, 'r') as infile:
+        for line in infile:
+            if line.startswith('track') or line.startswith('browser') or line.startswith('#'):
+                continue
+            columns = line.rstrip('\r\n').split('\t')
+            if not columns[0] in chromosomes:
+                chromosomes[columns[0]] = 0
+            chromosomes[columns[0]] = chromosomes[columns[0]] + 1
+    return set([chromosome for chromosome in chromosomes if chromosomes[chromosome] >= minimum_count])
+
+    
 def prepare_parameters(folder, input, ip, params):
     siqchip_base = os.getenv('SIQ_CHIP_BASE', '')
     siqchip_source = (siqchip_base + '/' if siqchip_base else '') + '2Dlow-mem.f'
