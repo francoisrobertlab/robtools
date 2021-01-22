@@ -65,12 +65,14 @@ def siqchip_sample(sample, chromosomes='sacCer3.chrom.sizes', input_suffix='-inp
         prepare_parameters(folder, input, ip, params)
         with multiprocessing.Pool(processes=threads) as pool:
             pool.starmap(run_siqchip, [(cmd, folder) for cmd in cmds])
-        siqchip_outputs = [folder + '/' + chromosome + '.ce' for chromosome in chromosome_names]
         with open(ce_output, 'w') as wfd:
-            for f in siqchip_outputs:
-                with open(f, 'r') as fd:
+            for chromosome in chromosome_names:
+                siqchip_output = folder + '/' + chromosome + '.ce'
+                with open(siqchip_output, 'r') as fd:
                     for line in fd:
-                        wfd.write('\t'.join(line.lstrip().split()))
+                        wfd.write(chromosome)
+                        wfd.write('\t')
+                        wfd.write('\t'.join(line.lstrip().split()[1:]))
                         wfd.write('\n')
         sort_output = folder + '/' + bed_output
         Bed.sort(ce_output, sort_output)

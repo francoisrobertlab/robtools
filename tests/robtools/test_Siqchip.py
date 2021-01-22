@@ -42,8 +42,8 @@ def siqchip_cmd_output(*args, **kwargs):
     folder = args[1][0][1]
     output = folder + '/chrI.ce'
     with open(output, 'w') as outfile:
-        outfile.write(' chrI  10  20  0.1  0.11\n')
-        outfile.write(' chrI  20  30  0.2  0.19\n')
+        outfile.write(' cI  10  20  0.1  0.11\n')
+        outfile.write(' cI  20  30  0.2  0.19\n')
     output = folder + '/chrII.ce'
     with open(output, 'w') as outfile:
         outfile.write(' chrII  10  20  0.1  0.09\n')
