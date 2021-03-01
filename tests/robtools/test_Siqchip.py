@@ -183,7 +183,7 @@ def test_siqchip_sample(mockpool, testdir, mock_testclass):
     sc.read_chromosomes.assert_any_call(input, 2)
     sc.read_chromosomes.assert_any_call(ip, 2)
     mockpool.assert_any_call(processes=1)
-    mockpool_instance.starmap.assert_any_call(sc.run_siqchip, [(['Slave.sh', 'I', input, ip], folder), (['Slave.sh', 'II', input, ip], folder)])
+    mockpool_instance.starmap.assert_any_call(sc.run_siqchip, [(['bash', 'Slave.sh', 'I', input, ip], folder), (['bash', 'Slave.sh', 'II', input, ip], folder)])
     Bed.sort.assert_called_with(ANY, ANY)
     assert isinstance(Bed.sort.call_args[0][0], str)
     assert isinstance(Bed.sort.call_args[0][1], str)
@@ -231,7 +231,7 @@ def test_siqchip_sample_parameters(mockpool, testdir, mock_testclass):
     sc.read_chromosomes.assert_any_call(input, 2)
     sc.read_chromosomes.assert_any_call(ip, 2)
     mockpool.assert_any_call(processes=threads)
-    mockpool_instance.starmap.assert_any_call(sc.run_siqchip, [(['Slave.sh', 'I', input, ip], folder), (['Slave.sh', 'II', input, ip], folder)])
+    mockpool_instance.starmap.assert_any_call(sc.run_siqchip, [(['bash', 'Slave.sh', 'I', input, ip], folder), (['bash', 'Slave.sh', 'II', input, ip], folder)])
     Bed.sort.assert_called_with(ANY, ANY)
     assert isinstance(Bed.sort.call_args[0][0], str)
     assert isinstance(Bed.sort.call_args[0][1], str)
@@ -275,7 +275,7 @@ def test_siqchip_sample_missingchromosomeinput(mockpool, testdir, mock_testclass
     sc.read_chromosomes.assert_any_call(input, 2)
     sc.read_chromosomes.assert_any_call(ip, 2)
     mockpool.assert_any_call(processes=1)
-    mockpool_instance.starmap.assert_any_call(sc.run_siqchip, [(['Slave.sh', 'II', input, ip], folder)])
+    mockpool_instance.starmap.assert_any_call(sc.run_siqchip, [(['bash', 'Slave.sh', 'II', input, ip], folder)])
     Bed.sort.assert_called_with(ANY, ANY)
     assert isinstance(Bed.sort.call_args[0][0], str)
     Bed.bedgraph_to_bigwig.assert_called_with(bed_output, bigwig, chromosomes)
@@ -312,7 +312,7 @@ def test_siqchip_sample_missingchromosomeip(mockpool, testdir, mock_testclass):
     sc.prepare_parameters.assert_called_with(ANY, input, ip, params, 'resi')
     folder = sc.prepare_parameters.call_args[0][0]
     mockpool.assert_any_call(processes=1)
-    mockpool_instance.starmap.assert_any_call(sc.run_siqchip, [(['Slave.sh', 'II', input, ip], folder)])
+    mockpool_instance.starmap.assert_any_call(sc.run_siqchip, [(['bash', 'Slave.sh', 'II', input, ip], folder)])
     Bed.sort.assert_called_with(ANY, ANY)
     assert isinstance(Bed.sort.call_args[0][0], str)
     Bed.bedgraph_to_bigwig.assert_called_with(bed_output, bigwig, chromosomes)
@@ -381,5 +381,5 @@ def test_run_siqchip(testdir, mock_testclass):
     ip = sample + '-reads.bed'
     folder = 'folder'
     subprocess.run = MagicMock()
-    sc.run_siqchip(['Slave.sh', 'chrI', input, ip], folder)
-    subprocess.run.assert_any_call(['Slave.sh', 'chrI', input, ip], cwd=folder, check=True)
+    sc.run_siqchip(['bash', 'Slave.sh', 'chrI', input, ip], folder)
+    subprocess.run.assert_any_call(['bash', 'Slave.sh', 'chrI', input, ip], cwd=folder, check=True)
