@@ -25,6 +25,7 @@ from robtools import SiqchipBed
 from robtools import SlowSplit
 from robtools import Split
 from robtools import Statistics
+from robtools import Trimmomatic
 from robtools import Vap
 
 
@@ -58,6 +59,7 @@ robtools.add_command(SiqchipBed.siqchipbed)
 robtools.add_command(SlowSplit.slowsplit)
 robtools.add_command(Split.split)
 robtools.add_command(Statistics.statistics)
+robtools.add_command(Trimmomatic.trimmomatic)
 robtools.add_command(Vap.vap)
 
 if __name__ == '__main__':

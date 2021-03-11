@@ -31,6 +31,7 @@ from robtools import SiqchipBed
 from robtools import SlowSplit
 from robtools import Split
 from robtools import Statistics
+from robtools import Trimmomatic
 from robtools import Vap
 from robtools import robtools
 
@@ -61,6 +62,7 @@ def mock_testclass():
     slow_split_samples = SlowSplit.split_samples
     split_samples = Split.split_samples
     statistics_samples = Statistics.statistics_samples
+    trimmomatic_samples = Trimmomatic.trimmomatic_samples
     vap_samples = Vap.vap_samples
     yield
     Bam2Bed.bam2bed_samples = bam2bed_samples
@@ -87,6 +89,7 @@ def mock_testclass():
     SlowSplit.split_samples = slow_split_samples
     Split.split_samples = split_samples
     Statistics.statistics_samples = statistics_samples
+    Trimmomatic.trimmomatic_samples = trimmomatic_samples
     Vap.vap_samples = vap_samples
 
 
@@ -353,6 +356,16 @@ def test_robtools_statistics(testdir, mock_testclass):
     logging.warning(result.output)
     assert result.exit_code == 0
     Statistics.statistics_samples.assert_called_once_with(samples, datasets, output)
+
+
+def test_robtools_trimmomatic(testdir, mock_testclass):
+    samples = Path(__file__).parent.joinpath('samples.txt')
+    Trimmomatic.trimmomatic_samples = MagicMock()
+    runner = CliRunner()
+    result = runner.invoke(robtools.robtools, ['trimmomatic', '--samples', samples])
+    logging.warning(result.output)
+    assert result.exit_code == 0
+    Trimmomatic.trimmomatic_samples.assert_called_once_with(samples, '', '-trim', '-paired', '-unpaired', None, None, ())
 
 
 def test_robtools_vap(testdir, mock_testclass):
