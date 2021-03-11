@@ -3,7 +3,7 @@ For detailed instructions, go to:
     http://mahonylab.org/software/chexmix/
 
 This module loads the following modules and their requirements:
-    - java/13.0.2
+    - java/1.8.0_121
     - meme/5.2.0
     - robtools-core
 ]])
@@ -17,7 +17,7 @@ always_load("nixpkgs/16.09")
 always_load("StdEnv/2020")
 always_load("gcc/9.3.0")
 always_load("openmpi/4.0.3")
-always_load("java/13.0.2")
+always_load("java/1.8.0_121")
 always_load("meme/5.2.0")
 always_load("python/3.8.2")
 always_load("robtools-core")
