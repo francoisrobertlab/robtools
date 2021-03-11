@@ -62,7 +62,7 @@ def siqchip_sample(sample, chromosomes='sacCer3.chrom.sizes', resolution='resi',
     ip_chromosomes = read_chromosomes(ip, 2)
     chromosome_names = [chromosome for chromosome in chromosome_names if chromosome in input_chromosomes and chromosome in ip_chromosomes]
     chromosome_pattern = re.compile('chr(.*)')
-    cmds = [['Slave.sh', chromosome_pattern.match(chromosome).group(1), input, ip] for chromosome in chromosome_names]
+    cmds = [['bash', 'Slave.sh', chromosome_pattern.match(chromosome).group(1), input, ip] for chromosome in chromosome_names]
     with tempfile.TemporaryDirectory() as folder:
         prepare_parameters(folder, input, ip, params, resolution)
         with multiprocessing.Pool(processes=threads) as pool:

@@ -19,7 +19,8 @@ setup(
         'pyBigWig>=0.3.17',
         'matplotlib>=3.1.1',
         'scipy>=1.3.2',
-        'lmfit>=1.0.0'
+        'lmfit>=1.0.0',
+        'pysam>=0.15.4'
     ],
     entry_points={
         'console_scripts': [
