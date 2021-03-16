@@ -11,6 +11,7 @@ module load robtools
 #### Steps
 
 * [Upload dataset files to Compute Canada](#upload-dataset-files-to-compute-canada)
+* [Trim FASTQ files (Optional)](#trim-fastq-files-optional)
 * [Align FASTQ files](#align-fastq-files-with-genome)
 * [Filter reads](#filter-reads-to-remove-poorly-map-reads-and-duplicates)
 * [Quality control check](#quality-control-check)
@@ -24,6 +25,18 @@ module load robtools
 ## Upload dataset files to Compute Canada
 
 See [Uploading dataset files to Compute Canada server](upload.md)
+
+## Trim FASTQ files (Optional)
+
+Run the following command
+
+```
+sbatch trimmomatic.sh --trimmers "ILLUMINACLIP:TruSeq3-PE-2.fa:2:30:10:2:keepBothReads LEADING:3 TRAILING:3 MINLEN:36"
+```
+
+:bulb: Before running the command, make sure the adapters are present in the file used in the `ILLUMINACLIP` trimmer, see [Trimmomatic adapters files](https://github.com/timflutre/trimmomatic/tree/master/adapters)
+
+:bulb: To prevent out of memory errors, use `--array` argument for `sbatch`, see [sbatch](sbatch.md)
 
 ## Align FASTQ files with genome
 
@@ -49,6 +62,8 @@ Run the following commands
 bwa index sacCer3.fa
 sbatch bwa.sh --fasta sacCer3.fa
 ```
+
+:bulb: If you used Trimmomatic, add parameter `-is -paired` (or `-is trim` for single-ended reads) to the `bwa` command
 
 :bulb: To prevent out of memory errors, use `--array` argument for `sbatch`, see [sbatch](sbatch.md)
 
