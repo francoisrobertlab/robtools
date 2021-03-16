@@ -13,6 +13,7 @@ cd $dataset_name
 
 The `ls` command is optional, but will help you find the dataset folder
 
+
 ## Notes
 
 Commands should be executed in a terminal window

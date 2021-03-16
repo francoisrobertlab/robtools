@@ -2,6 +2,7 @@
 
 :memo: *The examples use Beluga server*
 
+
 ## Install FTP program
 
 On Windows, use [WinSCP](https://winscp.net) or [FileZilla](https://filezilla-project.org)
@@ -9,6 +10,7 @@ On Windows, use [WinSCP](https://winscp.net) or [FileZilla](https://filezilla-pr
 On Mac, use [Cyberduck](https://cyberduck.io) or [FileZilla](https://filezilla-project.org)
 
 On Linux, use [FileZilla](https://filezilla-project.org)
+
 
 ## Connecting to Compute Canada
 
@@ -23,6 +25,7 @@ Select `beluga.computecanada.ca` as the host
 ### Username and password
 
 Use your Compute Canada username and password
+
 
 ## Upload dataset data
 

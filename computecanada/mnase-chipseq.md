@@ -24,9 +24,11 @@ module load robtools
 * [Two-dimensional occupancy (2DO) plots (Optional)](#two-dimensional-occupancy-2do-plots-optional)
 * [Distributions of MNase-ChIP-seq fragments relative to nucleosome dyads (Optional)](#distributions-of-mnase-chip-seq-fragments-relative-to-nucleosome-dyads-optional)
 
+
 ## Upload dataset files to Compute Canada
 
 See [Uploading dataset files to Compute Canada server](upload.md)
+
 
 ## Trim FASTQ files (Optional)
 
@@ -39,6 +41,7 @@ sbatch trimmomatic.sh --trimmers "ILLUMINACLIP:TruSeq3-PE-2.fa:2:30:10:2:keepBot
 :bulb: Before running the command, make sure the adapters are present in the file used in the `ILLUMINACLIP` trimmer, see [Trimmomatic adapters files](https://github.com/timflutre/trimmomatic/tree/master/adapters)
 
 :bulb: To prevent out of memory errors, use `--array` argument for `sbatch`, see [sbatch](sbatch.md)
+
 
 ## Align FASTQ files with genome
 
@@ -69,6 +72,7 @@ sbatch bowtie2.sh -x sacCer3.fa.index -X 1000
 
 :bulb: To prevent out of memory errors, use `--array` argument for `sbatch`, see [sbatch](sbatch.md)
 
+
 ## Filter reads to remove poorly map reads and duplicates
 
 ```
@@ -76,6 +80,7 @@ sbatch filterbam.sh
 ```
 
 :bulb: To prevent out of memory errors, use `--array` argument for `sbatch`, see [sbatch](sbatch.md)
+
 
 ## Quality control check
 
@@ -87,11 +92,13 @@ Copy the HTML and ZIP files produced by FastQC on your local computer using an F
 
 :bulb: Check HTML files ending with "-dedup.bam" first!
 
+
 ## Merge dataset samples data
 
 ```
 sbatch mergebam.sh --suffix -dedup
 ```
+
 
 ## Convert BAM files to fragment BED files
 
@@ -102,6 +109,7 @@ sbatch bam2bed.sh -s dataset.txt
 
 :bulb: The previous commands can be called simultaneously
 
+
 ## Keep only middle nucleotide
 
 ```
@@ -110,6 +118,7 @@ sbatch centerannotations.sh -s dataset.txt
 ```
 
 :bulb: The previous commands can be called simultaneously
+
 
 ## Genome coverage
 
@@ -120,11 +129,13 @@ sbatch genomecov.sh -s dataset.txt -g sacCer3.chrom.sizes -is -forcov
 
 :bulb: The previous commands can be called simultaneously
 
+
 ## Statistics
 
 ```
 sbatch statistics.sh
 ```
+
 
 ## Heatmaps of coverage over genes versus fragment size (Optional)
 
@@ -157,6 +168,7 @@ sbatch vap.sh -s dataset.txt -p vap_parameters.txt
 remove-bins.sh
 ```
 
+
 ## Two-dimensional occupancy (2DO) plots (Optional)
 
 ```
@@ -168,6 +180,7 @@ sbatch plot2do.sh -f ~/scratch/$dataset_name/dataset.txt -t dyads -r Plus1 -L 40
 `$dataset_name` is the folder containing the dataset files to be analyzed
 
 :bulb: To prevent out of memory errors when running `plot2do.sh`, use `--array` argument for `sbatch`, see [sbatch](sbatch.md)
+
 
 ## Distributions of MNase-ChIP-seq fragments relative to nucleosome dyads (Optional)
 

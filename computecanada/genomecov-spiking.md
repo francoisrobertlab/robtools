@@ -16,6 +16,7 @@ module load robtools
 * [Convert BAM to BED](#convert-bam-files-to-fragment-bed-files)
 * [Genome coverage](#genome-coverage)
 
+
 ## Align FASTQ files with spiked genome
 
 ### Download the FASTA file of the spiked genome and chromosomes size
@@ -47,6 +48,7 @@ sbatch bwa.sh --fasta Schizosaccharomyces_pombe_all_chromosomes.fa -os -pombe
 
 :bulb: To prevent out of memory errors, use `--array` argument for `sbatch`, see [sbatch](sbatch.md)
 
+
 ## Filter reads to remove poorly map reads and duplicates
 
 ```
@@ -55,11 +57,13 @@ sbatch filterbam.sh -is -pombe -os -pombe
 
 :bulb: To prevent out of memory errors, use `--array` argument for `sbatch`, see [sbatch](sbatch.md)
 
+
 ## Merge dataset samples data
 
 ```
 sbatch mergebam.sh --suffix -pombe-dedup
 ```
+
 
 ## Convert BAM files to fragment BED files
 
@@ -69,6 +73,7 @@ sbatch bam2bed.sh -s dataset.txt -is -pombe-dedup -os -pombe
 ```
 
 :bulb: The previous commands can be called simultaneously
+
 
 ## Genome coverage
 

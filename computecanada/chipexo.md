@@ -22,9 +22,11 @@ module load robtools
 * [Genome coverage](#genome-coverage)
 * [Statistics](#statistics)
 
+
 ## Upload dataset files to Compute Canada
 
 See [Uploading dataset files to Compute Canada server](upload.md)
+
 
 ## Trim FASTQ files (Optional)
 
@@ -37,6 +39,7 @@ sbatch trimmomatic.sh --trimmers "ILLUMINACLIP:TruSeq3-PE-2.fa:2:30:10:2:keepBot
 :bulb: Before running the command, make sure the adapters are present in the file used in the `ILLUMINACLIP` trimmer, see [Trimmomatic adapters files](https://github.com/timflutre/trimmomatic/tree/master/adapters)
 
 :bulb: To prevent out of memory errors, use `--array` argument for `sbatch`, see [sbatch](sbatch.md)
+
 
 ## Align FASTQ files with genome
 
@@ -67,6 +70,7 @@ sbatch bwa.sh --fasta sacCer3.fa
 
 :bulb: To prevent out of memory errors, use `--array` argument for `sbatch`, see [sbatch](sbatch.md)
 
+
 ## Filter reads to remove poorly map reads and duplicates
 
 ```
@@ -74,6 +78,7 @@ sbatch filterbam.sh
 ```
 
 :bulb: To prevent out of memory errors, use `--array` argument for `sbatch`, see [sbatch](sbatch.md)
+
 
 ## Quality control check
 
@@ -96,11 +101,13 @@ sbatch chipexoqual.sh --datasets dataset.txt
 
 Copy the PDF files produced by ChIPexoQual on your local computer using an FTP software and check the result. [See the documentation for ChIPexoQual](https://www.bioconductor.org/packages/release/bioc/vignettes/ChIPexoQual/inst/doc/vignette.html)
 
+
 ## Merge dataset samples data
 
 ```
 sbatch mergebam.sh --suffix -dedup
 ```
+
 
 ## Remove second mate
 
@@ -111,6 +118,7 @@ sbatch removesecondmate.sh -s dataset.txt
 
 :bulb: The previous commands can be called simultaneously
 
+
 ## Convert BAM files to fragment BED files
 
 ```
@@ -120,6 +128,7 @@ sbatch bam2bed.sh -s dataset.txt --unpaired -is -mate1
 
 :bulb: The previous commands can be called simultaneously
 
+
 ## Move annotations
 
 ```
@@ -128,6 +137,7 @@ sbatch shiftannotations.sh -s dataset.txt -g sacCer3.chrom.sizes -m -6 -p 6
 ```
 
 :bulb: The previous commands can be called simultaneously
+
 
 ## Genome coverage
 
@@ -141,6 +151,7 @@ sbatch genomecov.sh -s dataset.txt -g sacCer3.chrom.sizes -is -forcov -5 -strand
 ```
 
 :bulb: The previous commands can be called simultaneously
+
 
 ## Statistics
 

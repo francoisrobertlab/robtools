@@ -38,6 +38,7 @@ rm configure.sh
 source .bash_profile
 ```
 
+
 ## Install robtools
 
 Run installation script
@@ -52,6 +53,7 @@ Try robtools
 ```
 robtools --help
 ```
+
 
 ## Update robtools
 

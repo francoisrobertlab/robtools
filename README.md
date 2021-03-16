@@ -1,5 +1,6 @@
 # robtools: Tools to analyse next-generation sequencing data
 
+
 ### Install
 Install requirements:
 * [python version 3.7.4 or newer](https://www.python.org)
@@ -10,6 +11,7 @@ Install robtools.
 ```
 pip install git+https://git@github.com/francoisrobertlab/robtools.git
 ```
+
 
 ### Usage
 
@@ -23,6 +25,7 @@ You can see the parameters details by using the `-h` parameter:
 ```
 robtools -h
 ```
+
 
 ### Requirements
 

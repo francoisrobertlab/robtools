@@ -22,9 +22,11 @@ module load robtools
 * [Statistics](#statistics)
 * [Heatmaps of coverage over genes versus fragment size (Optional)](#heatmaps-of-coverage-over-genes-versus-fragment-size-optional)
 
+
 ## Upload dataset files to Compute Canada
 
 See [Uploading dataset files to Compute Canada server](upload.md)
+
 
 ## Trim FASTQ files (Optional)
 
@@ -37,6 +39,7 @@ sbatch trimmomatic.sh --trimmers "ILLUMINACLIP:TruSeq3-PE-2.fa:2:30:10:2:keepBot
 :bulb: Before running the command, make sure the adapters are present in the file used in the `ILLUMINACLIP` trimmer, see [Trimmomatic adapters files](https://github.com/timflutre/trimmomatic/tree/master/adapters)
 
 :bulb: To prevent out of memory errors, use `--array` argument for `sbatch`, see [sbatch](sbatch.md)
+
 
 ## Align FASTQ files with genome
 
@@ -67,6 +70,7 @@ sbatch bowtie2.sh -x sacCer3.fa.index
 
 :bulb: To prevent out of memory errors, use `--array` argument for `sbatch`, see [sbatch](sbatch.md)
 
+
 ## Filter reads to remove poorly map reads and duplicates
 
 ```
@@ -74,6 +78,7 @@ sbatch filterbam.sh
 ```
 
 :bulb: To prevent out of memory errors, use `--array` argument for `sbatch`, see [sbatch](sbatch.md)
+
 
 ## Quality control check
 
@@ -85,11 +90,13 @@ Copy the HTML and ZIP files produced by FastQC on your local computer using an F
 
 :bulb: Check HTML files ending with "-dedup.bam" first!
 
+
 ## Merge dataset samples data
 
 ```
 sbatch mergebam.sh --suffix -dedup
 ```
+
 
 ## Convert BAM files to fragment BED files
 
@@ -100,6 +107,7 @@ sbatch bam2bed.sh -s dataset.txt
 
 :bulb: The previous commands can be called simultaneously
 
+
 ## Ignore fragment strand
 
 ```
@@ -108,6 +116,7 @@ sbatch ignorestrand.sh -s dataset.txt
 ```
 
 :bulb: The previous commands can be called simultaneously
+
 
 ## Genome coverage
 
@@ -118,11 +127,13 @@ sbatch genomecov.sh -s dataset.txt -g sacCer3.chrom.sizes -is -forcov -5
 
 :bulb: The previous commands can be called simultaneously
 
+
 ## Statistics
 
 ```
 sbatch statistics.sh
 ```
+
 
 ## Heatmaps of coverage over genes versus fragment size (Optional)
 
