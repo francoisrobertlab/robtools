@@ -1,7 +1,7 @@
 # robtools: Tools to analyse next-generation sequencing data
 
 
-### Install
+## Install
 Install requirements:
 * [python version 3.7.4 or newer](https://www.python.org)
 * [Git](https://git-scm.com)
@@ -13,7 +13,7 @@ pip install git+https://git@github.com/francoisrobertlab/robtools.git
 ```
 
 
-### Usage
+## Usage
 
 The following executables are installed:
 * robtools - tools used by most ChIP-seq analysis.
@@ -27,7 +27,7 @@ robtools -h
 ```
 
 
-### Requirements
+## Requirements
 
 The following are required depending on the commands used:
 * [perl](https://www.perl.org)
