@@ -11,6 +11,7 @@ module load robtools
 #### Steps
 
 * [Upload dataset files to Compute Canada](#upload-dataset-files-to-compute-canada)
+* [Download FASTA file of the genome](#download-fasta-file-of-the-genome)
 * [Trim FASTQ files (Optional)](#trim-fastq-files-optional)
 * [Align FASTQ files](#align-fastq-files-with-genome)
 * [Filter reads](#filter-reads-to-remove-poorly-map-reads-and-duplicates)
@@ -24,6 +25,21 @@ module load robtools
 ## Upload dataset files to Compute Canada
 
 See [Uploading dataset files to Compute Canada server](upload.md)
+
+
+## Download FASTA file of the genome
+
+1. Go to the [UCSC Genome Browser downloads](http://hgdownload.soe.ucsc.edu/downloads.html)
+2. Select organism
+3. Select "*Genome sequence files and select annotations*"
+4. Download the *2bit* file of the organism like *sacCer3.2bit* for Yeast
+5. [Upload the files to Compute Canada server in the same folder of the dataset files](upload.md)
+6. Convert the *2bit* file into a `FASTA` and `chromosome sizes` file using the following commands
+
+```
+twoBitToFa sacCer3.2bit sacCer3.fa
+twoBitInfo sacCer3.2bit sacCer3.chrom.sizes
+```
 
 
 ## Trim FASTQ files (Optional)
@@ -40,22 +56,6 @@ sbatch trimmomatic.sh --trimmers "ILLUMINACLIP:TruSeq3-PE-2.fa:2:30:10:2:keepBot
 
 
 ## Align FASTQ files with genome
-
-### Download the FASTA file of the genome and chromosomes size
-
-1. Go to the [UCSC Genome Browser downloads](http://hgdownload.soe.ucsc.edu/downloads.html)
-2. Select organism
-3. Select "*Genome sequence files and select annotations*"
-4. Download the *2bit* file of the organism like *sacCer3.2bit* for Yeast
-4. Download the *chrom.sizes* file of the organism like *sacCer3.chrom.sizes* for Yeast
-5. [Upload the files to Compute Canada server in the same folder of the dataset files](upload.md)
-6. Convert the *2bit* file into a FASTA file using the following command
-
-```
-twoBitToFa sacCer3.2bit sacCer3.fa
-```
-
-### Run bowtie2
 
 Run the following commands
 
