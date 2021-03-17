@@ -43,10 +43,10 @@ def bwa_samples(samples='samples.txt', fasta='sacCer3.fa', threads=None, input_s
 def bwa_sample(sample, fasta, threads=None, input_suffix='', output_suffix='', bwa_args=()):
     '''Align one sample using bwa program.'''
     print ('Running BWA on sample {}'.format(sample))
-    fastq1 = Fastq.fastq(sample, 1, input_suffix)
+    fastq1 = Fastq.fastq(sample + input_suffix, 1)
     if fastq1 is None:
-        raise AssertionError('Cannot find FASTQ files for sample ' + sample)
-    fastq2 = Fastq.fastq(sample, 2, input_suffix)
+        raise AssertionError('Cannot find FASTQ files for sample ' + sample + input_suffix)
+    fastq2 = Fastq.fastq(sample + input_suffix, 2)
     paired = fastq2 is not None and os.path.isfile(fastq2)
     bam = sample + output_suffix + '.bam'
     run_bwa(fastq1, fastq2, fasta, bam, threads, bwa_args)

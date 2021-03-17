@@ -125,8 +125,8 @@ def test_bwa_sample(testdir, mock_testclass):
     b.run_bwa = MagicMock()
     Fastq.fastq = MagicMock(side_effect=[fastq, fastq2])
     b.bwa_sample(sample, fasta)
-    Fastq.fastq.assert_any_call(sample, 1, '')
-    Fastq.fastq.assert_any_call(sample, 2, '')
+    Fastq.fastq.assert_any_call(sample, 1)
+    Fastq.fastq.assert_any_call(sample, 2)
     b.run_bwa.assert_called_once_with(fastq, fastq2, fasta, bam, None, ())
 
 
@@ -143,8 +143,8 @@ def test_bwa_sample_parameters(testdir, mock_testclass):
     b.run_bwa = MagicMock()
     Fastq.fastq = MagicMock(side_effect=[fastq, fastq2])
     b.bwa_sample(sample, fasta, threads, input_suffix, output_suffix, bwa_args=bwa_args)
-    Fastq.fastq.assert_any_call(sample, 1, input_suffix)
-    Fastq.fastq.assert_any_call(sample, 2, input_suffix)
+    Fastq.fastq.assert_any_call(sample + input_suffix, 1)
+    Fastq.fastq.assert_any_call(sample + input_suffix, 2)
     b.run_bwa.assert_called_once_with(fastq, fastq2, fasta, bam, threads, bwa_args)
 
 
@@ -156,8 +156,8 @@ def test_bwa_sample_single(testdir, mock_testclass):
     b.run_bwa = MagicMock()
     Fastq.fastq = MagicMock(side_effect=[fastq, None])
     b.bwa_sample(sample, fasta)
-    Fastq.fastq.assert_any_call(sample, 1, '')
-    Fastq.fastq.assert_any_call(sample, 2, '')
+    Fastq.fastq.assert_any_call(sample, 1)
+    Fastq.fastq.assert_any_call(sample, 2)
     b.run_bwa.assert_called_once_with(fastq, None, fasta, bam, None, ())
 
 

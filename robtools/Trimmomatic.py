@@ -49,11 +49,11 @@ def trimmomatic_samples(samples='samples.txt', input_suffix='', output_suffix='-
 def trimmomatic_sample(sample, input_suffix='', output_suffix='-trim', paired_suffix='-paired', unpaired_suffix='-unpaired', trimmers=None, trim_args=()):
     '''Trim FASTQ of one sample files using trimmomatic program.'''
     print ('Trim FASTQ files of sample {}'.format(sample))
-    fastq1 = Fastq.fastq(sample, 1, input_suffix)
+    fastq1 = Fastq.fastq(sample + input_suffix, 1)
     if fastq1 is None:
-        raise AssertionError('Cannot find FASTQ files for sample ' + sample)
+        raise AssertionError('Cannot find FASTQ files for sample ' + sample + input_suffix)
     suffix1 = fastq1[len(sample) + len(input_suffix): len(fastq1)]
-    fastq2 = Fastq.fastq(sample, 2, input_suffix)
+    fastq2 = Fastq.fastq(sample + input_suffix, 2)
     if trimmers:
         trimmers = trimmers.split()
         trimmers = fix_adapters(trimmers)

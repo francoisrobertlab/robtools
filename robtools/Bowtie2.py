@@ -41,10 +41,10 @@ def bowtie_samples(samples='samples.txt', threads=None, input_suffix='', output_
 def bowtie_sample(sample, threads=None, input_suffix='', output_suffix='', bowtie_args=()):
     '''Align one sample using bowtie2 program.'''
     print ('Running bowtie2 on sample {}'.format(sample))
-    fastq1 = Fastq.fastq(sample, 1, input_suffix)
+    fastq1 = Fastq.fastq(sample + input_suffix, 1)
     if fastq1 is None:
-        raise AssertionError('Cannot find FASTQ files for sample ' + sample)
-    fastq2 = Fastq.fastq(sample, 2, input_suffix)
+        raise AssertionError('Cannot find FASTQ files for sample ' + sample + input_suffix)
+    fastq2 = Fastq.fastq(sample + input_suffix, 2)
     paired = fastq2 is not None and os.path.isfile(fastq2)
     bam = sample + output_suffix + '.bam'
     run_bowtie(fastq1, fastq2, bam, threads, bowtie_args)
