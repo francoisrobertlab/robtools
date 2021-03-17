@@ -44,7 +44,7 @@ def merge_dataset(name, samples, sizes):
         output.write('track type=bedGraph name="' + name + '"\n')
         for size_columns in sizes_columns:
             chromosome = size_columns[0]
-            size = size_columns[1]
+            size = int(size_columns[1])
             sums = [0] * size
             for bw in bws:
                 bw_size = bw.chroms(chromosome) if bw.chroms(chromosome) else 0
