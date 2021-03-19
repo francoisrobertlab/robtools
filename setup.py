@@ -20,7 +20,8 @@ setup(
         'matplotlib>=3.1.1',
         'scipy>=1.3.2',
         'lmfit>=1.0.0',
-        'pysam>=0.15.4'
+        'pysam>=0.15.4',
+        'macs2>=2.2.7.1'
     ],
     entry_points={
         'console_scripts': [
