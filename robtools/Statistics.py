@@ -20,10 +20,10 @@ from robtools.txt import Parser
               help='Suffix added to sample name for BAM containing low quality reads and duplicates.')
 @click.option('--filtered-suffix', '-fs', default='-filtered', show_default=True,
               help='Suffix added to sample name for BAM without low quality reads but with duplicates.')
-@click.option('--fragments/--no-fragments', default=False, show_default=True,
-              help='Compute fragments statistics.')
 @click.option('--fragment-suffix', '-es', default='', show_default=True,
               help='Suffix added to sample name for BED containing all fragments.')
+@click.option('--fragments/--no-fragments', default=False, show_default=True,
+              help='Compute fragments statistics.')
 @click.option('--output', '-o', type=click.Path(), default='statistics.txt', show_default=True,
               help='Output file were statistics are written.')
 def statistics(samples, datasets, bam_suffix, filtered_suffix, fragment_suffix, fragments, output):
