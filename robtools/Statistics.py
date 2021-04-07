@@ -16,35 +16,41 @@ from robtools.txt import Parser
               help='Sample names listed one sample name by line.')
 @click.option('--datasets', '-d', type=click.Path(), default='dataset.txt', show_default=True,
               help='Dataset name if first columns and sample names on following columns - tab delimited.')
+@click.option('--bam-suffix', '-bs', default='', show_default=True,
+              help='Suffix added to sample name for BAM containing low quality reads and duplicates.')
+@click.option('--filtered-suffix', '-fs', default='-filtered', show_default=True,
+              help='Suffix added to sample name for BAM without low quality reads but with duplicates.')
 @click.option('--fragments/--no-fragments', default=False, show_default=True,
               help='Compute fragments statistics.')
+@click.option('--fragment-suffix', '-es', default='', show_default=True,
+              help='Suffix added to sample name for BED containing all fragments.')
 @click.option('--output', '-o', type=click.Path(), default='statistics.txt', show_default=True,
               help='Output file were statistics are written.')
-def statistics(samples, datasets, fragments, output):
+def statistics(samples, datasets, bam_suffix, filtered_suffix, fragment_suffix, fragments, output):
     '''Creates statistics file for samples.'''
     logging.basicConfig(filename='robtools.log', level=logging.DEBUG, format='%(asctime)s %(levelname)-8s %(message)s', datefmt='%Y-%m-%d %H:%M:%S')
-    statistics_samples(samples, datasets, fragments, output)
+    statistics_samples(samples, datasets, bam_suffix, filtered_suffix, fragment_suffix, fragments, output)
 
 
-def statistics_samples(samples='samples.txt', datasets='dataset.txt', fragments=False, output='statistics.txt'):
+def statistics_samples(samples='samples.txt', datasets='dataset.txt', bam_suffix='', filtered_suffix='-filtered', fragment_suffix='', fragments=False, output='statistics.txt'):
     '''Creates statistics file for samples.'''
     sample_names = Parser.first(samples)
     datasets_names = []
     if os.path.exists(datasets):
         datasets_names = Parser.first(datasets)
-    compute_statistics(sample_names, datasets_names, fragments, output)
+    compute_statistics(sample_names, datasets_names, bam_suffix, filtered_suffix, fragment_suffix, fragments, output)
 
 
-def compute_statistics(samples, datasets, fragments, output):
+def compute_statistics(samples, datasets, bam_suffix='', filtered_suffix='-filtered', fragment_suffix='', fragments=False, output='statistics.txt'):
     all_headers = headers(samples, datasets, fragments)
     splits = all_headers[1]
     samples_stats = []
     for sample in samples:
-        sample_stats = sample_statistics(sample, splits, fragments)
+        sample_stats = sample_statistics(sample, splits, bam_suffix, filtered_suffix, fragment_suffix, fragments)
         samples_stats.append(sample_stats)
     if datasets:
         for dataset in datasets:
-            sample_stats = sample_statistics(dataset, splits, fragments)
+            sample_stats = sample_statistics(dataset, splits, bam_suffix, filtered_suffix, fragment_suffix, fragments)
             samples_stats.append(sample_stats)
     with open(output, 'w') as out:
         out.write('\t'.join(all_headers[0]))
@@ -71,22 +77,22 @@ def headers(samples, datasets, fragments):
     return (headers, splits_headers)
     
     
-def sample_statistics(sample, splits, fragments):
+def sample_statistics(sample, splits, bam_suffix='', filtered_suffix='-filtered', fragment_suffix='', fragments=False):
     '''Statistics of a single sample.'''
     print ('Computing statistics for sample {}'.format(sample))
     sample_stats = [sample]
-    bam = sample + '.bam'
-    sample_stats.extend([flagstat_total(bam) if os.path.isfile(bam) else ''])
-    bam_filtered = sample + '-filtered.bam'
-    sample_stats.extend([flagstat_total(bam_filtered) if os.path.isfile(bam_filtered) else ''])
-    bed = sample + '.bed'
+    bam = sample + bam_suffix + '.bam'
+    sample_stats.append(flagstat_total(bam) if os.path.isfile(bam) else '')
+    bam_filtered = sample + filtered_suffix + '.bam'
+    sample_stats.append(flagstat_total(bam_filtered) if os.path.isfile(bam_filtered) else '')
+    bed = sample + fragment_suffix + '.bed'
     sample_stats.extend([Bed.count_bed(bed) * 2 if os.path.isfile(bed) else ''])
     if fragments:
         sizes = fragment_sizes(bed)
         sample_stats.append(mean(sizes))
         sample_stats.append(stdev(sizes))
     if splits:
-        beds = [sample + '-' + split + '.bed' for split in splits]
+        beds = [sample + fragment_suffix + '-' + split + '.bed' for split in splits]
         counts = [Bed.count_bed(sbed) if os.path.isfile(sbed) else '' for sbed in beds]
         sample_stats.extend(counts)
     return sample_stats

@@ -47,18 +47,21 @@ def test_statistics(testdir, mock_testclass):
     runner = CliRunner()
     result = runner.invoke(s.statistics, ['-s', samples])
     assert result.exit_code == 0
-    s.statistics_samples.assert_called_once_with(samples, 'dataset.txt', False, 'statistics.txt')
+    s.statistics_samples.assert_called_once_with(samples, 'dataset.txt', '', '-filtered', '', False, 'statistics.txt')
 
 
 def test_statistics_parameters(testdir, mock_testclass):
     samples = Path(__file__).parent.joinpath('samples.txt')
     datasets = Path(__file__).parent.joinpath('dataset.txt')
+    bam_suffix = '-raw'
+    filtered_suffix = '-high'
+    fragment_suffix = '-fragments'
     output = 'out.txt'
     s.statistics_samples = MagicMock()
     runner = CliRunner()
-    result = runner.invoke(s.statistics, ['-s', samples, '-d', datasets, '--fragments', '-o', output])
+    result = runner.invoke(s.statistics, ['-s', samples, '-d', datasets, '--bam-suffix', bam_suffix, '--filtered-suffix', filtered_suffix, '--fragment-suffix', fragment_suffix, '--fragments', '-o', output])
     assert result.exit_code == 0
-    s.statistics_samples.assert_called_once_with(samples, datasets, True, output)
+    s.statistics_samples.assert_called_once_with(samples, datasets, bam_suffix, filtered_suffix, fragment_suffix, True, output)
 
 
 def test_statistics_samplesnotexists(testdir, mock_testclass):
@@ -77,7 +80,7 @@ def test_statistics_datasetsnotexists(testdir, mock_testclass):
     runner = CliRunner()
     result = runner.invoke(s.statistics, ['-s', samples, '-d', datasets])
     assert result.exit_code == 0
-    s.statistics_samples.assert_called_once_with(samples, datasets, False, 'statistics.txt')
+    s.statistics_samples.assert_called_once_with(samples, datasets, '', '-filtered', '', False, 'statistics.txt')
 
 
 def test_statistics_samples(testdir, mock_testclass):
@@ -85,7 +88,7 @@ def test_statistics_samples(testdir, mock_testclass):
     datasets = Path(__file__).parent.joinpath('dataset.txt')
     s.compute_statistics = MagicMock()
     s.statistics_samples(samples, datasets)
-    s.compute_statistics.assert_called_once_with(['POLR2A', 'ASDURF', 'POLR1C'], ['POLR2A', 'ASDURF', 'POLR1C'], False, 'statistics.txt')
+    s.compute_statistics.assert_called_once_with(['POLR2A', 'ASDURF', 'POLR1C'], ['POLR2A', 'ASDURF', 'POLR1C'], '', '-filtered', '', False, 'statistics.txt')
 
 
 def test_statistics_samples_datasetsnotexists(testdir, mock_testclass):
@@ -93,7 +96,7 @@ def test_statistics_samples_datasetsnotexists(testdir, mock_testclass):
     datasets = 'dataset.txt'
     s.compute_statistics = MagicMock()
     s.statistics_samples(samples, datasets)
-    s.compute_statistics.assert_called_once_with(['POLR2A', 'ASDURF', 'POLR1C'], [], False, 'statistics.txt')
+    s.compute_statistics.assert_called_once_with(['POLR2A', 'ASDURF', 'POLR1C'], [], '', '-filtered', '', False, 'statistics.txt')
 
 
 def test_statistics_samples_parameters(testdir, mock_testclass):
@@ -101,25 +104,28 @@ def test_statistics_samples_parameters(testdir, mock_testclass):
     sample_pandas = ['samples-pandas']
     datasets = Path(__file__).parent.joinpath('dataset.txt')
     datasets_pandas = ['datasets-pandas']
+    bam_suffix = '-raw'
+    filtered_suffix = '-high'
+    fragment_suffix = '-fragments'
+    fragments = True
     output = 'out.txt'
     s.compute_statistics = MagicMock()
-    s.statistics_samples(samples, datasets, True, output)
-    s.compute_statistics.assert_called_once_with(['POLR2A', 'ASDURF', 'POLR1C'], ['POLR2A', 'ASDURF', 'POLR1C'], True, output)
+    s.statistics_samples(samples, datasets, bam_suffix, filtered_suffix, fragment_suffix, fragments, output)
+    s.compute_statistics.assert_called_once_with(['POLR2A', 'ASDURF', 'POLR1C'], ['POLR2A', 'ASDURF', 'POLR1C'], bam_suffix, filtered_suffix, fragment_suffix, fragments, output)
 
 
 def test_compute_statistics(testdir, mock_testclass):
     samples = ['POLR2A', 'ASDURF']
     datasets = ['POLR1C']
-    fragments = False
     output = 'out.txt'
     splits = ['100-110', '120-130']
     s.headers = MagicMock(return_value=(['Sample', 'Total reads', 'Mapped reads', 'Deduplicated reads', '100-110', '120-130'], splits))
     s.sample_statistics = MagicMock(side_effect=[['POLR2A', 500, 400, 300, 60, 40], ['ASDURF', 550, 450, 350, 70, 50], ['POLR1C', '', '', 250, 50, 30]])
-    s.compute_statistics(samples, datasets, fragments, output)
-    s.headers.assert_called_once_with(samples, datasets, fragments)
-    s.sample_statistics.assert_any_call(samples[0], splits, fragments)
-    s.sample_statistics.assert_any_call(samples[1], splits, fragments)
-    s.sample_statistics.assert_any_call(datasets[0], splits, fragments)
+    s.compute_statistics(samples, datasets, output=output)
+    s.headers.assert_called_once_with(samples, datasets, False)
+    s.sample_statistics.assert_any_call(samples[0], splits, '', '-filtered', '', False)
+    s.sample_statistics.assert_any_call(samples[1], splits, '', '-filtered', '', False)
+    s.sample_statistics.assert_any_call(datasets[0], splits, '', '-filtered', '', False)
     with open(output, 'r') as infile:
         assert infile.readline() == 'Sample\tTotal reads\tMapped reads\tDeduplicated reads\t100-110\t120-130\n'
         assert infile.readline() == 'POLR2A\t500\t400\t300\t60\t40\n'
@@ -131,16 +137,19 @@ def test_compute_statistics(testdir, mock_testclass):
 def test_compute_statistics_parameters(testdir, mock_testclass):
     samples = ['POLR2A', 'ASDURF']
     datasets = ['POLR1C']
+    bam_suffix = '-raw'
+    filtered_suffix = '-high'
+    fragment_suffix = '-fragments'
     fragments = True
     output = 'out.txt'
     splits = ['100-110', '120-130']
     s.headers = MagicMock(return_value=(['Sample', 'Total reads', 'Mapped reads', 'Deduplicated reads', 'Fragments average size', 'Fragments size std', '100-110', '120-130'], splits))
     s.sample_statistics = MagicMock(side_effect=[['POLR2A', 500, 400, 300, 75.4, 13.7, 60, 40], ['ASDURF', 550, 450, 350, 70, 15, 70, 50], ['POLR1C', '', '', 250, 80, 20, 50, 30]])
-    s.compute_statistics(samples, datasets, fragments, output)
+    s.compute_statistics(samples, datasets, bam_suffix, filtered_suffix, fragment_suffix, fragments, output)
     s.headers.assert_called_once_with(samples, datasets, fragments)
-    s.sample_statistics.assert_any_call(samples[0], splits, fragments)
-    s.sample_statistics.assert_any_call(samples[1], splits, fragments)
-    s.sample_statistics.assert_any_call(datasets[0], splits, fragments)
+    s.sample_statistics.assert_any_call(samples[0], splits, bam_suffix, filtered_suffix, fragment_suffix, fragments)
+    s.sample_statistics.assert_any_call(samples[1], splits, bam_suffix, filtered_suffix, fragment_suffix, fragments)
+    s.sample_statistics.assert_any_call(datasets[0], splits, bam_suffix, filtered_suffix, fragment_suffix, fragments)
     with open(output, 'r') as infile:
         assert infile.readline() == 'Sample\tTotal reads\tMapped reads\tDeduplicated reads\tFragments average size\tFragments size std\t100-110\t120-130\n'
         assert infile.readline() == 'POLR2A\t500\t400\t300\t75.4\t13.7\t60\t40\n'
@@ -225,7 +234,7 @@ def test_sample_statistics(testdir, mock_testclass):
         Path(sample + '-' + split + '.bed').touch()
     s.flagstat_total = MagicMock(side_effect=[300, 200])
     Bed.count_bed = MagicMock(side_effect=[150, 50, 40])
-    stats = s.sample_statistics(sample, splits, False)
+    stats = s.sample_statistics(sample, splits)
     assert stats[0] == sample
     assert stats[1] == 300
     assert stats[2] == 200
@@ -240,18 +249,22 @@ def test_sample_statistics(testdir, mock_testclass):
     Bed.count_bed.assert_any_call(sample + '-120-130.bed')
 
 
-def test_sample_statistics_fragments(testdir, mock_testclass):
+def test_sample_statistics_parameters(testdir, mock_testclass):
     sample = 'POLR2A'
-    Path(sample + '.bam').touch()
-    Path(sample + '-filtered.bam').touch()
-    Path(sample + '.bed').touch()
+    bam_suffix = '-raw'
+    filtered_suffix = '-high'
+    fragment_suffix = '-fragments'
+    fragments = True
+    Path(sample + bam_suffix + '.bam').touch()
+    Path(sample + filtered_suffix + '.bam').touch()
+    Path(sample + fragment_suffix + '.bed').touch()
     splits = ['100-110', '120-130']
     for split in splits:
-        Path(sample + '-' + split + '.bed').touch()
+        Path(sample + fragment_suffix + '-' + split + '.bed').touch()
     s.flagstat_total = MagicMock(side_effect=[300, 200])
     s.fragment_sizes = MagicMock(return_value=[100, 90, 110])
     Bed.count_bed = MagicMock(side_effect=[150, 50, 40])
-    stats = s.sample_statistics(sample, splits, True)
+    stats = s.sample_statistics(sample, splits, bam_suffix, filtered_suffix, fragment_suffix, fragments)
     assert stats[0] == sample
     assert stats[1] == 300
     assert stats[2] == 200
@@ -261,12 +274,12 @@ def test_sample_statistics_fragments(testdir, mock_testclass):
     assert stats[6] == 50
     assert stats[7] == 40
     assert len(stats) == 8
-    s.flagstat_total.assert_any_call(sample + '.bam')
-    s.flagstat_total.assert_any_call(sample + '-filtered.bam')
-    s.fragment_sizes.assert_any_call(sample + '.bed')
-    Bed.count_bed.assert_any_call(sample + '.bed')
-    Bed.count_bed.assert_any_call(sample + '-100-110.bed')
-    Bed.count_bed.assert_any_call(sample + '-120-130.bed')
+    s.flagstat_total.assert_any_call(sample + '-raw.bam')
+    s.flagstat_total.assert_any_call(sample + '-high.bam')
+    s.fragment_sizes.assert_any_call(sample + '-fragments.bed')
+    Bed.count_bed.assert_any_call(sample + '-fragments.bed')
+    Bed.count_bed.assert_any_call(sample + '-fragments-100-110.bed')
+    Bed.count_bed.assert_any_call(sample + '-fragments-120-130.bed')
 
 
 def test_sample_statistics_notexists(testdir, mock_testclass):
@@ -274,7 +287,7 @@ def test_sample_statistics_notexists(testdir, mock_testclass):
     splits = ['100-110', '120-130']
     s.flagstat_total = MagicMock(side_effect=[300, 200])
     Bed.count_bed = MagicMock(side_effect=[150, 50, 40])
-    stats = s.sample_statistics(sample, splits, False)
+    stats = s.sample_statistics(sample, splits)
     assert stats[0] == sample
     assert stats[1] == ''
     assert stats[2] == ''

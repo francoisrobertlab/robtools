@@ -355,7 +355,7 @@ def test_robtools_statistics(testdir, mock_testclass):
     result = runner.invoke(robtools.robtools, ['statistics', '--samples', samples, '--datasets', datasets, '--output', output])
     logging.warning(result.output)
     assert result.exit_code == 0
-    Statistics.statistics_samples.assert_called_once_with(samples, datasets, False, output)
+    Statistics.statistics_samples.assert_called_once_with(samples, datasets, '', '-filtered', '', False, output)
 
 
 def test_robtools_trimmomatic(testdir, mock_testclass):
