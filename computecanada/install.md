@@ -1,17 +1,15 @@
-# Install/Update/Delete robtools on Compute Canada servers
+# Install/Delete robtools on Compute Canada servers
 
 :memo: *The examples use Beluga server*
 
 
 #### Options
 
-* [Requirements](#requirements)
 * [Install](#install-robtools)
-* [Udate](#update-robtools)
 * [Delete](#delete-robtools)
 
 
-## Requirements
+## Install robtools
 
 ### Connect to the server
 
@@ -26,27 +24,12 @@ ssh beluga.computecanada.ca
 ### Run the configuration script
 
 ```
-curl https://raw.githubusercontent.com/francoisrobertlab/robtools/master/install/configure.sh >> configure.sh
-chmod 744 configure.sh
-./configure.sh $email@ircm.qc.ca
-```
-
-Replace `$email@ircm.qc.ca` with your email address
-
-```
-rm configure.sh
+./projects/$PROJECT/robtools/install/configure.sh
 source .bash_profile
-```
-
-
-## Install robtools
-
-Run installation script
-
-```
 module load robtools
-install.sh
 ```
+
+:bulb: Replace `$PROJECT` with the project name
 
 Try robtools
 
@@ -54,22 +37,29 @@ Try robtools
 robtools --help
 ```
 
-
-## Update robtools
-
-Run installation script
+#### To receive emails for jobs, run this command:
 
 ```
-module load robtools
-install.sh
+email-sbatch.sh $email@ircm.qc.ca
 ```
+
+:bulb: Replace `$email@ircm.qc.ca` with your email address
 
 
 ## Delete robtools
 
-Run installation script with `clean` option
+#### Run configuration script with `clean` option
 
 ```
-module load robtools
-install.sh clean
+./projects/$PROJECT/robtools/install/configure.sh clean
 ```
+
+:bulb: Replace `$PROJECT` with the project name
+
+#### Optional: To stop receiving emails for jobs, run this command:
+
+```
+./projects/$PROJECT/robtools/install/email-sbatch.sh clean
+```
+
+:bulb: Replace `$PROJECT` with the project name
