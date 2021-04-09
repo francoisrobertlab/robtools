@@ -3,7 +3,7 @@ For detailed instructions, go to:
     https://groups.csail.mit.edu/cgs/gem/
 
 This module loads the following modules and their requirements:
-    - java/13.0.2
+    - java/1.8.0_121
     - robtools-core
 ]])
 
