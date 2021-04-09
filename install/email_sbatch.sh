@@ -10,6 +10,7 @@ if [ "$1" == "clean" ] ; then
         INDEX=$(grep -n "alias sbatch=" ~/.bash_profile | cut -d: -f1)
         sed -i "$((INDEX)),$((INDEX+1))d" ~/.bash_profile
     fi
+    exit 0
 fi
 
 EMAIL=$1
