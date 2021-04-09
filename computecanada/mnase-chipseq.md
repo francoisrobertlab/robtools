@@ -4,7 +4,7 @@
 
 :pill: Load the `robtools` module before running any command in this page
 
-```
+```shell
 module load robtools
 ```
 
@@ -40,7 +40,7 @@ See [Uploading dataset files to Compute Canada server](upload.md)
 5. [Upload the files to Compute Canada server in the same folder of the dataset files](upload.md)
 6. Convert the *2bit* file into a `FASTA` and `chromosome sizes` file using the following commands
 
-```
+```shell
 twoBitToFa sacCer3.2bit sacCer3.fa
 twoBitInfo sacCer3.2bit sacCer3.chrom.sizes
 ```
@@ -50,7 +50,7 @@ twoBitInfo sacCer3.2bit sacCer3.chrom.sizes
 
 Run the following command
 
-```
+```shell
 sbatch trimmomatic.sh --trimmers "ILLUMINACLIP:TruSeq3-PE-2.fa:2:30:10:2:keepBothReads LEADING:3 TRAILING:3 MINLEN:36"
 ```
 
@@ -63,7 +63,7 @@ sbatch trimmomatic.sh --trimmers "ILLUMINACLIP:TruSeq3-PE-2.fa:2:30:10:2:keepBot
 
 Run the following commands
 
-```
+```shell
 bowtie2-build sacCer3.fa sacCer3.fa.index
 sbatch bowtie2.sh -x sacCer3.fa.index -X 1000 
 ```
@@ -75,7 +75,7 @@ sbatch bowtie2.sh -x sacCer3.fa.index -X 1000
 
 ## Filter reads to remove poorly map reads and duplicates
 
-```
+```shell
 sbatch filterbam.sh
 ```
 
@@ -84,7 +84,7 @@ sbatch filterbam.sh
 
 ## Quality control check
 
-```
+```shell
 sbatch fastqc.sh *.bam
 ```
 
@@ -95,14 +95,14 @@ Copy the HTML and ZIP files produced by FastQC on your local computer using an F
 
 ## Merge dataset samples data
 
-```
+```shell
 sbatch mergebam.sh --suffix -dedup
 ```
 
 
 ## Convert BAM files to fragment BED files
 
-```
+```shell
 sbatch bam2bed.sh
 sbatch bam2bed.sh -s dataset.txt
 ```
@@ -112,7 +112,7 @@ sbatch bam2bed.sh -s dataset.txt
 
 ## Keep only middle nucleotide
 
-```
+```shell
 sbatch centerannotations.sh
 sbatch centerannotations.sh -s dataset.txt
 ```
@@ -122,7 +122,7 @@ sbatch centerannotations.sh -s dataset.txt
 
 ## Genome coverage
 
-```
+```shell
 sbatch genomecov.sh -g sacCer3.chrom.sizes -is -forcov
 sbatch genomecov.sh -s dataset.txt -g sacCer3.chrom.sizes -is -forcov
 ```
@@ -132,7 +132,7 @@ sbatch genomecov.sh -s dataset.txt -g sacCer3.chrom.sizes -is -forcov
 
 ## Statistics
 
-```
+```shell
 sbatch statistics.sh
 ```
 
@@ -147,7 +147,7 @@ An example of such files for yeast is available [here](mnase-chipseq/vap/sacCer3
 
 For yeast, you can copy the example files using these commands
 
-```
+```shell
 curl https://raw.githubusercontent.com/francoisrobertlab/robtools/master/computecanada/mnase-chipseq/vap/sacCer3/vap_parameters.txt >> vap_parameters.txt
 curl https://raw.githubusercontent.com/francoisrobertlab/robtools/master/computecanada/mnase-chipseq/vap/sacCer3/Group_AllLongGenes_TxSorted.txt >> Group_AllLongGenes_TxSorted.txt
 curl https://raw.githubusercontent.com/francoisrobertlab/robtools/master/computecanada/mnase-chipseq/vap/sacCer3/sgdGeneAndOthers_UTR_TIF-seq_sacCer3_july_2018.txt >> sgdGeneAndOthers_UTR_TIF-seq_sacCer3_july_2018.txt
@@ -155,13 +155,13 @@ curl https://raw.githubusercontent.com/francoisrobertlab/robtools/master/compute
 
 ### Run the analysis
 
-```
+```shell
 sbatch split.sh -s dataset.txt --binLength 10 --binMinLength 50 --binMaxLength 500
 ```
 
 :bulb: To prevent out of memory errors when running `split.sh`, use `--array` argument for `sbatch`, see [sbatch](sbatch.md)
 
-```
+```shell
 sbatch centerannotations.sh -s dataset.txt
 sbatch genomecov.sh -s dataset.txt -g sacCer3.chrom.sizes -is -forcov
 sbatch vap.sh -s dataset.txt -p vap_parameters.txt
@@ -171,7 +171,7 @@ remove-bins.sh
 
 ## Two-dimensional occupancy (2DO) plots (Optional)
 
-```
+```shell
 module load plot2do
 cd ~/projects/def-robertf/plot2DO
 sbatch plot2do.sh -f ~/scratch/$dataset_name/dataset.txt -t dyads -r Plus1 -L 400 -m 0.02
@@ -190,14 +190,14 @@ sbatch plot2do.sh -f ~/scratch/$dataset_name/dataset.txt -t dyads -r Plus1 -L 40
 
 Copy [first dyad positions](mnase-chipseq/dyads/sacCer3/first_dyad.txt) and [second dyad positions](mnase-chipseq/dyads/sacCer3/second_dyad.txt) to Compute Canada
 
-```
+```shell
 curl https://raw.githubusercontent.com/francoisrobertlab/robtools/master/computecanada/mnase-chipseq/dyads/sacCer3/first_dyad.txt >> first_dyad.txt
 curl https://raw.githubusercontent.com/francoisrobertlab/robtools/master/computecanada/mnase-chipseq/dyads/sacCer3/second_dyad.txt >> second_dyad.txt
 ```
 
 ### Run the analysis
 
-```
+```shell
 sbatch slowsplit.sh -s dataset.txt --binLength 11 --binMinLength 63 --binMaxLength 73
 sbatch slowsplit.sh -s dataset.txt --binLength 11 --binMinLength 85 --binMaxLength 95
 sbatch slowsplit.sh -s dataset.txt --binLength 11 --binMinLength 98 --binMaxLength 108
@@ -206,21 +206,21 @@ sbatch slowsplit.sh -s dataset.txt --binLength 11 --binMinLength 120 --binMaxLen
 
 :bulb: The previous commands can be called simultaneously
 
-```
+```shell
 sbatch centerannotations.sh -s dataset.txt
 sbatch genomecov.sh -s dataset.txt -g sacCer3.chrom.sizes -is -forcov
 ```
 
 :warning: The previous commands must be called sequentially
 
-```
+```shell
 sbatch dyadcoverage.sh -s dataset.txt --smoothing 20 -g first_dyad.txt --suffix _first_dyad
 sbatch dyadcoverage.sh -s dataset.txt --smoothing 20 -g second_dyad.txt --suffix _second_dyad
 ```
 
 :bulb: The previous commands can be called simultaneously
 
-```
+```shell
 sbatch fitgaussian.sh -s dataset.txt --svg --amin 0 --suffix _first_dyad
 sbatch fitgaussian.sh -s dataset.txt --svg --amin 0 --suffix _second_dyad
 sbatch fitdoublegaussian.sh -s dataset.txt --gaussian --svg --amin1 0 --amin2 0 --suffix _first_dyad
@@ -229,6 +229,6 @@ sbatch fitdoublegaussian.sh -s dataset.txt --gaussian --svg --amin1 0 --amin2 0 
 
 :bulb: The previous commands can be called simultaneously
 
-```
+```shell
 remove-bins.sh
 ```

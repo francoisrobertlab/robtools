@@ -17,13 +17,13 @@ Use SSH command inside a terminal on [Mac](https://support.apple.com/en-ca/guide
 
 On older versions of Windows, use [Putty](https://www.putty.org)
 
-```
+```shell
 ssh beluga.computecanada.ca
 ```
 
 ### Run the configuration script
 
-```
+```shell
 ./projects/$PROJECT/robtools/install/configure.sh
 source .bash_profile
 module load robtools
@@ -33,13 +33,13 @@ module load robtools
 
 Try robtools
 
-```
+```shell
 robtools --help
 ```
 
 #### To receive emails for jobs, run this command:
 
-```
+```shell
 email-sbatch.sh $email@ircm.qc.ca
 ```
 
@@ -50,7 +50,7 @@ email-sbatch.sh $email@ircm.qc.ca
 
 #### Run configuration script with `clean` option
 
-```
+```shell
 ./projects/$PROJECT/robtools/install/configure.sh clean
 ```
 
@@ -58,7 +58,7 @@ email-sbatch.sh $email@ircm.qc.ca
 
 #### Optional: To stop receiving emails for jobs, run this command:
 
-```
+```shell
 ./projects/$PROJECT/robtools/install/email-sbatch.sh clean
 ```
 

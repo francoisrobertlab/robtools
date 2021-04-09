@@ -13,7 +13,7 @@ Install requirements:
 
 Install robtools.
 
-```
+```shell
 pip install git+https://git@github.com/francoisrobertlab/robtools.git
 ```
 
@@ -27,7 +27,7 @@ The following executables are installed:
 
 You can see the parameters details by using the `-h` parameter:
 
-```
+```shell
 robtools -h
 ```
 

@@ -4,7 +4,7 @@
 
 :pill: Load the `robtools` module before running any command in this page
 
-```
+```shell
 module load robtools
 ```
 
@@ -38,7 +38,7 @@ See [Uploading dataset files to Compute Canada server](upload.md)
 5. [Upload the files to Compute Canada server in the same folder of the dataset files](upload.md)
 6. Convert the *2bit* file into a `FASTA` and `chromosome sizes` file using the following commands
 
-```
+```shell
 twoBitToFa sacCer3.2bit sacCer3.fa
 twoBitInfo sacCer3.2bit sacCer3.chrom.sizes
 ```
@@ -48,7 +48,7 @@ twoBitInfo sacCer3.2bit sacCer3.chrom.sizes
 
 Run the following command
 
-```
+```shell
 sbatch trimmomatic.sh --trimmers "ILLUMINACLIP:TruSeq3-PE-2.fa:2:30:10:2:keepBothReads LEADING:3 TRAILING:3 MINLEN:36"
 ```
 
@@ -61,7 +61,7 @@ sbatch trimmomatic.sh --trimmers "ILLUMINACLIP:TruSeq3-PE-2.fa:2:30:10:2:keepBot
 
 Run the following commands
 
-```
+```shell
 bowtie2-build sacCer3.fa sacCer3.fa.index
 sbatch bowtie2.sh -x sacCer3.fa.index
 ```
@@ -73,7 +73,7 @@ sbatch bowtie2.sh -x sacCer3.fa.index
 
 ## Filter reads to remove poorly map reads and duplicates
 
-```
+```shell
 sbatch filterbam.sh
 ```
 
@@ -82,7 +82,7 @@ sbatch filterbam.sh
 
 ## Quality control check
 
-```
+```shell
 sbatch fastqc.sh *.bam
 ```
 
@@ -93,14 +93,14 @@ Copy the HTML and ZIP files produced by FastQC on your local computer using an F
 
 ## Merge dataset samples data
 
-```
+```shell
 sbatch mergebam.sh --suffix -dedup
 ```
 
 
 ## Convert BAM files to fragment BED files
 
-```
+```shell
 sbatch bam2bed.sh
 sbatch bam2bed.sh -s dataset.txt
 ```
@@ -110,7 +110,7 @@ sbatch bam2bed.sh -s dataset.txt
 
 ## Ignore fragment strand
 
-```
+```shell
 sbatch ignorestrand.sh
 sbatch ignorestrand.sh -s dataset.txt
 ```
@@ -120,7 +120,7 @@ sbatch ignorestrand.sh -s dataset.txt
 
 ## Genome coverage
 
-```
+```shell
 sbatch genomecov.sh -g sacCer3.chrom.sizes -is -forcov -5
 sbatch genomecov.sh -s dataset.txt -g sacCer3.chrom.sizes -is -forcov -5
 ```
@@ -130,7 +130,7 @@ sbatch genomecov.sh -s dataset.txt -g sacCer3.chrom.sizes -is -forcov -5
 
 ## Statistics
 
-```
+```shell
 sbatch statistics.sh
 ```
 
@@ -145,7 +145,7 @@ An example of such files for yeast is available [here](mnase-chipseq/vap/sacCer3
 
 For yeast, you can copy the example files using these commands
 
-```
+```shell
 curl https://raw.githubusercontent.com/francoisrobertlab/robtools/master/computecanada/mnase-chipseq/vap/sacCer3/vap_parameters.txt >> vap_parameters.txt
 curl https://raw.githubusercontent.com/francoisrobertlab/robtools/master/computecanada/mnase-chipseq/vap/sacCer3/Group_AllLongGenes_TxSorted.txt >> Group_AllLongGenes_TxSorted.txt
 curl https://raw.githubusercontent.com/francoisrobertlab/robtools/master/computecanada/mnase-chipseq/vap/sacCer3/sgdGeneAndOthers_UTR_TIF-seq_sacCer3_july_2018.txt >> sgdGeneAndOthers_UTR_TIF-seq_sacCer3_july_2018.txt
@@ -153,13 +153,13 @@ curl https://raw.githubusercontent.com/francoisrobertlab/robtools/master/compute
 
 ### Run the analysis
 
-```
+```shell
 sbatch split.sh -s dataset.txt --binLength 10 --binMinLength 50 --binMaxLength 500
 ```
 
 :bulb: To prevent out of memory errors when running `split.sh`, use `--array` argument for `sbatch`, see [sbatch](sbatch.md)
 
-```
+```shell
 sbatch ignorestrand.sh -s dataset.txt
 sbatch genomecov.sh -s dataset.txt -g sacCer3.chrom.sizes -is -forcov -5
 sbatch vap.sh -s dataset.txt -p vap_parameters.txt

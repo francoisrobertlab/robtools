@@ -4,7 +4,7 @@
 
 :pill: Load the `robtools` module before running any command in this page
 
-```
+```shell
 module load robtools
 ```
 
@@ -38,7 +38,7 @@ See [Uploading dataset files to Compute Canada server](upload.md)
 5. [Upload the files to Compute Canada server in the same folder of the dataset files](upload.md)
 6. Convert the *2bit* file into a `FASTA` and `chromosome sizes` file using the following commands
 
-```
+```shell
 twoBitToFa sacCer3.2bit sacCer3.fa
 twoBitInfo sacCer3.2bit sacCer3.chrom.sizes
 ```
@@ -48,7 +48,7 @@ twoBitInfo sacCer3.2bit sacCer3.chrom.sizes
 
 Run the following command
 
-```
+```shell
 sbatch trimmomatic.sh --trimmers "ILLUMINACLIP:TruSeq3-PE-2.fa:2:30:10:2:keepBothReads LEADING:3 TRAILING:3 MINLEN:36"
 ```
 
@@ -61,7 +61,7 @@ sbatch trimmomatic.sh --trimmers "ILLUMINACLIP:TruSeq3-PE-2.fa:2:30:10:2:keepBot
 
 Run the following commands
 
-```
+```shell
 bwa index sacCer3.fa
 sbatch bwa.sh --fasta sacCer3.fa
 ```
@@ -73,7 +73,7 @@ sbatch bwa.sh --fasta sacCer3.fa
 
 ## Filter reads to remove poorly map reads and duplicates
 
-```
+```shell
 sbatch filterbam.sh
 ```
 
@@ -84,7 +84,7 @@ sbatch filterbam.sh
 
 ### FastQC
 
-```
+```shell
 sbatch fastqc.sh *.bam
 ```
 
@@ -94,7 +94,7 @@ Copy the HTML and ZIP files produced by FastQC on your local computer using an F
 
 ### ChIPexoQual
 
-```
+```shell
 module load chipexoqual
 sbatch chipexoqual.sh --datasets dataset.txt 
 ```
@@ -104,14 +104,14 @@ Copy the PDF files produced by ChIPexoQual on your local computer using an FTP s
 
 ## Merge dataset samples data
 
-```
+```shell
 sbatch mergebam.sh --suffix -dedup
 ```
 
 
 ## Remove second mate
 
-```
+```shell
 sbatch removesecondmate.sh
 sbatch removesecondmate.sh -s dataset.txt
 ```
@@ -121,7 +121,7 @@ sbatch removesecondmate.sh -s dataset.txt
 
 ## Convert BAM files to fragment BED files
 
-```
+```shell
 sbatch bam2bed.sh --unpaired -is -mate1
 sbatch bam2bed.sh -s dataset.txt --unpaired -is -mate1
 ```
@@ -131,7 +131,7 @@ sbatch bam2bed.sh -s dataset.txt --unpaired -is -mate1
 
 ## Move annotations
 
-```
+```shell
 sbatch shiftannotations.sh -g sacCer3.chrom.sizes -m -6 -p 6
 sbatch shiftannotations.sh -s dataset.txt -g sacCer3.chrom.sizes -m -6 -p 6
 ```
@@ -141,7 +141,7 @@ sbatch shiftannotations.sh -s dataset.txt -g sacCer3.chrom.sizes -m -6 -p 6
 
 ## Genome coverage
 
-```
+```shell
 sbatch genomecov.sh -g sacCer3.chrom.sizes -is -forcov -5
 sbatch genomecov.sh -g sacCer3.chrom.sizes -is -forcov -5 -strand +
 sbatch genomecov.sh -g sacCer3.chrom.sizes -is -forcov -5 -strand -
@@ -155,6 +155,6 @@ sbatch genomecov.sh -s dataset.txt -g sacCer3.chrom.sizes -is -forcov -5 -strand
 
 ## Statistics
 
-```
+```shell
 sbatch statistics.sh
 ```

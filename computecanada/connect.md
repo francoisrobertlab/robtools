@@ -2,7 +2,7 @@
 
 :memo: The examples use Beluga server
 
-```
+```shell
 ssh beluga.computecanada.ca
 cd scratch
 ls

@@ -4,7 +4,7 @@
 
 :pill: Load the `robtools` module before running any command in this page
 
-```
+```shell
 module load robtools
 ```
 
@@ -32,7 +32,7 @@ module load robtools
 
 #### bowtie2
 
-```
+```shell
 bowtie2-build Schizosaccharomyces_pombe_all_chromosomes.fa Schizosaccharomyces_pombe_all_chromosomes.fa.index
 sbatch bowtie2.sh -x Schizosaccharomyces_pombe_all_chromosomes.fa.index -os -pombe
 ```
@@ -41,7 +41,7 @@ sbatch bowtie2.sh -x Schizosaccharomyces_pombe_all_chromosomes.fa.index -os -pom
 
 #### bwa
 
-```
+```shell
 bwa index Schizosaccharomyces_pombe_all_chromosomes.fa
 sbatch bwa.sh --fasta Schizosaccharomyces_pombe_all_chromosomes.fa -os -pombe
 ```
@@ -51,7 +51,7 @@ sbatch bwa.sh --fasta Schizosaccharomyces_pombe_all_chromosomes.fa -os -pombe
 
 ## Filter reads to remove poorly map reads and duplicates
 
-```
+```shell
 sbatch filterbam.sh -is -pombe -os -pombe
 ```
 
@@ -60,14 +60,14 @@ sbatch filterbam.sh -is -pombe -os -pombe
 
 ## Merge dataset samples data
 
-```
+```shell
 sbatch mergebam.sh --suffix -pombe-dedup
 ```
 
 
 ## Convert BAM files to fragment BED files
 
-```
+```shell
 sbatch bam2bed.sh -is -pombe-dedup -os -pombe
 sbatch bam2bed.sh -s dataset.txt -is -pombe-dedup -os -pombe
 ```
@@ -79,7 +79,7 @@ sbatch bam2bed.sh -s dataset.txt -is -pombe-dedup -os -pombe
 
 :bulb: Adapt the parameters to match those of your analysis
 
-```
+```shell
 sbatch genomecov.sh -g sacCer3.chrom.sizes -is -forcov -os -pombe-cov --spike-suffix -pombe
 sbatch genomecov.sh -s dataset.txt -g sacCer3.chrom.sizes -is -forcov -os -pombe-cov --spike-suffix -pombe
 ```

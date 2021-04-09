@@ -4,7 +4,7 @@
 
 :pill: Load the `robtools` module before running any command in this page
 
-```
+```shell
 module load robtools
 ```
 
@@ -36,7 +36,7 @@ See [Uploading dataset files to Compute Canada server](upload.md)
 5. [Upload the files to Compute Canada server in the same folder of the dataset files](upload.md)
 6. Convert the *2bit* file into a `FASTA` and `chromosome sizes` file using the following commands
 
-```
+```shell
 twoBitToFa sacCer3.2bit sacCer3.fa
 twoBitInfo sacCer3.2bit sacCer3.chrom.sizes
 ```
@@ -46,7 +46,7 @@ twoBitInfo sacCer3.2bit sacCer3.chrom.sizes
 
 Run the following command
 
-```
+```shell
 sbatch trimmomatic.sh --trimmers "ILLUMINACLIP:TruSeq3-PE-2.fa:2:30:10:2:keepBothReads LEADING:3 TRAILING:3 MINLEN:36"
 ```
 
@@ -59,7 +59,7 @@ sbatch trimmomatic.sh --trimmers "ILLUMINACLIP:TruSeq3-PE-2.fa:2:30:10:2:keepBot
 
 Run the following commands
 
-```
+```shell
 bowtie2-build sacCer3.fa sacCer3.fa.index
 sbatch bowtie2.sh -x sacCer3.fa.index
 ```
@@ -71,7 +71,7 @@ sbatch bowtie2.sh -x sacCer3.fa.index
 
 ## Filter reads to remove poorly map reads and duplicates
 
-```
+```shell
 sbatch filterbam.sh
 ```
 
@@ -80,7 +80,7 @@ sbatch filterbam.sh
 
 ## Quality control check
 
-```
+```shell
 sbatch fastqc.sh *.bam
 ```
 
@@ -91,14 +91,14 @@ Copy the HTML and ZIP files produced by FastQC on your local computer using an F
 
 ## Merge dataset samples data
 
-```
+```shell
 sbatch mergebam.sh --suffix -dedup
 ```
 
 
 ## Convert BAM files to fragment BED files
 
-```
+```shell
 sbatch bam2bed.sh
 sbatch bam2bed.sh -s dataset.txt
 ```
@@ -108,7 +108,7 @@ sbatch bam2bed.sh -s dataset.txt
 
 ## Genome coverage
 
-```
+```shell
 sbatch genomecov.sh -g sacCer3.chrom.sizes
 sbatch genomecov.sh -s dataset.txt -g sacCer3.chrom.sizes
 ```
@@ -118,6 +118,6 @@ sbatch genomecov.sh -s dataset.txt -g sacCer3.chrom.sizes
 
 ## Statistics
 
-```
+```shell
 sbatch statistics.sh
 ```
