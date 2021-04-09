@@ -1,6 +1,11 @@
 # robtools: Tools to analyse next-generation sequencing data
 
 
+## Compute Canada
+
+See [RobTools documentation for Compute Canada](computecanada/README.md)
+
+
 ## Install
 Install requirements:
 * [python version 3.7.4 or newer](https://www.python.org)
