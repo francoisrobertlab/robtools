@@ -3,8 +3,7 @@
 #SBATCH --time=24:00:00
 #SBATCH --cpus-per-task=12
 #SBATCH --mem=48G
-#SBATCH --mail-user=christian.poitras@ircm.qc.ca
-#SBATCH --mail-type=ALL
+#SBATCH --mail-type=NONE
 #SBATCH --output=bwa-%A_%a.out
 #SBATCH --error=bwa-%A_%a.out
 

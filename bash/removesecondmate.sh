@@ -3,8 +3,7 @@
 #SBATCH --time=24:00:00
 #SBATCH --cpus-per-task=4
 #SBATCH --mem=16G
-#SBATCH --mail-user=christian.poitras@ircm.qc.ca
-#SBATCH --mail-type=ALL
+#SBATCH --mail-type=NONE
 #SBATCH --output=removesecondmate-%A_%a.out
 #SBATCH --error=removesecondmate-%A_%a.out
 

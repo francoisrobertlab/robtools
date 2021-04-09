@@ -2,8 +2,7 @@
 #SBATCH --account=def-robertf
 #SBATCH --cpus-per-task=1
 #SBATCH --mem=16G
-#SBATCH --mail-user=christian.poitras@ircm.qc.ca
-#SBATCH --mail-type=ALL
+#SBATCH --mail-type=NONE
 #SBATCH --output=dyadcoverage-%A_%a.out
 #SBATCH --error=dyadcoverage-%A_%a.out
 
