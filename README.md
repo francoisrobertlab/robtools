@@ -31,7 +31,9 @@ robtools -h
 
 The following are required depending on the commands used:
 * [perl](https://www.perl.org)
+* [java](https://openjdk.java.net)
 * [fastqc](https://www.bioinformatics.babraham.ac.uk/projects/fastqc/)
+* [trimmomatic](http://www.usadellab.org/cms/?page=trimmomatic)
 * [bwa](http://bio-bwa.sourceforge.net)
 * [bowtie2](http://bowtie-bio.sourceforge.net/bowtie2/index.shtml)
 * [samtools](http://www.htslib.org)
