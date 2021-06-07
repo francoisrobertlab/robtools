@@ -15,7 +15,7 @@ from robtools.txt import Parser
 @click.option('--samples', '-s', type=click.Path(exists=True), default='samples.txt', show_default=True,
               help='Sample names listed one sample name by line.')
 @click.option('--datasets', '-d', type=click.Path(), default='dataset.txt', show_default=True,
-              help='Dataset name if first columns and sample names on following columns - tab delimited.')
+              help='Dataset name in first columns and sample names on following columns - tab delimited.')
 @click.option('--bam-suffix', '-bs', default='', show_default=True,
               help='Suffix added to sample name for BAM containing low quality reads and duplicates.')
 @click.option('--filtered-suffix', '-fs', default='-filtered', show_default=True,

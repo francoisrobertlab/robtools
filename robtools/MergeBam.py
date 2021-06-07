@@ -7,7 +7,7 @@ from robtools.txt import Parser
 
 @click.command()
 @click.option('--datasets', '-d', type=click.Path(exists=True), default='dataset.txt', show_default=True,
-              help='Dataset name if first columns and sample names on following columns - tab delimited.')
+              help='Dataset name in first columns and sample names on following columns - tab delimited.')
 @click.option('--suffix', '-s', default='', show_default=True,
               help='Suffix added to merge name and sample name in BAM filename.')
 @click.option('--threads', '-t', default=1, show_default=True,

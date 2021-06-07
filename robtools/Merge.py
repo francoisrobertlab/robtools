@@ -11,7 +11,7 @@ from robtools.txt import Parser
 
 @click.command()
 @click.option('--datasets', '-d', type=click.Path(exists=True), default='dataset.txt', show_default=True,
-              help='Dataset name if first columns and sample names on following columns - tab delimited.')
+              help='Dataset name in first columns and sample names on following columns - tab delimited.')
 @click.option('--index', '-i', type=int, default=None,
               help='Index of sample to process in samples file.')
 def merge(datasets, index):

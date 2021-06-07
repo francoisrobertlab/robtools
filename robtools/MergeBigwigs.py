@@ -12,7 +12,7 @@ from robtools.txt import Parser
 
 @click.command()
 @click.option('--datasets', '-d', type=click.Path(exists=True), default='dataset.txt', show_default=True,
-              help='Dataset name if first columns and sample names on following columns - tab delimited.')
+              help='Dataset name in first columns and sample names on following columns - tab delimited.')
 @click.option('--sizes', '-S', type=click.Path(exists=True), default='sacCer3.chrom.sizes', show_default=True,
               help='Size of chromosomes.')
 @click.option('--index', '-i', type=int, default=None,
