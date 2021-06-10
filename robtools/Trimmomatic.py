@@ -1,16 +1,15 @@
-from distutils.command.check import check
 import logging
 import os
 import subprocess
-import tempfile
 
 import click
+
 from robtools.seq import Fastq
 from robtools.txt import Parser
 
 TRIMMOMATIC_JAR_ENV = 'TRIMMOMATIC_JAR'
 TRIMMOMATIC_ADAPTERS_ENV = 'TRIMMOMATIC_ADAPTERS'
-SBATCH_JAVA_MEM_ENV = 'SBATCH_MEM_PER_NODE'
+SBATCH_JAVA_MEM_ENV = 'SLURM_MEM_PER_NODE'
 
 
 @click.command(context_settings=dict(
@@ -33,11 +32,14 @@ SBATCH_JAVA_MEM_ENV = 'SBATCH_MEM_PER_NODE'
 @click.argument('trim_args', nargs=-1, type=click.UNPROCESSED)
 def trimmomatic(samples, input_suffix, output_suffix, paired_suffix, unpaired_suffix, trimmers, index, trim_args):
     '''Trim FASTQ sample files using trimmomatic program.'''
-    logging.basicConfig(filename='robtools.log', level=logging.DEBUG, format='%(asctime)s %(levelname)-8s %(message)s', datefmt='%Y-%m-%d %H:%M:%S')
-    trimmomatic_samples(samples, input_suffix, output_suffix, paired_suffix, unpaired_suffix, trimmers, index, trim_args)
+    logging.basicConfig(filename='robtools.log', level=logging.DEBUG, format='%(asctime)s %(levelname)-8s %(message)s',
+                        datefmt='%Y-%m-%d %H:%M:%S')
+    trimmomatic_samples(samples, input_suffix, output_suffix, paired_suffix, unpaired_suffix, trimmers, index,
+                        trim_args)
 
 
-def trimmomatic_samples(samples='samples.txt', input_suffix='', output_suffix='-trim', paired_suffix='-paired', unpaired_suffix='-unpaired', trimmers=None, index=None, trim_args=()):
+def trimmomatic_samples(samples='samples.txt', input_suffix='', output_suffix='-trim', paired_suffix='-paired',
+                        unpaired_suffix='-unpaired', trimmers=None, index=None, trim_args=()):
     '''Trim FASTQ sample files using trimmomatic program.'''
     sample_names = Parser.first(samples)
     if index != None:
@@ -46,9 +48,10 @@ def trimmomatic_samples(samples='samples.txt', input_suffix='', output_suffix='-
         trimmomatic_sample(sample, input_suffix, output_suffix, paired_suffix, unpaired_suffix, trimmers, trim_args)
 
 
-def trimmomatic_sample(sample, input_suffix='', output_suffix='-trim', paired_suffix='-paired', unpaired_suffix='-unpaired', trimmers=None, trim_args=()):
+def trimmomatic_sample(sample, input_suffix='', output_suffix='-trim', paired_suffix='-paired',
+                       unpaired_suffix='-unpaired', trimmers=None, trim_args=()):
     '''Trim FASTQ of one sample files using trimmomatic program.'''
-    print ('Trim FASTQ files of sample {}'.format(sample))
+    print('Trim FASTQ files of sample {}'.format(sample))
     fastq1 = Fastq.fastq(sample + input_suffix, 1)
     if fastq1 is None:
         raise AssertionError('Cannot find FASTQ files for sample ' + sample + input_suffix)
@@ -63,7 +66,8 @@ def trimmomatic_sample(sample, input_suffix='', output_suffix='-trim', paired_su
         suffix2 = fastq2[len(sample) + len(input_suffix): len(fastq2)]
         fastq2_paired = sample + paired_suffix + suffix2 if fastq2 is not None else ''
         fastq2_unpaired = sample + unpaired_suffix + suffix2 if fastq2 is not None else ''
-        trimmomatic_paired(fastq1, fastq1_paired, fastq1_unpaired, fastq2, fastq2_paired, fastq2_unpaired, trimmers, trim_args)
+        trimmomatic_paired(fastq1, fastq1_paired, fastq1_unpaired, fastq2, fastq2_paired, fastq2_unpaired, trimmers,
+                           trim_args)
     else:
         output = sample + output_suffix + suffix1
         trimmomatic_single(fastq1, output, trimmers, trim_args)
@@ -83,7 +87,7 @@ def fix_adapters(trimmers):
             trimmer = ':'.join(parts)
         fixed.append(trimmer)
     return fixed
-    
+
 
 def trimmomatic_single(fastq, output, trimmers, trim_args=()):
     '''Run trimmomatic on single FASTQ file.'''
@@ -100,7 +104,8 @@ def trimmomatic_single(fastq, output, trimmers, trim_args=()):
     subprocess.run(cmd, check=True)
 
 
-def trimmomatic_paired(fastq1, fastq1_paired, fastq1_unpaired, fastq2, fastq2_paired, fastq2_unpaired, trimmers, trim_args=()):
+def trimmomatic_paired(fastq1, fastq1_paired, fastq1_unpaired, fastq2, fastq2_paired, fastq2_unpaired, trimmers,
+                       trim_args=()):
     '''Run trimmomatic on paired FASTQ files.'''
     trimmomatic_jar = os.getenv(TRIMMOMATIC_JAR_ENV, 'trimmomatic.jar')
     mem = os.getenv(SBATCH_JAVA_MEM_ENV, None)

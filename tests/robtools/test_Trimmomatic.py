@@ -1,15 +1,11 @@
-import logging
-import math
 import os
+import subprocess
 from pathlib import Path
 from shutil import copyfile
-import subprocess
-from unittest.mock import MagicMock, call, ANY
+from unittest.mock import MagicMock
 
-import click
-from click.testing import CliRunner
-from more_itertools.more import side_effect
 import pytest
+from click.testing import CliRunner
 
 from robtools import Trimmomatic as t
 from robtools.Trimmomatic import SBATCH_JAVA_MEM_ENV
@@ -34,12 +30,12 @@ def mock_testclass():
     Fastq.fastq = fastq
     subprocess.run = run
     if SBATCH_JAVA_MEM_ENV in os.environ:
-        del os.environ[SBATCH_JAVA_MEM_ENV] 
+        del os.environ[SBATCH_JAVA_MEM_ENV]
     if TRIMMOMATIC_ADAPTERS_ENV in os.environ:
-        del os.environ[TRIMMOMATIC_ADAPTERS_ENV] 
+        del os.environ[TRIMMOMATIC_ADAPTERS_ENV]
     if TRIMMOMATIC_JAR_ENV in os.environ:
-        del os.environ[TRIMMOMATIC_JAR_ENV] 
-    
+        del os.environ[TRIMMOMATIC_JAR_ENV]
+
 
 def create_file(*args, **kwargs):
     if 'stdout' in kwargs:
@@ -74,9 +70,13 @@ def test_trimmomatic_parameters(testdir, mock_testclass):
     index = 1
     t.trimmomatic_samples = MagicMock()
     runner = CliRunner()
-    result = runner.invoke(t.trimmomatic, ['--samples', samples, '-trimlog', 'trimlog', '--input-suffix', input_suffix, '--output-suffix', output_suffix, '--paired-suffix', paired_suffix, '--unpaired-suffix', unpaired_suffix, '--trimmers', trimmers, '--index', index])
+    result = runner.invoke(t.trimmomatic, ['--samples', samples, '-trimlog', 'trimlog', '--input-suffix', input_suffix,
+                                           '--output-suffix', output_suffix, '--paired-suffix', paired_suffix,
+                                           '--unpaired-suffix', unpaired_suffix, '--trimmers', trimmers, '--index',
+                                           index])
     assert result.exit_code == 0
-    t.trimmomatic_samples.assert_called_once_with(samples, input_suffix, output_suffix, paired_suffix, unpaired_suffix, trimmers, index, ('-trimlog', 'trimlog',))
+    t.trimmomatic_samples.assert_called_once_with(samples, input_suffix, output_suffix, paired_suffix, unpaired_suffix,
+                                                  trimmers, index, ('-trimlog', 'trimlog',))
 
 
 def test_trimmomatic_filenotexists(testdir, mock_testclass):
@@ -113,10 +113,14 @@ def test_trimmomatic_samples_parameters(testdir, mock_testclass):
     trimmers = 'ILLUMINACLIP:TruSeq3-PE-2.fa:2:30:10:2:keepBothReads MINLEN:36'
     trim_args = ('-trimlog', 'trim.log',)
     t.trimmomatic_sample = MagicMock()
-    t.trimmomatic_samples(samples, input_suffix, output_suffix, paired_suffix, unpaired_suffix, trimmers, trim_args=trim_args)
-    t.trimmomatic_sample.assert_any_call('POLR2A', input_suffix, output_suffix, paired_suffix, unpaired_suffix, trimmers, trim_args)
-    t.trimmomatic_sample.assert_any_call('ASDURF', input_suffix, output_suffix, paired_suffix, unpaired_suffix, trimmers, trim_args)
-    t.trimmomatic_sample.assert_any_call('POLR1C', input_suffix, output_suffix, paired_suffix, unpaired_suffix, trimmers, trim_args)
+    t.trimmomatic_samples(samples, input_suffix, output_suffix, paired_suffix, unpaired_suffix, trimmers,
+                          trim_args=trim_args)
+    t.trimmomatic_sample.assert_any_call('POLR2A', input_suffix, output_suffix, paired_suffix, unpaired_suffix,
+                                         trimmers, trim_args)
+    t.trimmomatic_sample.assert_any_call('ASDURF', input_suffix, output_suffix, paired_suffix, unpaired_suffix,
+                                         trimmers, trim_args)
+    t.trimmomatic_sample.assert_any_call('POLR1C', input_suffix, output_suffix, paired_suffix, unpaired_suffix,
+                                         trimmers, trim_args)
 
 
 def test_trimmomatic_sample_single(testdir, mock_testclass):
@@ -166,7 +170,9 @@ def test_trimmomatic_sample_singleparameters(testdir, mock_testclass):
     t.trimmomatic_sample(sample, input_suffix, output_suffix, paired_suffix, unpaired_suffix, trimmers, trim_args)
     Fastq.fastq.assert_any_call(sample + input_suffix, 1)
     Fastq.fastq.assert_any_call(sample + input_suffix, 2)
-    t.trimmomatic_single.assert_called_once_with(fastq, output, ['ILLUMINACLIP:TruSeq3-PE-2.fa:2:30:10:2:keepBothReads', 'MINLEN:36'], trim_args)
+    t.trimmomatic_single.assert_called_once_with(fastq, output,
+                                                 ['ILLUMINACLIP:TruSeq3-PE-2.fa:2:30:10:2:keepBothReads', 'MINLEN:36'],
+                                                 trim_args)
     t.trimmomatic_paired.assert_not_called()
 
 
@@ -187,7 +193,10 @@ def test_trimmomatic_sample_singleillumina(testdir, mock_testclass):
     t.trimmomatic_sample(sample, trimmers=trimmers)
     Fastq.fastq.assert_any_call(sample, 1)
     Fastq.fastq.assert_any_call(sample, 2)
-    t.trimmomatic_single.assert_called_once_with(fastq, output, ['ILLUMINACLIP:adapters/TruSeq3-PE-2.fa:2:30:10:2:keepBothReads', 'MINLEN:36', 'ILLUMINACLIP:TruSeq3-PE.fa:2:30:10', 'ILLUMINACLIP:adapters/TruSeq2-PE.fa:2:30:10'], ())
+    t.trimmomatic_single.assert_called_once_with(fastq, output,
+                                                 ['ILLUMINACLIP:adapters/TruSeq3-PE-2.fa:2:30:10:2:keepBothReads',
+                                                  'MINLEN:36', 'ILLUMINACLIP:TruSeq3-PE.fa:2:30:10',
+                                                  'ILLUMINACLIP:adapters/TruSeq2-PE.fa:2:30:10'], ())
     t.trimmomatic_paired.assert_not_called()
 
 
@@ -253,7 +262,9 @@ def test_trimmomatic_sample_pairedparameters(testdir, mock_testclass):
     t.trimmomatic_sample(sample, input_suffix, output_suffix, paired_suffix, unpaired_suffix, trimmers, trim_args)
     Fastq.fastq.assert_any_call(sample + input_suffix, 1)
     Fastq.fastq.assert_any_call(sample + input_suffix, 2)
-    t.trimmomatic_paired.assert_called_once_with(fastq1, paired1, unpaired1, fastq2, paired2, unpaired2, ['ILLUMINACLIP:TruSeq3-PE-2.fa:2:30:10:2:keepBothReads', 'MINLEN:36'], trim_args)
+    t.trimmomatic_paired.assert_called_once_with(fastq1, paired1, unpaired1, fastq2, paired2, unpaired2,
+                                                 ['ILLUMINACLIP:TruSeq3-PE-2.fa:2:30:10:2:keepBothReads', 'MINLEN:36'],
+                                                 trim_args)
     t.trimmomatic_single.assert_not_called()
 
 
@@ -279,7 +290,10 @@ def test_trimmomatic_sample_pairedillumina(testdir, mock_testclass):
     t.trimmomatic_sample(sample, trimmers=trimmers)
     Fastq.fastq.assert_any_call(sample, 1)
     Fastq.fastq.assert_any_call(sample, 2)
-    t.trimmomatic_paired.assert_called_once_with(fastq1, paired1, unpaired1, fastq2, paired2, unpaired2, ['ILLUMINACLIP:adapters/TruSeq3-PE-2.fa:2:30:10:2:keepBothReads', 'MINLEN:36', 'ILLUMINACLIP:TruSeq3-PE.fa:2:30:10', 'ILLUMINACLIP:adapters/TruSeq2-PE.fa:2:30:10'], ())
+    t.trimmomatic_paired.assert_called_once_with(fastq1, paired1, unpaired1, fastq2, paired2, unpaired2,
+                                                 ['ILLUMINACLIP:adapters/TruSeq3-PE-2.fa:2:30:10:2:keepBothReads',
+                                                  'MINLEN:36', 'ILLUMINACLIP:TruSeq3-PE.fa:2:30:10',
+                                                  'ILLUMINACLIP:adapters/TruSeq2-PE.fa:2:30:10'], ())
     t.trimmomatic_single.assert_not_called()
 
 
@@ -306,7 +320,8 @@ def test_trimmomatic_single_parameters(testdir, mock_testclass):
     copyfile(Path(__file__).parent.joinpath('samples.txt'), fastq)
     subprocess.run = MagicMock()
     t.trimmomatic_single(fastq, output, trimmers, trim_args)
-    subprocess.run.assert_any_call(['java', '-jar', jar, 'SE', '-trimlog', 'trim.log', fastq, output, 'ILLUMINACLIP:TruSeq3-PE-2.fa:2:30:10:2:keepBothReads', 'MINLEN:36'], check=True)
+    subprocess.run.assert_any_call(['java', '-jar', jar, 'SE', '-trimlog', 'trim.log', fastq, output,
+                                    'ILLUMINACLIP:TruSeq3-PE-2.fa:2:30:10:2:keepBothReads', 'MINLEN:36'], check=True)
 
 
 def test_trimmomatic_single_nojarenv(testdir, mock_testclass):
@@ -345,7 +360,8 @@ def test_trimmomatic_paired(testdir, mock_testclass):
     unpaired2 = sample + '-unpaired_2.fastq'
     subprocess.run = MagicMock()
     t.trimmomatic_paired(fastq1, paired1, unpaired1, fastq2, paired2, unpaired2, None, ())
-    subprocess.run.assert_any_call(['java', '-jar', jar, 'PE', fastq1, fastq2, paired1, unpaired1, paired2, unpaired2], check=True)
+    subprocess.run.assert_any_call(['java', '-jar', jar, 'PE', fastq1, fastq2, paired1, unpaired1, paired2, unpaired2],
+                                   check=True)
 
 
 def test_trimmomatic_paired_parameters(testdir, mock_testclass):
@@ -362,7 +378,9 @@ def test_trimmomatic_paired_parameters(testdir, mock_testclass):
     trim_args = ('-trimlog', 'trim.log',)
     subprocess.run = MagicMock()
     t.trimmomatic_paired(fastq1, paired1, unpaired1, fastq2, paired2, unpaired2, trimmers, trim_args)
-    subprocess.run.assert_any_call(['java', '-jar', jar, 'PE', '-trimlog', 'trim.log', fastq1, fastq2, paired1, unpaired1, paired2, unpaired2, 'ILLUMINACLIP:TruSeq3-PE-2.fa:2:30:10:2:keepBothReads', 'MINLEN:36'], check=True)
+    subprocess.run.assert_any_call(
+        ['java', '-jar', jar, 'PE', '-trimlog', 'trim.log', fastq1, fastq2, paired1, unpaired1, paired2, unpaired2,
+         'ILLUMINACLIP:TruSeq3-PE-2.fa:2:30:10:2:keepBothReads', 'MINLEN:36'], check=True)
 
 
 def test_trimmomatic_paired_nojarenv(testdir, mock_testclass):
@@ -375,7 +393,8 @@ def test_trimmomatic_paired_nojarenv(testdir, mock_testclass):
     unpaired2 = sample + '-unpaired_2.fastq'
     subprocess.run = MagicMock()
     t.trimmomatic_paired(fastq1, paired1, unpaired1, fastq2, paired2, unpaired2, None, ())
-    subprocess.run.assert_any_call(['java', '-jar', 'trimmomatic.jar', 'PE', fastq1, fastq2, paired1, unpaired1, paired2, unpaired2], check=True)
+    subprocess.run.assert_any_call(
+        ['java', '-jar', 'trimmomatic.jar', 'PE', fastq1, fastq2, paired1, unpaired1, paired2, unpaired2], check=True)
 
 
 def test_trimmomatic_paired_sbatchmemenv(testdir, mock_testclass):
@@ -392,4 +411,6 @@ def test_trimmomatic_paired_sbatchmemenv(testdir, mock_testclass):
     unpaired2 = sample + '-unpaired_2.fastq'
     subprocess.run = MagicMock()
     t.trimmomatic_paired(fastq1, paired1, unpaired1, fastq2, paired2, unpaired2, None, ())
-    subprocess.run.assert_any_call(['java', '-Xmx48G', '-jar', 'trimmomatic/trimmomatic.jar', 'PE', fastq1, fastq2, paired1, unpaired1, paired2, unpaired2], check=True)
+    subprocess.run.assert_any_call(
+        ['java', '-Xmx48G', '-jar', 'trimmomatic/trimmomatic.jar', 'PE', fastq1, fastq2, paired1, unpaired1, paired2,
+         unpaired2], check=True)
