@@ -108,16 +108,29 @@ def trimmomatic_paired(fastq1, fastq1_paired, fastq1_unpaired, fastq2, fastq2_pa
                        trim_args=()):
     '''Run trimmomatic on paired FASTQ files.'''
     trimmomatic_jar = os.getenv(TRIMMOMATIC_JAR_ENV, 'trimmomatic.jar')
-    mem = os.getenv(SBATCH_JAVA_MEM_ENV, None)
+    mem = sbatch_memory(os.getenv(SBATCH_JAVA_MEM_ENV, None))
     cmd = ['java']
     if mem:
-        cmd.extend(['-Xmx' + mem])
+        cmd.extend(['-Xmx' + mem + 'M'])
     cmd.extend(['-jar', trimmomatic_jar, 'PE'] + list(trim_args))
     cmd.extend([fastq1, fastq2, fastq1_paired, fastq1_unpaired, fastq2_paired, fastq2_unpaired])
     if trimmers:
         cmd.extend(trimmers)
     logging.debug('Running {}'.format(cmd))
     subprocess.run(cmd, check=True)
+
+
+def sbatch_memory(mem_string):
+    if not mem_string:
+        return None
+    mem = int(mem_string[0 if mem_string.isnumeric() else -1])
+    if mem_string.endswith('K'):
+        mem = mem / 1024
+    elif mem_string.endswith('G'):
+        mem = mem * 1024 ^ 2
+    elif mem_string.endswith('T'):
+        mem = mem * 1024 ^ 3
+    return mem
 
 
 if __name__ == '__main__':

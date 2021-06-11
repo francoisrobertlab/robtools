@@ -20,6 +20,7 @@ def mock_testclass():
     trimmomatic_sample = t.trimmomatic_sample
     trimmomatic_single = t.trimmomatic_single
     trimmomatic_paired = t.trimmomatic_paired
+    sbatch_memory = t.sbatch_memory
     fastq = Fastq.fastq
     run = subprocess.run
     yield
@@ -27,6 +28,7 @@ def mock_testclass():
     t.trimmomatic_sample = trimmomatic_sample
     t.trimmomatic_single = trimmomatic_single
     t.trimmomatic_paired = trimmomatic_paired
+    t.sbatch_memory = sbatch_memory
     Fastq.fastq = fastq
     subprocess.run = run
     if SBATCH_JAVA_MEM_ENV in os.environ:
@@ -345,7 +347,7 @@ def test_trimmomatic_single_sbatchmemenv(testdir, mock_testclass):
     copyfile(Path(__file__).parent.joinpath('samples.txt'), fastq)
     subprocess.run = MagicMock()
     t.trimmomatic_single(fastq, output, None, ())
-    subprocess.run.assert_any_call(['java', '-Xmx48G', '-jar', jar, 'SE', fastq, output], check=True)
+    subprocess.run.assert_any_call(['java', '-Xmx49152M', '-jar', jar, 'SE', fastq, output], check=True)
 
 
 def test_trimmomatic_paired(testdir, mock_testclass):
@@ -412,5 +414,39 @@ def test_trimmomatic_paired_sbatchmemenv(testdir, mock_testclass):
     subprocess.run = MagicMock()
     t.trimmomatic_paired(fastq1, paired1, unpaired1, fastq2, paired2, unpaired2, None, ())
     subprocess.run.assert_any_call(
-        ['java', '-Xmx48G', '-jar', 'trimmomatic/trimmomatic.jar', 'PE', fastq1, fastq2, paired1, unpaired1, paired2,
+        ['java', '-Xmx49152M', '-jar', 'trimmomatic/trimmomatic.jar', 'PE', fastq1, fastq2, paired1, unpaired1, paired2,
          unpaired2], check=True)
+
+
+def test_sbatch_memory_kilo(mock_testclass):
+    assert '2' == t.sbatch_memory('2048K')
+    assert '1' == t.sbatch_memory('1100K')
+    assert '0' == t.sbatch_memory('512K')
+
+
+def test_sbatch_memory_meg(mock_testclass):
+    assert '2048' == t.sbatch_memory('2048M')
+    assert '1100' == t.sbatch_memory('1100M')
+    assert '512' == t.sbatch_memory('512M')
+
+
+def test_sbatch_memory_nounit(mock_testclass):
+    assert '2048' == t.sbatch_memory('2048')
+    assert '1100' == t.sbatch_memory('1100')
+    assert '512' == t.sbatch_memory('512')
+
+
+def test_sbatch_memory_gig(mock_testclass):
+    assert '2048' == t.sbatch_memory('2G')
+    assert '1024' == t.sbatch_memory('1G')
+    assert '5120' == t.sbatch_memory('5G')
+
+
+def test_sbatch_memory_tera(mock_testclass):
+    assert '2097152' == t.sbatch_memory('2T')
+    assert '1048576' == t.sbatch_memory('1T')
+    assert '5242880' == t.sbatch_memory('5T')
+
+
+def test_sbatch_memory_none(mock_testclass):
+    assert not t.sbatch_memory(None)
