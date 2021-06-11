@@ -92,10 +92,10 @@ def fix_adapters(trimmers):
 def trimmomatic_single(fastq, output, trimmers, trim_args=()):
     '''Run trimmomatic on single FASTQ file.'''
     trimmomatic_jar = os.getenv(TRIMMOMATIC_JAR_ENV, 'trimmomatic.jar')
-    mem = os.getenv(SBATCH_JAVA_MEM_ENV, None)
+    mem = sbatch_memory(os.getenv(SBATCH_JAVA_MEM_ENV, None))
     cmd = ['java']
     if mem:
-        cmd.extend(['-Xmx' + mem])
+        cmd.extend(['-Xmx' + str(mem) + 'M'])
     cmd.extend(['-jar', trimmomatic_jar, 'SE'] + list(trim_args))
     cmd.extend([fastq, output])
     if trimmers:
@@ -111,7 +111,7 @@ def trimmomatic_paired(fastq1, fastq1_paired, fastq1_unpaired, fastq2, fastq2_pa
     mem = sbatch_memory(os.getenv(SBATCH_JAVA_MEM_ENV, None))
     cmd = ['java']
     if mem:
-        cmd.extend(['-Xmx' + mem + 'M'])
+        cmd.extend(['-Xmx' + str(mem) + 'M'])
     cmd.extend(['-jar', trimmomatic_jar, 'PE'] + list(trim_args))
     cmd.extend([fastq1, fastq2, fastq1_paired, fastq1_unpaired, fastq2_paired, fastq2_unpaired])
     if trimmers:
@@ -123,13 +123,13 @@ def trimmomatic_paired(fastq1, fastq1_paired, fastq1_unpaired, fastq2, fastq2_pa
 def sbatch_memory(mem_string):
     if not mem_string:
         return None
-    mem = int(mem_string[0 if mem_string.isnumeric() else -1])
+    mem = int(mem_string if mem_string.isnumeric() else mem_string[:-1])
     if mem_string.endswith('K'):
-        mem = mem / 1024
+        mem = int(mem / 1024)
     elif mem_string.endswith('G'):
-        mem = mem * 1024 ^ 2
+        mem = mem * 1024
     elif mem_string.endswith('T'):
-        mem = mem * 1024 ^ 3
+        mem = mem * pow(1024, 2)
     return mem
 
 
