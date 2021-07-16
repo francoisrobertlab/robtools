@@ -5,6 +5,7 @@
 :pill: Load the `robtools` module before running any command in this page
 
 ```shell
+module load StdEnv/2018.3
 module load robtools
 ```
 
@@ -15,7 +16,6 @@ module load robtools
 * [Merge samples into dataset](#merge-dataset-samples-data)
 * [Convert BAM to BED](#convert-bam-files-to-fragment-bed-files)
 * [Genome coverage](#genome-coverage)
-
 
 ## Align FASTQ files with spiked genome
 
@@ -48,7 +48,6 @@ sbatch bwa.sh --fasta Schizosaccharomyces_pombe_all_chromosomes.fa -os -pombe
 
 :bulb: To prevent out of memory errors, use `--array` argument for `sbatch`, see [sbatch](sbatch.md)
 
-
 ## Filter reads to remove poorly map reads and duplicates
 
 ```shell
@@ -57,13 +56,11 @@ sbatch filterbam.sh -is -pombe -os -pombe
 
 :bulb: To prevent out of memory errors, use `--array` argument for `sbatch`, see [sbatch](sbatch.md)
 
-
 ## Merge dataset samples data
 
 ```shell
 sbatch mergebam.sh --suffix -pombe-dedup
 ```
-
 
 ## Convert BAM files to fragment BED files
 
@@ -73,7 +70,6 @@ sbatch bam2bed.sh -s dataset.txt -is -pombe-dedup -os -pombe
 ```
 
 :bulb: The previous commands can be called simultaneously
-
 
 ## Genome coverage
 

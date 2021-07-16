@@ -5,6 +5,7 @@
 :pill: Load the `robtools` module before running any command in this page
 
 ```shell
+module load StdEnv/2018.3
 module load robtools
 ```
 
@@ -21,11 +22,9 @@ module load robtools
 * [Genome coverage](#genome-coverage)
 * [Statistics](#statistics)
 
-
 ## Upload dataset files to Compute Canada
 
 See [Uploading dataset files to Compute Canada server](upload.md)
-
 
 ## Download FASTA file of the genome
 
@@ -41,7 +40,6 @@ twoBitToFa sacCer3.2bit sacCer3.fa
 twoBitInfo sacCer3.2bit sacCer3.chrom.sizes
 ```
 
-
 ## Trim FASTQ files (Optional)
 
 Run the following command
@@ -50,10 +48,10 @@ Run the following command
 sbatch trimmomatic.sh --trimmers "ILLUMINACLIP:TruSeq3-PE-2.fa:2:30:10:2:keepBothReads LEADING:3 TRAILING:3 MINLEN:36"
 ```
 
-:bulb: Before running the command, make sure the adapters are present in the file used in the `ILLUMINACLIP` trimmer, see [Trimmomatic adapters files](https://github.com/timflutre/trimmomatic/tree/master/adapters)
+:bulb: Before running the command, make sure the adapters are present in the file used in the `ILLUMINACLIP` trimmer,
+see [Trimmomatic adapters files](https://github.com/timflutre/trimmomatic/tree/master/adapters)
 
 :bulb: To prevent out of memory errors, use `--array` argument for `sbatch`, see [sbatch](sbatch.md)
-
 
 ## Align FASTQ files with genome
 
@@ -64,10 +62,10 @@ bowtie2-build sacCer3.fa sacCer3.fa.index
 sbatch bowtie2.sh -x sacCer3.fa.index
 ```
 
-:bulb: If you used Trimmomatic, add parameter `-is -paired` (or `-is trim` for single-ended reads) to the `bowtie2` command
+:bulb: If you used Trimmomatic, add parameter `-is -paired` (or `-is trim` for single-ended reads) to the `bowtie2`
+command
 
 :bulb: To prevent out of memory errors, use `--array` argument for `sbatch`, see [sbatch](sbatch.md)
-
 
 ## Filter reads to remove poorly map reads and duplicates
 
@@ -77,24 +75,22 @@ sbatch filterbam.sh
 
 :bulb: To prevent out of memory errors, use `--array` argument for `sbatch`, see [sbatch](sbatch.md)
 
-
 ## Quality control check
 
 ```shell
 sbatch fastqc.sh *.bam
 ```
 
-Copy the HTML and ZIP files produced by FastQC on your local computer using an FTP software and check the result. [See the documentation for FastQC](https://www.bioinformatics.babraham.ac.uk/projects/fastqc/)
+Copy the HTML and ZIP files produced by FastQC on your local computer using an FTP software and check the
+result. [See the documentation for FastQC](https://www.bioinformatics.babraham.ac.uk/projects/fastqc/)
 
 :bulb: Check HTML files ending with "-dedup.bam" first!
-
 
 ## Merge dataset samples data
 
 ```shell
 sbatch mergebam.sh --suffix -dedup
 ```
-
 
 ## Convert BAM files to fragment BED files
 
@@ -105,7 +101,6 @@ sbatch bam2bed.sh -s dataset.txt
 
 :bulb: The previous commands can be called simultaneously
 
-
 ## Genome coverage
 
 ```shell
@@ -114,7 +109,6 @@ sbatch genomecov.sh -s dataset.txt -g sacCer3.chrom.sizes
 ```
 
 :bulb: The previous commands can be called simultaneously
-
 
 ## Statistics
 
