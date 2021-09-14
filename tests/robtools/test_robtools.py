@@ -315,7 +315,7 @@ def test_robtools_siqchipbed(testdir, mock_testclass):
     runner = CliRunner()
     result = runner.invoke(robtools.robtools, ['siqchipbed', '--samples', samples])
     assert result.exit_code == 0
-    SiqchipBed.siqchipbed_samples.assert_called_once_with(samples, '-dedup', '-reads', None)
+    SiqchipBed.siqchipbed_samples.assert_called_once_with(samples, '-dedup', '-reads', None, None)
 
 
 def test_robtools_slowsplit(testdir, mock_testclass):
