@@ -14,6 +14,4 @@ then
   args+=("-i" "$SLURM_ARRAY_TASK_ID")
 fi
 
-# Index FASTA file first
-# bwa index sacCer3.fa
 robtools download "${args[@]}"
