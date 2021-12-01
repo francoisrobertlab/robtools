@@ -102,7 +102,6 @@ def sample_splits_genome_coverage(sample, genome, scale=None, strand=None, input
 
 def genome_coverage(sample, genome, scale=None, strand=None, input_suffix='', output_suffix='-cov', spike_suffix=None, control_suffix=None, genomecov_args=()):
     bed_source = sample + input_suffix + '.bed'
-    print ('Computing genome coverage on BED {}'.format(bed_source))
     if not scale or spike_suffix or control_suffix:
         count = Bed.count_bed(bed_source)
         scale = BASE_SCALE / max(count, 1)
@@ -112,6 +111,7 @@ def genome_coverage(sample, genome, scale=None, strand=None, input_suffix='', ou
         if control_suffix:
             control_count = Bed.count_bed(sample + control_suffix + '.bed')
             scale = scale / control_count
+    print('Computing genome coverage on BED {} with scale {}'.format(bed_source, scale))
     bed = sample + output_suffix + '.bed'
     bigwig = sample + output_suffix + '.bw'
     if strand:
