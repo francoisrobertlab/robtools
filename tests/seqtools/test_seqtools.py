@@ -112,7 +112,7 @@ def test_seqtools_genomecov(testdir, mock_testclass):
     result = runner.invoke(seqtools.seqtools, ['genomecov', '--samples', samples, '--sizes', sizes, '-5', '--scale', scale, '--strand', strand, '--index', index])
     logging.warning(result.output)
     assert result.exit_code == 0
-    GenomeCoverage.genome_coverage_samples.assert_called_once_with(samples, sizes, scale, strand, '', '-cov', None, None, index, ('-5',))
+    GenomeCoverage.genome_coverage_samples.assert_called_once_with(samples, sizes, scale, strand, '', '-cov', None, None, None, index, ('-5',))
 
 
 def test_seqtools_intersect(testdir, mock_testclass):
