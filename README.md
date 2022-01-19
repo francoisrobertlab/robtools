@@ -47,3 +47,8 @@ The following are required depending on the commands used:
 * [sra-toolkit from GeoArchive](https://trace.ncbi.nlm.nih.gov/Traces/sra/sra.cgi?view=toolkit_doc)
 * [vap](https://bitbucket.org/labjacquespe/vap/src/master/)
 * [plot2do](https://github.com/rchereji/plot2DO)
+
+
+#### Analysis of data
+
+* [ChemMap](chemmap.md)
