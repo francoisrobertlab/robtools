@@ -1,4 +1,4 @@
-# CheMap
+# ChemMap
 
 
 #### Steps

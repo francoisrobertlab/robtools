@@ -1,4 +1,4 @@
-# CheMap
+# ChemMap
 
 :link: *[Connecting to Compute Canada server](connect.md)*
 
