@@ -1,17 +1,13 @@
-import logging
-import math
-import os
+import subprocess
 from pathlib import Path
 from shutil import copyfile
-import subprocess
 from unittest.mock import MagicMock, call, ANY
 
-import click
-from click.testing import CliRunner
-from more_itertools.more import side_effect
 import pytest
+from click.testing import CliRunner
 
 from robtools import Bowtie2 as b
+from robtools.bam import Bam
 from robtools.seq import Fastq
 
 
@@ -20,17 +16,17 @@ def mock_testclass():
     bowtie_samples = b.bowtie_samples
     bowtie_sample = b.bowtie_sample
     run_bowtie = b.run_bowtie
-    sort = b.sort
     fastq = Fastq.fastq
     run = subprocess.run
+    sort = Bam.sort
     yield
     b.bowtie_samples = bowtie_samples
     b.bowtie_sample = bowtie_sample
     b.run_bowtie = run_bowtie
-    b.sort = sort
     Fastq.fastq = fastq
     subprocess.run = run
-    
+    Bam.sort = sort
+
 
 def create_file(*args, **kwargs):
     if 'stdout' in kwargs:
@@ -63,9 +59,11 @@ def test_bowtie2_parameters(testdir, mock_testclass):
     index = 1
     b.bowtie_samples = MagicMock()
     runner = CliRunner()
-    result = runner.invoke(b.bowtie2, ['--samples', samples, '-x', 'sacCer3.fa', '--threads', threads, '--input-suffix', input_suffix, '--output-suffix', output_suffix, '--index', index])
+    result = runner.invoke(b.bowtie2, ['--samples', samples, '-x', 'sacCer3.fa', '--threads', threads, '--input-suffix',
+                                       input_suffix, '--output-suffix', output_suffix, '--index', index])
     assert result.exit_code == 0
-    b.bowtie_samples.assert_called_once_with(samples, threads, input_suffix, output_suffix, index, ('-x', 'sacCer3.fa',))
+    b.bowtie_samples.assert_called_once_with(samples, threads, input_suffix, output_suffix, index,
+                                             ('-x', 'sacCer3.fa',))
 
 
 def test_bowtie2_filenotexists(testdir, mock_testclass):
@@ -156,16 +154,16 @@ def test_run_bowtie(testdir, mock_testclass):
     fastq2 = sample + '_2.fastq'
     copyfile(Path(__file__).parent.joinpath('samples.txt'), fastq2)
     subprocess.run = MagicMock(side_effect=create_file)
+    Bam.sort = MagicMock()
     b.run_bowtie(fastq, fastq2, bam, None, ())
     call1 = ['bowtie2', '-S', ANY, '-1', fastq, '-2', fastq2]
     call2 = ['samtools', 'view', '-b', '-o', ANY, ANY]
-    call3 = ['samtools', 'sort', '-o', bam, ANY]
     subprocess.run.assert_any_call(call1, check=True)
     subprocess.run.assert_any_call(call2, check=True)
-    subprocess.run.assert_any_call(call3, check=True)
-    subprocess.run.assert_has_calls([call(call1, check=True), call(call2, check=True), call(call3, check=True)], True)
+    subprocess.run.assert_has_calls([call(call1, check=True), call(call2, check=True)], True)
+    Bam.sort.assert_any_call(ANY, bam, None)
     assert subprocess.run.call_args_list[0].args[0][2] == subprocess.run.call_args_list[1].args[0][5]
-    assert subprocess.run.call_args_list[1].args[0][4] == subprocess.run.call_args_list[2].args[0][4]
+    assert subprocess.run.call_args_list[1].args[0][4] == Bam.sort.call_args_list[0].args[0]
 
 
 def test_run_bowtie_parameters(testdir, mock_testclass):
@@ -178,16 +176,16 @@ def test_run_bowtie_parameters(testdir, mock_testclass):
     threads = 2
     bowtie_args = ('-x', 'sacCer3.fa',)
     subprocess.run = MagicMock(side_effect=create_file)
+    Bam.sort = MagicMock()
     b.run_bowtie(fastq, fastq2, bam, threads, bowtie_args)
     call1 = ['bowtie2', '-x', 'sacCer3.fa', '-p', str(threads), '-S', ANY, '-1', fastq, '-2', fastq2]
     call2 = ['samtools', 'view', '-b', '--threads', str(threads - 1), '-o', ANY, ANY]
-    call3 = ['samtools', 'sort', '--threads', str(threads - 1), '-o', bam, ANY]
     subprocess.run.assert_any_call(call1, check=True)
     subprocess.run.assert_any_call(call2, check=True)
-    subprocess.run.assert_any_call(call3, check=True)
-    subprocess.run.assert_has_calls([call(call1, check=True), call(call2, check=True), call(call3, check=True)], True)
+    subprocess.run.assert_has_calls([call(call1, check=True), call(call2, check=True)], True)
+    Bam.sort.assert_any_call(ANY, bam, threads)
     assert subprocess.run.call_args_list[0].args[0][6] == subprocess.run.call_args_list[1].args[0][7]
-    assert subprocess.run.call_args_list[1].args[0][6] == subprocess.run.call_args_list[2].args[0][6]
+    assert subprocess.run.call_args_list[1].args[0][6] == Bam.sort.call_args_list[0].args[0]
 
 
 def test_run_bowtie_singlethread(testdir, mock_testclass):
@@ -200,16 +198,16 @@ def test_run_bowtie_singlethread(testdir, mock_testclass):
     threads = 1
     bowtie_args = ('-x', 'sacCer3.fa',)
     subprocess.run = MagicMock(side_effect=create_file)
+    Bam.sort = MagicMock()
     b.run_bowtie(fastq, fastq2, bam, threads, bowtie_args)
     call1 = ['bowtie2', '-x', 'sacCer3.fa', '-S', ANY, '-1', fastq, '-2', fastq2]
     call2 = ['samtools', 'view', '-b', '-o', ANY, ANY]
-    call3 = ['samtools', 'sort', '-o', bam, ANY]
     subprocess.run.assert_any_call(call1, check=True)
     subprocess.run.assert_any_call(call2, check=True)
-    subprocess.run.assert_any_call(call3, check=True)
-    subprocess.run.assert_has_calls([call(call1, check=True), call(call2, check=True), call(call3, check=True)], True)
+    subprocess.run.assert_has_calls([call(call1, check=True), call(call2, check=True)], True)
+    Bam.sort.assert_any_call(ANY, bam, threads)
     assert subprocess.run.call_args_list[0].args[0][4] == subprocess.run.call_args_list[1].args[0][5]
-    assert subprocess.run.call_args_list[1].args[0][4] == subprocess.run.call_args_list[2].args[0][4]
+    assert subprocess.run.call_args_list[1].args[0][4] == Bam.sort.call_args_list[0].args[0]
 
 
 def test_run_bowtie_single(testdir, mock_testclass):
@@ -218,16 +216,16 @@ def test_run_bowtie_single(testdir, mock_testclass):
     fastq = sample + '_1.fastq'
     copyfile(Path(__file__).parent.joinpath('samples.txt'), fastq)
     subprocess.run = MagicMock(side_effect=create_file)
+    Bam.sort = MagicMock()
     b.run_bowtie(fastq, None, bam, None, ())
     call1 = ['bowtie2', '-S', ANY, '-U', fastq]
     call2 = ['samtools', 'view', '-b', '-o', ANY, ANY]
-    call3 = ['samtools', 'sort', '-o', bam, ANY]
     subprocess.run.assert_any_call(call1, check=True)
     subprocess.run.assert_any_call(call2, check=True)
-    subprocess.run.assert_any_call(call3, check=True)
-    subprocess.run.assert_has_calls([call(call1, check=True), call(call2, check=True), call(call3, check=True)], True)
+    subprocess.run.assert_has_calls([call(call1, check=True), call(call2, check=True)], True)
+    Bam.sort.assert_any_call(ANY, bam, None)
     assert subprocess.run.call_args_list[0].args[0][2] == subprocess.run.call_args_list[1].args[0][5]
-    assert subprocess.run.call_args_list[1].args[0][4] == subprocess.run.call_args_list[2].args[0][4]
+    assert subprocess.run.call_args_list[1].args[0][4] == Bam.sort.call_args_list[0].args[0]
 
 
 def test_run_bowtie_fastq2notexists(testdir, mock_testclass):
@@ -235,15 +233,14 @@ def test_run_bowtie_fastq2notexists(testdir, mock_testclass):
     bam = sample + '.bam'
     fastq = sample + '_1.fastq'
     copyfile(Path(__file__).parent.joinpath('samples.txt'), fastq)
-    fastq2 = sample + '_2.fastq'
     subprocess.run = MagicMock(side_effect=create_file)
+    Bam.sort = MagicMock()
     b.run_bowtie(fastq, None, bam, None, ())
     call1 = ['bowtie2', '-S', ANY, '-U', fastq]
     call2 = ['samtools', 'view', '-b', '-o', ANY, ANY]
-    call3 = ['samtools', 'sort', '-o', bam, ANY]
     subprocess.run.assert_any_call(call1, check=True)
     subprocess.run.assert_any_call(call2, check=True)
-    subprocess.run.assert_any_call(call3, check=True)
-    subprocess.run.assert_has_calls([call(call1, check=True), call(call2, check=True), call(call3, check=True)], True)
+    subprocess.run.assert_has_calls([call(call1, check=True), call(call2, check=True)], True)
+    Bam.sort.assert_any_call(ANY, bam, None)
     assert subprocess.run.call_args_list[0].args[0][2] == subprocess.run.call_args_list[1].args[0][5]
-    assert subprocess.run.call_args_list[1].args[0][4] == subprocess.run.call_args_list[2].args[0][4]
+    assert subprocess.run.call_args_list[1].args[0][4] == Bam.sort.call_args_list[0].args[0]

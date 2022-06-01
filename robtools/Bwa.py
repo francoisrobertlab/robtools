@@ -1,10 +1,11 @@
-from distutils.command.check import check
 import logging
 import os
 import subprocess
 import tempfile
 
 import click
+
+from robtools.bam import Bam
 from robtools.seq import Fastq
 from robtools.txt import Parser
 
@@ -27,11 +28,13 @@ from robtools.txt import Parser
 @click.argument('bwa_args', nargs=-1, type=click.UNPROCESSED)
 def bwa(samples, fasta, threads, input_suffix, output_suffix, index, bwa_args):
     '''Align samples using bwa program.'''
-    logging.basicConfig(filename='robtools.log', level=logging.DEBUG, format='%(asctime)s %(levelname)-8s %(message)s', datefmt='%Y-%m-%d %H:%M:%S')
+    logging.basicConfig(filename='robtools.log', level=logging.DEBUG, format='%(asctime)s %(levelname)-8s %(message)s',
+                        datefmt='%Y-%m-%d %H:%M:%S')
     bwa_samples(samples, fasta, threads, input_suffix, output_suffix, index, bwa_args)
 
 
-def bwa_samples(samples='samples.txt', fasta='sacCer3.fa', threads=None, input_suffix='', output_suffix='', index=None, bwa_args=()):
+def bwa_samples(samples='samples.txt', fasta='sacCer3.fa', threads=None, input_suffix='', output_suffix='', index=None,
+                bwa_args=()):
     '''Align samples using bwa program.'''
     sample_names = Parser.first(samples)
     if index != None:
@@ -42,7 +45,7 @@ def bwa_samples(samples='samples.txt', fasta='sacCer3.fa', threads=None, input_s
 
 def bwa_sample(sample, fasta, threads=None, input_suffix='', output_suffix='', bwa_args=()):
     '''Align one sample using bwa program.'''
-    print ('Running BWA on sample {}'.format(sample))
+    print('Running BWA on sample {}'.format(sample))
     fastq1 = Fastq.fastq(sample + input_suffix, 1)
     if fastq1 is None:
         raise AssertionError('Cannot find FASTQ files for sample ' + sample + input_suffix)
@@ -78,18 +81,8 @@ def run_bwa(fastq1, fastq2, fasta, bam_output, threads=None, bwa_args=()):
     logging.debug('Running {}'.format(cmd))
     subprocess.run(cmd, check=True)
     os.remove(sam_output)
-    sort(view_bam, bam_output, threads)
+    Bam.sort(view_bam, bam_output, threads)
     os.remove(view_bam)
-
-
-def sort(bam_input, bam_output, threads=None):
-    '''Sort BAM file.'''
-    cmd = ['samtools', 'sort']
-    if not threads is None and threads > 1:
-        cmd.extend(['--threads', str(threads - 1)])
-    cmd.extend(['-o', bam_output, bam_input])
-    logging.debug('Running {}'.format(cmd))
-    subprocess.run(cmd, check=True)
 
 
 if __name__ == '__main__':

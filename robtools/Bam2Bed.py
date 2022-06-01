@@ -1,10 +1,11 @@
-from distutils.command.check import check
 import logging
 import os
 import subprocess
 import tempfile
 
 import click
+
+from robtools.bam import Bam
 from robtools.bed import Bed
 from robtools.txt import Parser
 
@@ -24,7 +25,8 @@ from robtools.txt import Parser
               help='Index of sample to process in samples file.')
 def bam2bed(samples, paired, threads, input_suffix, output_suffix, index):
     '''Converts BAM file to BED for samples.'''
-    logging.basicConfig(filename='robtools.log', level=logging.DEBUG, format='%(asctime)s %(levelname)-8s %(message)s', datefmt='%Y-%m-%d %H:%M:%S')
+    logging.basicConfig(filename='robtools.log', level=logging.DEBUG, format='%(asctime)s %(levelname)-8s %(message)s',
+                        datefmt='%Y-%m-%d %H:%M:%S')
     bam2bed_samples(samples, paired, threads, input_suffix, output_suffix, index)
 
 
@@ -39,7 +41,7 @@ def bam2bed_samples(samples='samples.txt', paired=True, threads=None, input_suff
 
 def bam2bed_sample(sample, paired, threads=None, input_suffix='', output_suffix=''):
     '''Converts BAM file to BED for a single sample.'''
-    print ('Converting BAM to BED for sample {}'.format(sample))
+    print('Converting BAM to BED for sample {}'.format(sample))
     bam = sample + input_suffix + '.bam'
     bed = sample + output_suffix + '.bed'
     if paired:
@@ -60,18 +62,13 @@ def bam2bed_unpaired(bam, bed):
         subprocess.run(cmd, stdout=outfile, check=True)
     Bed.sort(conversion_output, bed)
     os.remove(conversion_output)
-    
-    
+
+
 def bam2bedpe(bam, bedpe, threads=None):
     '''Converts BAM file to BEDPE.'''
-    print ('Converting BAM {} to BEDPE {}'.format(bam, bedpe))
+    print('Converting BAM {} to BEDPE {}'.format(bam, bedpe))
     sort_output_o, sort_output = tempfile.mkstemp(suffix='.bam')
-    cmd = ['samtools', 'sort', '-n']
-    if not threads is None and threads > 1:
-        cmd.extend(['--threads', str(threads - 1)])
-    cmd.extend(['-o', sort_output, bam])
-    logging.debug('Running {}'.format(cmd))
-    subprocess.run(cmd, check=True)
+    Bam.sort_by_readname(bam, sort_output, threads)
     cmd = ['bedtools', 'bamtobed', '-bedpe', '-mate1', '-i', sort_output]
     logging.debug('Running {}'.format(cmd))
     with open(bedpe, 'w') as outfile:
@@ -81,7 +78,7 @@ def bam2bedpe(bam, bedpe, threads=None):
 
 def bedpe2bed(bedpe, bed):
     '''Converts BEDPE file to BED by merging the paired reads.'''
-    print ('Converting BAM BEDPE {} to BED {} by merging the paired reads'.format(bedpe, bed))
+    print('Converting BAM BEDPE {} to BED {} by merging the paired reads'.format(bedpe, bed))
     merge_output_o, merge_output = tempfile.mkstemp(suffix='.bed')
     with open(bedpe, 'r') as infile:
         with open(merge_output_o, 'w') as outfile:

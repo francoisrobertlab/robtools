@@ -1,14 +1,13 @@
-import logging
 import os
-from pathlib import Path
 import subprocess
+from pathlib import Path
 from unittest.mock import MagicMock, ANY
 
-import click
-from click.testing import CliRunner
 import pytest
+from click.testing import CliRunner
 
 from robtools import FilterBam as fb
+from robtools.bam import Bam
 
 
 @pytest.fixture
@@ -17,17 +16,19 @@ def mock_testclass():
     filter_bam_sample = fb.filter_bam_sample
     filter_mapped = fb.filter_mapped
     remove_duplicates = fb.remove_duplicates
-    sort = fb.sort
     run = subprocess.run
+    sort = Bam.sort
+    sort_by_readname = Bam.sort_by_readname
     yield
     fb.filter_bam = filter_bam
     fb.filter_bam_sample = filter_bam_sample
     fb.filter_mapped = filter_mapped
     fb.remove_duplicates = remove_duplicates
-    fb.sort = sort
     subprocess.run = run
-    
-    
+    Bam.sort = sort
+    Bam.sort_by_readname = sort_by_readname
+
+
 def create_file(*args, **kwargs):
     if 'stdout' in kwargs:
         outfile = kwargs['stdout']
@@ -36,6 +37,12 @@ def create_file(*args, **kwargs):
         output = args[0][args[0].index('-o') + 1]
         with open(output, 'w') as outfile:
             outfile.write('test')
+
+
+def create_file_sort(*args, **kwargs):
+    output = args[1]
+    with open(output, 'w') as outfile:
+        outfile.write('test')
 
 
 def create_file_fixmate(*args, **kwargs):
@@ -69,7 +76,9 @@ def test_filterbam_parameters(testdir, mock_testclass):
     index = 1
     fb.filter_bam = MagicMock()
     runner = CliRunner()
-    result = runner.invoke(fb.filterbam, ['-s', samples, '--unpaired', '--no-dedup', '-q', quality, '--threads', threads, '--input-suffix', input_suffix, '--output-suffix', output_suffix, '--index', index])
+    result = runner.invoke(fb.filterbam,
+                           ['-s', samples, '--unpaired', '--no-dedup', '-q', quality, '--threads', threads,
+                            '--input-suffix', input_suffix, '--output-suffix', output_suffix, '--index', index])
     assert result.exit_code == 0
     fb.filter_bam.assert_called_once_with(samples, False, False, quality, threads, input_suffix, output_suffix, index)
 
@@ -200,10 +209,12 @@ def test_filter_mapped_single(testdir, mock_testclass):
     bam = 'POLR2A.bam'
     output = 'POLR2A-out.bam'
     subprocess.run = MagicMock(side_effect=create_file)
+    Bam.sort = MagicMock()
     fb.filter_mapped(bam, output, False)
-    subprocess.run.assert_any_call(['samtools', 'view', '-b', '-F', '2048', '-F', '256', '-F', '4', '-o', ANY, bam], check=True)
-    subprocess.run.assert_any_call(['samtools', 'sort', '-o', output, ANY], check=True)
-    assert subprocess.run.call_args_list[0].args[0][10] == subprocess.run.call_args_list[1].args[0][4]
+    subprocess.run.assert_any_call(['samtools', 'view', '-b', '-F', '2048', '-F', '256', '-F', '4', '-o', ANY, bam],
+                                   check=True)
+    Bam.sort.assert_any_call(ANY, output, None)
+    assert subprocess.run.call_args_list[0].args[0][10] == Bam.sort.call_args_list[0].args[0]
 
 
 def test_filter_mapped_single_quality(testdir, mock_testclass):
@@ -211,10 +222,13 @@ def test_filter_mapped_single_quality(testdir, mock_testclass):
     output = 'POLR2A-out.bam'
     quality = 20
     subprocess.run = MagicMock(side_effect=create_file)
+    Bam.sort = MagicMock()
     fb.filter_mapped(bam, output, False, quality=quality)
-    subprocess.run.assert_any_call(['samtools', 'view', '-b', '-F', '2048', '-F', '256', '-F', '4', '-q', str(quality), '-o', ANY, bam], check=True)
-    subprocess.run.assert_any_call(['samtools', 'sort', '-o', output, ANY], check=True)
-    assert subprocess.run.call_args_list[0].args[0][12] == subprocess.run.call_args_list[1].args[0][4]
+    subprocess.run.assert_any_call(
+        ['samtools', 'view', '-b', '-F', '2048', '-F', '256', '-F', '4', '-q', str(quality), '-o', ANY, bam],
+        check=True)
+    Bam.sort.assert_any_call(ANY, output, None)
+    assert subprocess.run.call_args_list[0].args[0][12] == Bam.sort.call_args_list[0].args[0]
 
 
 def test_filter_mapped_single_threads(testdir, mock_testclass):
@@ -222,10 +236,13 @@ def test_filter_mapped_single_threads(testdir, mock_testclass):
     output = 'POLR2A-out.bam'
     threads = 3
     subprocess.run = MagicMock(side_effect=create_file)
+    Bam.sort = MagicMock()
     fb.filter_mapped(bam, output, False, threads=threads)
-    subprocess.run.assert_any_call(['samtools', 'view', '-b', '-F', '2048', '-F', '256', '-F', '4', '--threads', str(threads - 1), '-o', ANY, bam], check=True)
-    subprocess.run.assert_any_call(['samtools', 'sort', '--threads', str(threads - 1), '-o', output, ANY], check=True)
-    assert subprocess.run.call_args_list[0].args[0][12] == subprocess.run.call_args_list[1].args[0][6]
+    subprocess.run.assert_any_call(
+        ['samtools', 'view', '-b', '-F', '2048', '-F', '256', '-F', '4', '--threads', str(threads - 1), '-o', ANY, bam],
+        check=True)
+    Bam.sort.assert_any_call(ANY, output, threads)
+    assert subprocess.run.call_args_list[0].args[0][12] == Bam.sort.call_args_list[0].args[0]
 
 
 def test_filter_mapped_single_qualitythreads(testdir, mock_testclass):
@@ -234,10 +251,13 @@ def test_filter_mapped_single_qualitythreads(testdir, mock_testclass):
     quality = 20
     threads = 3
     subprocess.run = MagicMock(side_effect=create_file)
+    Bam.sort = MagicMock()
     fb.filter_mapped(bam, output, False, quality=quality, threads=threads)
-    subprocess.run.assert_any_call(['samtools', 'view', '-b', '-F', '2048', '-F', '256', '-F', '4', '-q', str(quality), '--threads', str(threads - 1), '-o', ANY, bam], check=True)
-    subprocess.run.assert_any_call(['samtools', 'sort', '--threads', str(threads - 1), '-o', output, ANY], check=True)
-    assert subprocess.run.call_args_list[0].args[0][14] == subprocess.run.call_args_list[1].args[0][6]
+    subprocess.run.assert_any_call(
+        ['samtools', 'view', '-b', '-F', '2048', '-F', '256', '-F', '4', '-q', str(quality), '--threads',
+         str(threads - 1), '-o', ANY, bam], check=True)
+    Bam.sort.assert_any_call(ANY, output, threads)
+    assert subprocess.run.call_args_list[0].args[0][14] == Bam.sort.call_args_list[0].args[0]
 
 
 def test_filter_mapped_single_singlethread(testdir, mock_testclass):
@@ -245,20 +265,24 @@ def test_filter_mapped_single_singlethread(testdir, mock_testclass):
     output = 'POLR2A-out.bam'
     threads = 1
     subprocess.run = MagicMock(side_effect=create_file)
+    Bam.sort = MagicMock()
     fb.filter_mapped(bam, output, False, threads=threads)
-    subprocess.run.assert_any_call(['samtools', 'view', '-b', '-F', '2048', '-F', '256', '-F', '4', '-o', ANY, bam], check=True)
-    subprocess.run.assert_any_call(['samtools', 'sort', '-o', output, ANY], check=True)
-    assert subprocess.run.call_args_list[0].args[0][10] == subprocess.run.call_args_list[1].args[0][4]
+    subprocess.run.assert_any_call(['samtools', 'view', '-b', '-F', '2048', '-F', '256', '-F', '4', '-o', ANY, bam],
+                                   check=True)
+    Bam.sort.assert_any_call(ANY, output, threads)
+    assert subprocess.run.call_args_list[0].args[0][10] == Bam.sort.call_args_list[0].args[0]
 
 
 def test_filter_mapped_paired(testdir, mock_testclass):
     bam = 'POLR2A.bam'
     output = 'POLR2A-out.bam'
     subprocess.run = MagicMock(side_effect=create_file)
+    Bam.sort = MagicMock()
     fb.filter_mapped(bam, output, True)
-    subprocess.run.assert_any_call(['samtools', 'view', '-b', '-F', '2048', '-F', '256', '-f', '2', '-o', ANY, bam], check=True)
-    subprocess.run.assert_any_call(['samtools', 'sort', '-o', output, ANY], check=True)
-    assert subprocess.run.call_args_list[0].args[0][10] == subprocess.run.call_args_list[1].args[0][4]
+    subprocess.run.assert_any_call(['samtools', 'view', '-b', '-F', '2048', '-F', '256', '-f', '2', '-o', ANY, bam],
+                                   check=True)
+    Bam.sort.assert_any_call(ANY, output, None)
+    assert subprocess.run.call_args_list[0].args[0][10] == Bam.sort.call_args_list[0].args[0]
 
 
 def test_filter_mapped_paired_quality(testdir, mock_testclass):
@@ -266,10 +290,13 @@ def test_filter_mapped_paired_quality(testdir, mock_testclass):
     output = 'POLR2A-out.bam'
     quality = 20
     subprocess.run = MagicMock(side_effect=create_file)
+    Bam.sort = MagicMock()
     fb.filter_mapped(bam, output, True, quality=quality)
-    subprocess.run.assert_any_call(['samtools', 'view', '-b', '-F', '2048', '-F', '256', '-f', '2', '-q', str(quality), '-o', ANY, bam], check=True)
-    subprocess.run.assert_any_call(['samtools', 'sort', '-o', output, ANY], check=True)
-    assert subprocess.run.call_args_list[0].args[0][12] == subprocess.run.call_args_list[1].args[0][4]
+    subprocess.run.assert_any_call(
+        ['samtools', 'view', '-b', '-F', '2048', '-F', '256', '-f', '2', '-q', str(quality), '-o', ANY, bam],
+        check=True)
+    Bam.sort.assert_any_call(ANY, output, None)
+    assert subprocess.run.call_args_list[0].args[0][12] == Bam.sort.call_args_list[0].args[0]
 
 
 def test_filter_mapped_paired_threads(testdir, mock_testclass):
@@ -277,10 +304,13 @@ def test_filter_mapped_paired_threads(testdir, mock_testclass):
     output = 'POLR2A-out.bam'
     threads = 3
     subprocess.run = MagicMock(side_effect=create_file)
+    Bam.sort = MagicMock()
     fb.filter_mapped(bam, output, True, threads=threads)
-    subprocess.run.assert_any_call(['samtools', 'view', '-b', '-F', '2048', '-F', '256', '-f', '2', '--threads', str(threads - 1), '-o', ANY, bam], check=True)
-    subprocess.run.assert_any_call(['samtools', 'sort', '--threads', str(threads - 1), '-o', output, ANY], check=True)
-    assert subprocess.run.call_args_list[0].args[0][12] == subprocess.run.call_args_list[1].args[0][6]
+    subprocess.run.assert_any_call(
+        ['samtools', 'view', '-b', '-F', '2048', '-F', '256', '-f', '2', '--threads', str(threads - 1), '-o', ANY, bam],
+        check=True)
+    Bam.sort.assert_any_call(ANY, output, threads)
+    assert subprocess.run.call_args_list[0].args[0][12] == Bam.sort.call_args_list[0].args[0]
 
 
 def test_filter_mapped_paired_qualitythreads(testdir, mock_testclass):
@@ -289,10 +319,13 @@ def test_filter_mapped_paired_qualitythreads(testdir, mock_testclass):
     quality = 20
     threads = 3
     subprocess.run = MagicMock(side_effect=create_file)
+    Bam.sort = MagicMock()
     fb.filter_mapped(bam, output, True, quality=quality, threads=threads)
-    subprocess.run.assert_any_call(['samtools', 'view', '-b', '-F', '2048', '-F', '256', '-f', '2', '-q', str(quality), '--threads', str(threads - 1), '-o', ANY, bam], check=True)
-    subprocess.run.assert_any_call(['samtools', 'sort', '--threads', str(threads - 1), '-o', output, ANY], check=True)
-    assert subprocess.run.call_args_list[0].args[0][14] == subprocess.run.call_args_list[1].args[0][6]
+    subprocess.run.assert_any_call(
+        ['samtools', 'view', '-b', '-F', '2048', '-F', '256', '-f', '2', '-q', str(quality), '--threads',
+         str(threads - 1), '-o', ANY, bam], check=True)
+    Bam.sort.assert_any_call(ANY, output, threads)
+    assert subprocess.run.call_args_list[0].args[0][14] == Bam.sort.call_args_list[0].args[0]
 
 
 def test_filter_mapped_paired_singlethread(testdir, mock_testclass):
@@ -300,83 +333,65 @@ def test_filter_mapped_paired_singlethread(testdir, mock_testclass):
     output = 'POLR2A-out.bam'
     threads = 1
     subprocess.run = MagicMock(side_effect=create_file)
+    Bam.sort = MagicMock()
     fb.filter_mapped(bam, output, True, threads=threads)
-    subprocess.run.assert_any_call(['samtools', 'view', '-b', '-F', '2048', '-F', '256', '-f', '2', '-o', ANY, bam], check=True)
-    subprocess.run.assert_any_call(['samtools', 'sort', '-o', output, ANY], check=True)
-    assert subprocess.run.call_args_list[0].args[0][10] == subprocess.run.call_args_list[1].args[0][4]
+    subprocess.run.assert_any_call(['samtools', 'view', '-b', '-F', '2048', '-F', '256', '-f', '2', '-o', ANY, bam],
+                                   check=True)
+    Bam.sort.assert_any_call(ANY, output, threads)
+    assert subprocess.run.call_args_list[0].args[0][10] == Bam.sort.call_args_list[0].args[0]
 
 
 def test_remove_duplicates(testdir, mock_testclass):
     bam = 'POLR2A.bam'
     output = 'POLR2A-out.bam'
-    subprocess.run = MagicMock(side_effect=[create_file, create_file_fixmate, create_file, create_file_markdup, create_file])
+    subprocess.run = MagicMock(side_effect=[create_file_fixmate, create_file_markdup])
+    Bam.sort = MagicMock(side_effect=create_file_sort)
+    Bam.sort_by_readname = MagicMock(side_effect=create_file_sort)
     fb.remove_duplicates(bam, output)
-    subprocess.run.assert_any_call(['samtools', 'sort', '-n', '-o', ANY, bam], check=True)
+    Bam.sort_by_readname.assert_any_call(bam, ANY, None)
     subprocess.run.assert_any_call(['samtools', 'fixmate', '-m', ANY, ANY], check=True)
-    subprocess.run.assert_any_call(['samtools', 'sort', '-o', ANY, ANY], check=True)
+    Bam.sort.assert_any_call(ANY, ANY, None)
     subprocess.run.assert_any_call(['samtools', 'markdup', '-r', ANY, ANY], check=True)
-    subprocess.run.assert_any_call(['samtools', 'sort', '-o', output, ANY], check=True)
-    assert subprocess.run.call_args_list[0].args[0][4] == subprocess.run.call_args_list[1].args[0][3]
-    assert subprocess.run.call_args_list[1].args[0][4] == subprocess.run.call_args_list[2].args[0][4]
-    assert subprocess.run.call_args_list[2].args[0][3] == subprocess.run.call_args_list[3].args[0][3]
-    assert subprocess.run.call_args_list[3].args[0][4] == subprocess.run.call_args_list[3].args[0][4]
+    Bam.sort.assert_any_call(ANY, output, None)
+    assert Bam.sort_by_readname.call_args_list[0].args[1] == subprocess.run.call_args_list[0].args[0][3]
+    assert subprocess.run.call_args_list[0].args[0][4] == Bam.sort.call_args_list[0].args[0]
+    assert Bam.sort.call_args_list[0].args[1] == subprocess.run.call_args_list[1].args[0][3]
+    assert subprocess.run.call_args_list[1].args[0][4] == Bam.sort.call_args_list[1].args[0]
 
 
 def test_remove_duplicates_threads(testdir, mock_testclass):
     bam = 'POLR2A.bam'
     output = 'POLR2A-out.bam'
     threads = 3
-    subprocess.run = MagicMock(side_effect=[create_file, create_file_fixmate, create_file, create_file_markdup, create_file])
+    subprocess.run = MagicMock(side_effect=[create_file_fixmate, create_file_markdup])
+    Bam.sort = MagicMock(side_effect=create_file_sort)
+    Bam.sort_by_readname = MagicMock(side_effect=create_file_sort)
     fb.remove_duplicates(bam, output, threads)
-    subprocess.run.assert_any_call(['samtools', 'sort', '-n', '--threads', str(threads - 1), '-o', ANY, bam], check=True)
+    Bam.sort_by_readname.assert_any_call(bam, ANY, threads)
     subprocess.run.assert_any_call(['samtools', 'fixmate', '-m', '--threads', str(threads - 1), ANY, ANY], check=True)
-    subprocess.run.assert_any_call(['samtools', 'sort', '--threads', str(threads - 1), '-o', ANY, ANY], check=True)
+    Bam.sort.assert_any_call(ANY, ANY, threads)
     subprocess.run.assert_any_call(['samtools', 'markdup', '-r', '--threads', str(threads - 1), ANY, ANY], check=True)
-    subprocess.run.assert_any_call(['samtools', 'sort', '--threads', str(threads - 1), '-o', output, ANY], check=True)
-    assert subprocess.run.call_args_list[0].args[0][6] == subprocess.run.call_args_list[1].args[0][5]
-    assert subprocess.run.call_args_list[1].args[0][6] == subprocess.run.call_args_list[2].args[0][6]
-    assert subprocess.run.call_args_list[2].args[0][5] == subprocess.run.call_args_list[3].args[0][5]
-    assert subprocess.run.call_args_list[3].args[0][6] == subprocess.run.call_args_list[3].args[0][6]
+    Bam.sort.assert_any_call(ANY, output, threads)
+    assert Bam.sort_by_readname.call_args_list[0].args[1] == subprocess.run.call_args_list[0].args[0][5]
+    assert subprocess.run.call_args_list[0].args[0][6] == Bam.sort.call_args_list[0].args[0]
+    assert Bam.sort.call_args_list[0].args[1] == subprocess.run.call_args_list[1].args[0][5]
+    assert subprocess.run.call_args_list[1].args[0][6] == Bam.sort.call_args_list[1].args[0]
 
 
 def test_remove_duplicates_singlethread(testdir, mock_testclass):
     bam = 'POLR2A.bam'
     output = 'POLR2A-out.bam'
     threads = 1
-    subprocess.run = MagicMock(side_effect=[create_file, create_file_fixmate, create_file, create_file_markdup, create_file])
+    subprocess.run = MagicMock(side_effect=[create_file_fixmate, create_file_markdup])
+    Bam.sort = MagicMock(side_effect=create_file_sort)
+    Bam.sort_by_readname = MagicMock(side_effect=create_file_sort)
     fb.remove_duplicates(bam, output, threads)
-    subprocess.run.assert_any_call(['samtools', 'sort', '-n', '-o', ANY, bam], check=True)
+    Bam.sort_by_readname.assert_any_call(bam, ANY, threads)
     subprocess.run.assert_any_call(['samtools', 'fixmate', '-m', ANY, ANY], check=True)
-    subprocess.run.assert_any_call(['samtools', 'sort', '-o', ANY, ANY], check=True)
+    Bam.sort.assert_any_call(ANY, ANY, threads)
     subprocess.run.assert_any_call(['samtools', 'markdup', '-r', ANY, ANY], check=True)
-    subprocess.run.assert_any_call(['samtools', 'sort', '-o', output, ANY], check=True)
-    assert subprocess.run.call_args_list[0].args[0][4] == subprocess.run.call_args_list[1].args[0][3]
-    assert subprocess.run.call_args_list[1].args[0][4] == subprocess.run.call_args_list[2].args[0][4]
-    assert subprocess.run.call_args_list[2].args[0][3] == subprocess.run.call_args_list[3].args[0][3]
-    assert subprocess.run.call_args_list[3].args[0][4] == subprocess.run.call_args_list[3].args[0][4]
-
-
-def test_sort(testdir, mock_testclass):
-    bam = 'POLR2A.bam'
-    output = 'POLR2A-out.bam'
-    subprocess.run = MagicMock()
-    fb.sort(bam, output)
-    subprocess.run.assert_any_call(['samtools', 'sort', '-o', output, bam], check=True)
-
-
-def test_sort_threads(testdir, mock_testclass):
-    bam = 'POLR2A.bam'
-    output = 'POLR2A-out.bam'
-    threads = 3
-    subprocess.run = MagicMock()
-    fb.sort(bam, output, threads)
-    subprocess.run.assert_any_call(['samtools', 'sort', '--threads', str(threads - 1), '-o', output, bam], check=True)
-
-
-def test_sort_singlethread(testdir, mock_testclass):
-    bam = 'POLR2A.bam'
-    output = 'POLR2A-out.bam'
-    threads = 1
-    subprocess.run = MagicMock()
-    fb.sort(bam, output, threads)
-    subprocess.run.assert_any_call(['samtools', 'sort', '-o', output, bam], check=True)
+    Bam.sort.assert_any_call(ANY, output, threads)
+    assert Bam.sort_by_readname.call_args_list[0].args[1] == subprocess.run.call_args_list[0].args[0][3]
+    assert subprocess.run.call_args_list[0].args[0][4] == Bam.sort.call_args_list[0].args[0]
+    assert Bam.sort.call_args_list[0].args[1] == subprocess.run.call_args_list[1].args[0][3]
+    assert subprocess.run.call_args_list[1].args[0][4] == Bam.sort.call_args_list[1].args[0]

@@ -1,15 +1,14 @@
-import logging
 import os
+import subprocess
 from pathlib import Path
 from shutil import copyfile
-import subprocess
 from unittest.mock import MagicMock, ANY
 
-import click
-from click.testing import CliRunner
 import pytest
+from click.testing import CliRunner
 
 from robtools import Bam2Bed as bb
+from robtools.bam import Bam
 from robtools.bed import Bed
 
 
@@ -20,18 +19,20 @@ def mock_testclass():
     bam2bed_unpaired = bb.bam2bed_unpaired
     bam2bedpe = bb.bam2bedpe
     bedpe2bed = bb.bedpe2bed
-    sort = Bed.sort
+    bam_sort_by_readname = Bam.sort_by_readname
+    bed_sort = Bed.sort
     run = subprocess.run
-    yield 
+    yield
     bb.bam2bed_samples = bam2bed_samples
     bb.bam2bed_sample = bam2bed_sample
     bb.bam2bed_unpaired = bam2bed_unpaired
     bb.bam2bedpe = bam2bedpe
     bb.bedpe2bed = bedpe2bed
-    Bed.sort = sort
+    Bam.sort_by_readname = bam_sort_by_readname
+    Bed.sort = bed_sort
     subprocess.run = run
-    
-    
+
+
 def create_file(*args, **kwargs):
     if 'stdout' in kwargs:
         outfile = kwargs['stdout']
@@ -51,7 +52,7 @@ def create_file_bam2bedpe(*args, **kwargs):
 def create_file_bedsort(*args, **kwargs):
     output = args[1]
     with open(output, 'w') as outfile:
-         outfile.write('test bed sort')
+        outfile.write('test bed sort')
 
 
 def test_bam2bed(testdir, mock_testclass):
@@ -72,7 +73,8 @@ def test_bam2bed_parameters(testdir, mock_testclass):
     index = 1
     bb.bam2bed_samples = MagicMock()
     runner = CliRunner()
-    result = runner.invoke(bb.bam2bed, ['-s', samples, '--unpaired', '--threads', threads, '-is', input_suffix, '-os', output_suffix, '--index', index])
+    result = runner.invoke(bb.bam2bed, ['-s', samples, '--unpaired', '--threads', threads, '-is', input_suffix, '-os',
+                                        output_suffix, '--index', index])
     assert result.exit_code == 0
     bb.bam2bed_samples.assert_called_once_with(samples, False, threads, input_suffix, output_suffix, index)
 
@@ -119,7 +121,7 @@ def test_bam2bed_samples_second_threads(testdir, mock_testclass):
     bb.bam2bed_samples(samples, True, threads, input_suffix=input_suffix, output_suffix=output_suffix, index=1)
     bb.bam2bed_sample.assert_called_once_with('ASDURF', True, threads, input_suffix, output_suffix)
 
-    
+
 def test_bam2bed_sample_paired(testdir, mock_testclass):
     sample = 'POLR2A'
     bam = sample + '.bam'
@@ -181,28 +183,29 @@ def test_bam2bed_sample_unpaired(testdir, mock_testclass):
     with open(bed, 'r') as infile:
         assert infile.readline() == 'test bed sort'
 
-    
+
 def test_bam2bedpe(testdir, mock_testclass):
     bam = 'POLR2A.bam'
     bedpe = 'POLR2A.bedpe'
     threads = 2
+    Bam.sort_by_readname = MagicMock()
     subprocess.run = MagicMock(side_effect=create_file)
     bb.bam2bedpe(bam, bedpe, threads)
-    subprocess.run.assert_any_call(['samtools', 'sort', '-n', '--threads', str(threads - 1), '-o', ANY, bam], check=True)
+    Bam.sort_by_readname.assert_any_call(bam, ANY, threads)
     subprocess.run.assert_any_call(['bedtools', 'bamtobed', '-bedpe', '-mate1', '-i', ANY], stdout=ANY, check=True)
-    assert subprocess.run.call_args_list[0].args[0][6] == subprocess.run.call_args_list[1].args[0][5]
+    assert Bam.sort_by_readname.call_args_list[0].args[1] == subprocess.run.call_args_list[0].args[0][5]
     assert os.path.exists(bedpe)
 
 
 def test_bam2bedpe_singlethread(testdir, mock_testclass):
     bam = 'POLR2A.bam'
     bedpe = 'POLR2A.bedpe'
-    threads = 1
+    Bam.sort_by_readname = MagicMock()
     subprocess.run = MagicMock(side_effect=create_file)
-    bb.bam2bedpe(bam, bedpe, threads)
-    subprocess.run.assert_any_call(['samtools', 'sort', '-n', '-o', ANY, bam], check=True)
+    bb.bam2bedpe(bam, bedpe)
+    Bam.sort_by_readname.assert_any_call(bam, ANY, None)
     subprocess.run.assert_any_call(['bedtools', 'bamtobed', '-bedpe', '-mate1', '-i', ANY], stdout=ANY, check=True)
-    assert subprocess.run.call_args_list[0].args[0][4] == subprocess.run.call_args_list[1].args[0][5]
+    assert Bam.sort_by_readname.call_args_list[0].args[1] == subprocess.run.call_args_list[0].args[0][5]
     assert os.path.exists(bedpe)
 
 

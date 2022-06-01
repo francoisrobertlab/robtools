@@ -1,10 +1,11 @@
-from distutils.command.check import check
 import logging
 import os
 import subprocess
 import tempfile
 
 import click
+
+from robtools.bam import Bam
 from robtools.txt import Parser
 
 
@@ -27,11 +28,13 @@ from robtools.txt import Parser
               help='Index of sample to process in samples file.')
 def filterbam(samples, paired, dedup, quality, threads, input_suffix, output_suffix, index):
     '''Filter BAM file to keep only properly paired reads and remove supplementary alignments and duplicates.'''
-    logging.basicConfig(filename='robtools.log', level=logging.DEBUG, format='%(asctime)s %(levelname)-8s %(message)s', datefmt='%Y-%m-%d %H:%M:%S')
+    logging.basicConfig(filename='robtools.log', level=logging.DEBUG, format='%(asctime)s %(levelname)-8s %(message)s',
+                        datefmt='%Y-%m-%d %H:%M:%S')
     filter_bam(samples, paired, dedup, quality, threads, input_suffix, output_suffix, index)
 
 
-def filter_bam(samples='samples.txt', paired=True, dedup=True, quality=None, threads=None, input_suffix='', output_suffix='', index=None):
+def filter_bam(samples='samples.txt', paired=True, dedup=True, quality=None, threads=None, input_suffix='',
+               output_suffix='', index=None):
     '''Filter BAM file to keep only properly paired reads and remove supplementary alignments and duplicates.'''
     sample_names = Parser.first(samples)
     if index != None:
@@ -42,7 +45,7 @@ def filter_bam(samples='samples.txt', paired=True, dedup=True, quality=None, thr
 
 def filter_bam_sample(sample, paired, dedup, quality=None, threads=None, input_suffix='', output_suffix=''):
     '''Filter BAM file to keep only properly paired reads and remove supplementary alignments and duplicates.'''
-    print ('Filtering BAM for sample {}'.format(sample))
+    print('Filtering BAM for sample {}'.format(sample))
     bam = sample + input_suffix + '.bam'
     bam_filtered = sample + output_suffix + '-filtered.bam'
     filter_mapped(bam, bam_filtered, paired, quality, threads)
@@ -53,7 +56,7 @@ def filter_bam_sample(sample, paired, dedup, quality=None, threads=None, input_s
 
 def filter_mapped(bam_input, bam_output, paired, quality=None, threads=None):
     '''Filter BAM file to remove poorly mapped sequences.'''
-    print ('Filtering BAM {} to remove poorly mapped sequences'.format(bam_input))
+    print('Filtering BAM {} to remove poorly mapped sequences'.format(bam_input))
     temp_o, temp = tempfile.mkstemp(suffix='.bam')
     cmd = ['samtools', 'view', '-b', '-F', '2048', '-F', '256']
     if bool(paired):
@@ -67,20 +70,15 @@ def filter_mapped(bam_input, bam_output, paired, quality=None, threads=None):
     cmd.extend(['-o', temp, bam_input])
     logging.debug('Running {}'.format(cmd))
     subprocess.run(cmd, check=True)
-    sort(temp, bam_output, threads)
+    Bam.sort(temp, bam_output, threads)
     os.remove(temp)
 
 
 def remove_duplicates(bam_input, bam_output, threads=None):
     '''Remove duplicated sequences from BAM file.'''
-    print ('Removing duplicated sequences from BAM {}'.format(bam_input))
+    print('Removing duplicated sequences from BAM {}'.format(bam_input))
     sort_bam_o, sort_bam = tempfile.mkstemp(suffix='.bam')
-    cmd = ['samtools', 'sort', '-n']
-    if not threads is None and threads > 1:
-        cmd.extend(['--threads', str(threads - 1)])
-    cmd.extend(['-o', sort_bam, bam_input])
-    logging.debug('Running {}'.format(cmd))
-    subprocess.run(cmd, check=True)
+    Bam.sort_by_readname(bam_input, sort_bam, threads)
     fixmate_o, fixmate = tempfile.mkstemp(suffix='.bam')
     cmd = ['samtools', 'fixmate', '-m']
     if not threads is None and threads > 1:
@@ -90,7 +88,7 @@ def remove_duplicates(bam_input, bam_output, threads=None):
     subprocess.run(cmd, check=True)
     os.remove(sort_bam)
     sort_fix_o, sort_fix = tempfile.mkstemp(suffix='.bam')
-    sort(fixmate, sort_fix, threads)
+    Bam.sort(fixmate, sort_fix, threads)
     os.remove(fixmate)
     markdup_o, markdup = tempfile.mkstemp(suffix='.bam')
     cmd = ['samtools', 'markdup', '-r']
@@ -100,18 +98,8 @@ def remove_duplicates(bam_input, bam_output, threads=None):
     logging.debug('Running {}'.format(cmd))
     subprocess.run(cmd, check=True)
     os.remove(sort_fix)
-    sort(markdup, bam_output, threads)
+    Bam.sort(markdup, bam_output, threads)
     os.remove(markdup)
-
-
-def sort(bam_input, bam_output, threads=None):
-    '''Sort BAM file.'''
-    cmd = ['samtools', 'sort']
-    if not threads is None and threads > 1:
-        cmd.extend(['--threads', str(threads - 1)])
-    cmd.extend(['-o', bam_output, bam_input])
-    logging.debug('Running {}'.format(cmd))
-    subprocess.run(cmd, check=True)
 
 
 if __name__ == '__main__':

@@ -1,10 +1,11 @@
-from distutils.command.check import check
 import logging
 import os
 import subprocess
 import tempfile
 
 import click
+
+from robtools.bam import Bam
 from robtools.seq import Fastq
 from robtools.txt import Parser
 
@@ -25,7 +26,8 @@ from robtools.txt import Parser
 @click.argument('bowtie_args', nargs=-1, type=click.UNPROCESSED)
 def bowtie2(samples, threads, input_suffix, output_suffix, index, bowtie_args):
     '''Align samples using bowtie2 program.'''
-    logging.basicConfig(filename='robtools.log', level=logging.DEBUG, format='%(asctime)s %(levelname)-8s %(message)s', datefmt='%Y-%m-%d %H:%M:%S')
+    logging.basicConfig(filename='robtools.log', level=logging.DEBUG, format='%(asctime)s %(levelname)-8s %(message)s',
+                        datefmt='%Y-%m-%d %H:%M:%S')
     bowtie_samples(samples, threads, input_suffix, output_suffix, index, bowtie_args)
 
 
@@ -40,7 +42,7 @@ def bowtie_samples(samples='samples.txt', threads=None, input_suffix='', output_
 
 def bowtie_sample(sample, threads=None, input_suffix='', output_suffix='', bowtie_args=()):
     '''Align one sample using bowtie2 program.'''
-    print ('Running bowtie2 on sample {}'.format(sample))
+    print('Running bowtie2 on sample {}'.format(sample))
     fastq1 = Fastq.fastq(sample + input_suffix, 1)
     if fastq1 is None:
         raise AssertionError('Cannot find FASTQ files for sample ' + sample + input_suffix)
@@ -71,17 +73,7 @@ def run_bowtie(fastq1, fastq2, bam_output, threads=None, bowtie_args=()):
     logging.debug('Running {}'.format(cmd))
     subprocess.run(cmd, check=True)
     os.remove(sam_output)
-    sort(view_bam, bam_output, threads)
-
-
-def sort(bam_input, bam_output, threads=None):
-    '''Sort BAM file.'''
-    cmd = ['samtools', 'sort']
-    if not threads is None and threads > 1:
-        cmd.extend(['--threads', str(threads - 1)])
-    cmd.extend(['-o', bam_output, bam_input])
-    logging.debug('Running {}'.format(cmd))
-    subprocess.run(cmd, check=True)
+    Bam.sort(view_bam, bam_output, threads)
 
 
 if __name__ == '__main__':
