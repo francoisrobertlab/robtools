@@ -1,13 +1,10 @@
-import logging
-import os
-from pathlib import Path
-from shutil import copyfile
 import subprocess
-from unittest.mock import MagicMock, ANY
+from pathlib import Path
+from unittest.mock import MagicMock
 
-import click
-from click.testing import CliRunner
 import pytest
+from click.testing import CliRunner
+
 from robtools import RemoveSecondMate as rsm
 from robtools.txt import Parser
 
@@ -17,12 +14,14 @@ def mock_testclass():
     removesecondmate_samples = rsm.removesecondmate_samples
     removesecondmate_sample = rsm.removesecondmate_sample
     first = Parser.first
+    run = subprocess.run
     yield
     rsm.removesecondmate_samples = removesecondmate_samples
     rsm.removesecondmate_sample = removesecondmate_sample
     Parser.first = first
-    
-    
+    subprocess.run = run
+
+
 def test_removesecondmate(testdir, mock_testclass):
     samples = Path(__file__).parent.joinpath('samples.txt')
     rsm.removesecondmate_samples = MagicMock()
@@ -39,7 +38,8 @@ def test_removesecondmate_parameters(testdir, mock_testclass):
     threads = 2
     rsm.removesecondmate_samples = MagicMock()
     runner = CliRunner()
-    result = runner.invoke(rsm.removesecondmate, ['-s', samples, '-is', input_suffix, '-os', output_suffix, '-t', threads])
+    result = runner.invoke(rsm.removesecondmate,
+                           ['-s', samples, '-is', input_suffix, '-os', output_suffix, '-t', threads])
     assert result.exit_code == 0
     rsm.removesecondmate_samples.assert_called_once_with(samples, input_suffix, output_suffix, threads, None)
 
@@ -83,7 +83,7 @@ def test_removesecondmate_samples_second(testdir, mock_testclass):
     Parser.first.assert_called_once_with(samples_file)
     rsm.removesecondmate_sample.assert_any_call(samples[1], '-dedup', '-mate1', None)
 
-    
+
 def test_removesecondmate_sample(testdir, mock_testclass):
     sample = 'POLR2A'
     input = sample + '-dedup.bam'
@@ -108,5 +108,6 @@ def test_removesecondmate_sample_threads(testdir, mock_testclass):
     output = sample + '-mate1.bam'
     subprocess.run = MagicMock()
     rsm.removesecondmate_sample(sample, threads=3)
-    subprocess.run.assert_any_call(['samtools', 'view', '--threads', '2', '-f', '64', '-b', '-o', output, input], check=True)
+    subprocess.run.assert_any_call(['samtools', 'view', '--threads', '2', '-f', '64', '-b', '-o', output, input],
+                                   check=True)
 
