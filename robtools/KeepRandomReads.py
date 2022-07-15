@@ -42,11 +42,9 @@ def keeprandomreads_samples(samples, count=10000000, threads=None, input_suffix=
 def keeprandomreads_sample(sample, count=10000000, threads=None, input_suffix='', output_suffix='-random'):
     """Keep count number of reads from BAM file for a single sample."""
     print('Keep {} of unpaired or paired reads from BAM file for sample {}'.format(count, sample))
-    input = sample + input_suffix + '.bam'
+    bam_input = sample + input_suffix + '.bam'
     sort_bam_o, sort_bam = tempfile.mkstemp(suffix='.bam')
-    Bam.sort_by_readname(input, sort_bam, threads)
-    print(input)
-    print(sort_bam)
+    Bam.sort_by_readname(bam_input, sort_bam, threads)
     with pysam.AlignmentFile(sort_bam, 'rb') as inbam:
         header = inbam.header
         in_count = inbam.count(until_eof=True, read_callback=(lambda r: not r.is_paired or r.is_read1))
@@ -61,7 +59,6 @@ def keeprandomreads_sample(sample, count=10000000, threads=None, input_suffix=''
                     # Write mate of previous written read
                     outbam.write(aln)
                 continue
-            name = aln.reference_name
             keep_read = i in indexes
             if keep_read:
                 outbam.write(aln)
