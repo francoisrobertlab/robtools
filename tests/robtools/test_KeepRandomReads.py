@@ -53,7 +53,7 @@ def test_keeprandomreads(mock_testclass):
     runner = CliRunner()
     result = runner.invoke(KeepRandomReads.keeprandomreads, ['--samples', samples])
     assert result.exit_code == 0
-    KeepRandomReads.keeprandomreads_samples.assert_called_once_with(samples, 10000000, 1, '', '-random', None)
+    KeepRandomReads.keeprandomreads_samples.assert_called_once_with(samples, 10000000, True, 1, '', '-random', None)
 
 
 def test_keeprandomreads_parameters(mock_testclass):
@@ -66,10 +66,11 @@ def test_keeprandomreads_parameters(mock_testclass):
     KeepRandomReads.keeprandomreads_samples = MagicMock()
     runner = CliRunner()
     result = runner.invoke(KeepRandomReads.keeprandomreads,
-                           ['--samples', samples, '--count', count, '--threads', threads, '--input-suffix',
+                           ['--samples', samples, '--count', count, '--unpaired', '--threads', threads,
+                            '--input-suffix',
                             input_suffix, '--output-suffix', output_suffix, '--index', index])
     assert result.exit_code == 0
-    KeepRandomReads.keeprandomreads_samples.assert_called_once_with(samples, count, threads, input_suffix,
+    KeepRandomReads.keeprandomreads_samples.assert_called_once_with(samples, count, False, threads, input_suffix,
                                                                     output_suffix, index)
 
 
@@ -86,21 +87,22 @@ def test_keeprandomreads_samples(mock_testclass):
     samples = Path(__file__).parent.joinpath('samples.txt')
     KeepRandomReads.keeprandomreads_sample = MagicMock()
     KeepRandomReads.keeprandomreads_samples(samples)
-    KeepRandomReads.keeprandomreads_sample.assert_any_call('POLR2A', 10000000, None, '', '-random')
-    KeepRandomReads.keeprandomreads_sample.assert_any_call('ASDURF', 10000000, None, '', '-random')
-    KeepRandomReads.keeprandomreads_sample.assert_any_call('POLR1C', 10000000, None, '', '-random')
+    KeepRandomReads.keeprandomreads_sample.assert_any_call('POLR2A', 10000000, True, None, '', '-random')
+    KeepRandomReads.keeprandomreads_sample.assert_any_call('ASDURF', 10000000, True, None, '', '-random')
+    KeepRandomReads.keeprandomreads_sample.assert_any_call('POLR1C', 10000000, True, None, '', '-random')
 
 
 def test_keeprandomreads_samples_parameters(mock_testclass):
     samples = Path(__file__).parent.joinpath('samples.txt')
     count = 20000000
+    paired = False
     threads = 4
     input_suffix = '-dedup'
     output_suffix = '-20M'
     index = 0
     KeepRandomReads.keeprandomreads_sample = MagicMock()
-    KeepRandomReads.keeprandomreads_samples(samples, count, threads, input_suffix, output_suffix, index)
-    KeepRandomReads.keeprandomreads_sample.assert_called_once_with('POLR2A', count, threads, input_suffix,
+    KeepRandomReads.keeprandomreads_samples(samples, count, paired, threads, input_suffix, output_suffix, index)
+    KeepRandomReads.keeprandomreads_sample.assert_called_once_with('POLR2A', count, paired, threads, input_suffix,
                                                                    output_suffix)
 
 
@@ -142,7 +144,7 @@ def test_keeprandomreads_sample_paired_parameters(testdir, mock_testclass):
     output = sample + output_suffix + '.bam'
     Bam.sort = MagicMock(side_effect=sort_copy)
     Bam.sort_by_readname = MagicMock(side_effect=create_sorted_bam)
-    KeepRandomReads.keeprandomreads_sample(sample, count, threads, input_suffix, output_suffix)
+    KeepRandomReads.keeprandomreads_sample(sample, count, True, threads, input_suffix, output_suffix)
     Bam.sort_by_readname.assert_any_call(bam, ANY, threads)
     Bam.sort.assert_any_call(ANY, output, threads)
     assert os.path.exists(output)
@@ -176,14 +178,14 @@ def test_keeprandomreads_sample_unpaired(testdir, mock_testclass):
     output = sample + '-random.bam'
     Bam.sort = MagicMock(side_effect=sort_copy)
     Bam.sort_by_readname = MagicMock(side_effect=create_unpaired_sorted_bam)
-    KeepRandomReads.keeprandomreads_sample(sample)
+    KeepRandomReads.keeprandomreads_sample(sample, paired=False)
     Bam.sort_by_readname.assert_any_call(bam, ANY, None)
     Bam.sort.assert_any_call(ANY, output, None)
     assert os.path.exists(output)
     with pysam.AlignmentFile(output, 'rb') as inbam:
         assert len(inbam.header.keys()) > 0
     with pysam.AlignmentFile(output, 'rb') as inbam:
-        assert 1000 == inbam.count(until_eof=True)
+        assert 803 == inbam.count(until_eof=True)
     output_sam = os.path.join(str(testdir), os.path.basename(output) + '.sam')
     cmd = ['samtools', 'view', '-o', output_sam, output]
     subprocess.run(cmd, check=True)
@@ -204,7 +206,7 @@ def test_keeprandomreads_sample_unpaired_parameters(testdir, mock_testclass):
     output = sample + output_suffix + '.bam'
     Bam.sort = MagicMock(side_effect=sort_copy)
     Bam.sort_by_readname = MagicMock(side_effect=create_unpaired_sorted_bam)
-    KeepRandomReads.keeprandomreads_sample(sample, count, threads, input_suffix, output_suffix)
+    KeepRandomReads.keeprandomreads_sample(sample, count, False, threads, input_suffix, output_suffix)
     Bam.sort_by_readname.assert_any_call(bam, ANY, threads)
     Bam.sort.assert_any_call(ANY, output, threads)
     assert os.path.exists(output)

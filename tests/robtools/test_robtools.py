@@ -232,7 +232,7 @@ def test_robtools_keeprandomreads(mock_testclass):
     result = runner.invoke(robtools.robtools, ['keeprandomreads', '--samples', samples])
     logging.warning(result.output)
     assert result.exit_code == 0
-    KeepRandomReads.keeprandomreads_samples.assert_called_once_with(samples, 10000000, 1, '', '-random', None)
+    KeepRandomReads.keeprandomreads_samples.assert_called_once_with(samples, 10000000, True, 1, '', '-random', None)
 
 
 def test_robtools_merge(testdir, mock_testclass):
