@@ -21,7 +21,8 @@ setup(
         'scipy>=1.3.2',
         'lmfit>=1.0.0',
         'pysam>=0.15.4',
-        'more-itertools>=8.9.0'
+        'more-itertools>=8.9.0',
+        'PyYAML>=6.0'
     ],
     entry_points={
         'console_scripts': [

@@ -150,6 +150,16 @@ def test_robtools_chipexoqual(testdir, mock_testclass):
     ChipexoQual.chipexoqual_datasets.assert_called_once_with(datasets, '', None, ())
 
 
+def test_robtools_distillerresolutions(testdir, mock_testclass):
+    project = Path(__file__).parent.joinpath('project.yml')
+    runner = CliRunner()
+    result = runner.invoke(robtools.robtools,
+                           ['distillerresolutions', '--project', project])
+    logging.warning(result.output)
+    assert result.exit_code == 0
+    assert result.stdout == '10000\n5000\n2000\n1000\n500\n200\n100\n50\n20\n10\n'
+
+
 def test_robtools_download(testdir, mock_testclass):
     samples = Path(__file__).parent.joinpath('samples.txt')
     fasta = Path(__file__).parent.joinpath('sacCer3.fa')

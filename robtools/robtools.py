@@ -5,6 +5,7 @@ from robtools import Bowtie2
 from robtools import Bwa
 from robtools import CenterAnnotations
 from robtools import ChipexoQual
+from robtools import DistillerResolutions
 from robtools import Download
 from robtools import FilterBam
 from robtools import Fixmd5
@@ -40,6 +41,7 @@ robtools.add_command(Bowtie2.bowtie2)
 robtools.add_command(Bwa.bwa)
 robtools.add_command(CenterAnnotations.centerannotations)
 robtools.add_command(ChipexoQual.chipexoqual)
+robtools.add_command(DistillerResolutions.distillerresolutions)
 robtools.add_command(Download.download)
 robtools.add_command(FilterBam.filterbam)
 robtools.add_command(Fixmd5.fixmd5)
