@@ -20,6 +20,7 @@ from robtools import KeepRandomReads
 from robtools import Merge
 from robtools import MergeBam
 from robtools import MergeBigwigs
+from robtools import Pairs2Hic
 from robtools import Plot2do
 from robtools import PrintSample
 from robtools import RemoveSecondMate
@@ -52,6 +53,7 @@ def mock_testclass():
     merge_datasets = Merge.merge_datasets
     merge_datasets_bam = MergeBam.merge_datasets
     merge_datasets_bw = MergeBigwigs.merge_datasets
+    pairs2hic = Pairs2Hic.pairs2hic
     plot2do_samples = Plot2do.plot2do_samples
     print_sample = PrintSample.print_sample
     removesecondmate_samples = RemoveSecondMate.removesecondmate_samples
@@ -80,6 +82,7 @@ def mock_testclass():
     Merge.merge_datasets = merge_datasets
     MergeBam.merge_datasets = merge_datasets_bam
     MergeBigwigs.merge_datasets = merge_datasets_bw
+    Pairs2Hic.pairs2hic = pairs2hic
     Plot2do.plot2do_samples = plot2do_samples
     PrintSample.print_sample = print_sample
     RemoveSecondMate.removesecondmate_samples = removesecondmate_samples
@@ -277,6 +280,18 @@ def test_robtools_mergebw(testdir, mock_testclass):
     logging.warning(result.output)
     assert result.exit_code == 0
     MergeBigwigs.merge_datasets.assert_called_once_with(samples, sizes, index)
+
+
+def test_robtools_pairs2hic(testdir, mock_testclass):
+    project = Path(__file__).parent.joinpath('project.yml')
+    juicer = "juicer_tools.jar"
+    Path(juicer).touch()
+    Pairs2Hic.pairs2hic_ = MagicMock()
+    runner = CliRunner()
+    result = runner.invoke(robtools.robtools, ['pairs2hic', '--project', project])
+    logging.warning(result.output)
+    assert result.exit_code == 0
+    Pairs2Hic.pairs2hic_.assert_called_once_with(project, juicer, None, None, ())
 
 
 def test_robtools_plot2do(testdir, mock_testclass):

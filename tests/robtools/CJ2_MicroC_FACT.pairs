@@ -1,0 +1,55 @@
+## pairs format v1.0.0
+#sorted: chr1-chr2-pos1-pos2
+#shape: upper triangle
+#genome_assembly: unknown
+#chromsize: chrI 230218
+#chromsize: chrII 813184
+#chromsize: chrIII 316620
+#chromsize: chrIV 1531933
+#chromsize: chrV 576874
+#chromsize: chrVI 270161
+#chromsize: chrVII 1090940
+#chromsize: chrVIII 562643
+#chromsize: chrIX 439888
+#chromsize: chrX 745751
+#chromsize: chrXI 666816
+#chromsize: chrXII 1078177
+#chromsize: chrXIII 924431
+#chromsize: chrXIV 784333
+#chromsize: chrXV 1091291
+#chromsize: chrXVI 948066
+#chromsize: chrM 85779
+#samheader: @SQ	SN:chrI	LN:230218
+#samheader: @SQ	SN:chrII	LN:813184
+#samheader: @SQ	SN:chrIII	LN:316620
+#samheader: @SQ	SN:chrIV	LN:1531933
+#samheader: @SQ	SN:chrIX	LN:439888
+#samheader: @SQ	SN:chrV	LN:576874
+#samheader: @SQ	SN:chrVI	LN:270161
+#samheader: @SQ	SN:chrVII	LN:1090940
+#samheader: @SQ	SN:chrVIII	LN:562643
+#samheader: @SQ	SN:chrX	LN:745751
+#samheader: @SQ	SN:chrXI	LN:666816
+#samheader: @SQ	SN:chrXII	LN:1078177
+#samheader: @SQ	SN:chrXIII	LN:924431
+#samheader: @SQ	SN:chrXIV	LN:784333
+#samheader: @SQ	SN:chrXV	LN:1091291
+#samheader: @SQ	SN:chrXVI	LN:948066
+#samheader: @SQ	SN:chrM	LN:85779
+#samheader: @PG	ID:bwa	PN:bwa	VN:0.7.17-r1188	CL:bwa mem -p -t 8 -SP sacCer3.fa -
+#samheader: @PG	ID:pairtools_parse	PN:pairtools_parse	CL:/miniconda3/bin/pairtools parse --drop-readid --add-columns mapq --walks-policy mask -c sacCer3.chrom.sizes	PP:bwa	VN:0.3.0
+#samheader: @PG	ID:pairtools_sort	PN:pairtools_sort	CL:/miniconda3/bin/pairtools sort --nproc 8 -o CJ2_MicroC_yFR1211_nhp6abD_R1_20220822.lane1.sacCer3.0.pairsam.gz --tmpdir ./distiller.tmp.ysDJyUupx0	PP:pairtools_parse	VN:0.3.0
+#samheader: @PG	ID:pairtools_dedup	PN:pairtools_dedup	CL:/miniconda3/bin/pairtools dedup --max-mismatch 1 --mark-dups --output /dev/fd/63 --output-unmapped /dev/fd/62 --output-dups /dev/fd/61 --output-stats CJ2_MicroC_yFR1211_nhp6abD_R1_20220822.sacCer3.dedup.stats	PP:pairtools_sort	VN:0.3.0
+#samheader: @PG	ID:pairtools_split	PN:pairtools_split	CL:/miniconda3/bin/pairtools split --output-pairs CJ2_MicroC_yFR1211_nhp6abD_R1_20220822.sacCer3.nodups.pairs.gz --output-sam CJ2_MicroC_yFR1211_nhp6abD_R1_20220822.sacCer3.nodups.bam	PP:pairtools_dedup	VN:0.3.0
+#columns: readID chrom1 pos1 chrom2 pos2 strand1 strand2 pair_type mapq1 mapq2
+.	chrI	1	chrI	56	+	-	UU	27	27
+.	chrI	1	chrI	58	+	-	UU	30	30
+.	chrI	1	chrI	62	+	-	UU	24	41
+.	chrI	1	chrI	72	+	-	UU	42	60
+.	chrI	1	chrI	77	+	-	UU	11	60
+.	chrI	1	chrI	128	+	-	UU	42	60
+.	chrXVI	942874	chrXVI	943296	-	-	UU	60	4
+.	chrXVI	943115	chrXVI	943206	+	-	UU	7	10
+.	chrXVI	943129	chrXVI	943200	+	-	UU	8	9
+.	chrXVI	943186	chrXVI	943282	+	-	UU	5	5
+.	chrXVI	946209	chrXVI	946297	+	-	UU	10	10

@@ -17,6 +17,7 @@ from robtools import KeepRandomReads
 from robtools import Merge
 from robtools import MergeBam
 from robtools import MergeBigwigs
+from robtools import Pairs2Hic
 from robtools import Plot2do
 from robtools import PrintSample
 from robtools import RemoveSecondMate
@@ -53,6 +54,7 @@ robtools.add_command(KeepRandomReads.keeprandomreads)
 robtools.add_command(Merge.merge)
 robtools.add_command(MergeBam.mergebam)
 robtools.add_command(MergeBigwigs.mergebw)
+robtools.add_command(Pairs2Hic.pairs2hic)
 robtools.add_command(Plot2do.plot2do)
 robtools.add_command(PrintSample.printsample)
 robtools.add_command(RemoveSecondMate.removesecondmate)
