@@ -17,19 +17,23 @@ import yaml
               help="Distiller project file.")
 @click.option('--juicer', '-j', type=click.Path(exists=True), default="juicer_tools.jar", show_default=True,
               help="Juicer tools jar file from Juicebox.")
+@click.option('--input-suffix', '-is', default="*.nodups", show_default=True,
+              help="Suffix added to sample/group name in pairs filename for input. Stars are wildcards.")
 @click.option('--output-suffix', '-os', default=None,
               help="Suffix added to sample/group name in HIC filename for output.")
 @click.option('--output-folder', '-o', type=click.Path(exists=True), default=None,
               help="Output folder.  Defaults to folder where project.xml file is located")
 @click.argument('juicer_args', nargs=-1, type=click.UNPROCESSED)
-def pairs2hic(project, juicer, output_suffix, output_folder, juicer_args):
+def pairs2hic(project, juicer, input_suffix, output_suffix, output_folder, juicer_args):
     """Converts distiller-nf's pairs file to HIC format"""
     logging.basicConfig(filename='robtools.log', level=logging.DEBUG, format='%(asctime)s %(levelname)-8s %(message)s',
                         datefmt='%Y-%m-%d %H:%M:%S')
-    pairs2hic_(project, juicer, output_suffix, output_folder, juicer_args)
+    pairs2hic_(project, juicer, input_suffix, output_suffix, output_folder, juicer_args)
 
 
-def pairs2hic_(project, juicer="juicer_tools.jar", output_suffix=None, output_folder=None, juicer_args=()):
+def pairs2hic_(project, juicer="juicer_tools.jar", input_suffix="*.nodups", output_suffix=None,
+               output_folder=None,
+               juicer_args=()):
     with open(project) as project_in:
         config = yaml.safe_load(project_in)
     samples = list(config['input']['raw_reads_paths'].keys())
@@ -49,7 +53,7 @@ def pairs2hic_(project, juicer="juicer_tools.jar", output_suffix=None, output_fo
         print(f"Could not find genome file {os.path.basename(chrom_sizes_path)}", file=sys.stderr)
         exit(1)
     for sample in samples:
-        pairs = resolve(f"{sample}.*.pairs.gz", folders)
+        pairs = resolve(f"{sample}{input_suffix}.pairs.gz", folders)
         if not pairs:
             print(f"Could not find pairs file for sample {sample}", file=sys.stderr)
             continue
@@ -57,7 +61,7 @@ def pairs2hic_(project, juicer="juicer_tools.jar", output_suffix=None, output_fo
         print(f"\n\nConverting pairs file {os.path.basename(pairs)} to HIC {os.path.basename(hic)}")
         pairs_to_hic(pairs, hic, resolutions, chromosome_sizes, juicer, juicer_args)
     for group in groups:
-        pairs = [resolve(f"{sample}.*.pairs.gz", folders) for sample in groups[group]]
+        pairs = [resolve(f"{sample}{input_suffix}.pairs.gz", folders) for sample in groups[group]]
         if None in pairs:
             sample = groups[group][pairs.index(None)]
             print(f"Could not find pairs files for sample {sample} in group {group}", file=sys.stderr)

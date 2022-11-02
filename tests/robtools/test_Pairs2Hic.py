@@ -49,24 +49,26 @@ def test_pairs2hic(testdir, mock_testclass):
     result = runner.invoke(Pairs2Hic.pairs2hic, ["--project", project])
     print(result.output)
     assert result.exit_code == 0
-    Pairs2Hic.pairs2hic_.assert_called_once_with(project, "juicer_tools.jar", None, None, ())
+    Pairs2Hic.pairs2hic_.assert_called_once_with(project, "juicer_tools.jar", "*.nodups", None, None, ())
 
 
 def test_pairs2hic_parameters(testdir, mock_testclass):
     project = Path(__file__).parent.joinpath("project.yml")
     juicer = "juicer_tools_2.16.0.jar"
     Path(juicer).touch()
+    input_suffix = "*.dups"
     output_suffix = "-mapq30"
     output_folder = "output-folder"
     os.mkdir(output_folder)
     Pairs2Hic.pairs2hic_ = MagicMock()
     runner = CliRunner()
     result = runner.invoke(Pairs2Hic.pairs2hic,
-                           ["--project", project, "--juicer", juicer, "--output-suffix", output_suffix,
-                            "--output-folder", output_folder, "-m", "30"])
+                           ["--project", project, "--juicer", juicer, "--input-suffix", input_suffix, "--output-suffix",
+                            output_suffix, "--output-folder", output_folder, "-m", "30"])
     print(result.output)
     assert result.exit_code == 0
-    Pairs2Hic.pairs2hic_.assert_called_once_with(project, juicer, output_suffix, output_folder, ("-m", "30"))
+    Pairs2Hic.pairs2hic_.assert_called_once_with(project, juicer, input_suffix, output_suffix, output_folder,
+                                                 ("-m", "30"))
 
 
 def test_pairs2hic_projectnotexists(testdir, mock_testclass):
@@ -109,10 +111,10 @@ def test_pairs2hic_(testdir, mock_testclass):
     shutil.copy(Path(__file__).parent.joinpath("project.yml"), project)
     juicer = "juicer_tools.jar"
     Path(juicer).touch()
-    pairs1 = "CJ1_MicroC_WT.pairs.gz"
+    pairs1 = "CJ1_MicroC_WT.nodups.pairs.gz"
     Path(pairs1).touch()
     hic1 = "CJ1_MicroC_WT.hic"
-    pairs2 = "CJ2_MicroC_FACT.pairs.gz"
+    pairs2 = "CJ2_MicroC_FACT.nodups.pairs.gz"
     Path(pairs2).touch()
     hic2 = "CJ2_MicroC_FACT.hic"
     hic3 = "all_libraries.hic"
@@ -125,8 +127,8 @@ def test_pairs2hic_(testdir, mock_testclass):
     Pairs2Hic.merge_pairs = MagicMock()
     Pairs2Hic.pairs2hic_(project, juicer)
     Pairs2Hic.resolve.assert_any_call(chromosome_sizes, [''])
-    Pairs2Hic.resolve.assert_any_call("CJ1_MicroC_WT.*.pairs.gz", [''])
-    Pairs2Hic.resolve.assert_any_call("CJ2_MicroC_FACT.*.pairs.gz", [''])
+    Pairs2Hic.resolve.assert_any_call("CJ1_MicroC_WT*.nodups.pairs.gz", [''])
+    Pairs2Hic.resolve.assert_any_call("CJ2_MicroC_FACT*.nodups.pairs.gz", [''])
     Pairs2Hic.merge_pairs.assert_called_once_with([pairs1, pairs2], ANY)
     Pairs2Hic.pairs_to_hic.assert_any_call(pairs1, os.path.join(output_folder, hic1), resolutions, chromosome_sizes,
                                            juicer, ())
@@ -137,7 +139,7 @@ def test_pairs2hic_(testdir, mock_testclass):
     assert Pairs2Hic.pairs_to_hic.call_args_list[2].args[0] == Pairs2Hic.merge_pairs.call_args_list[0].args[1]
 
 
-def test_pairs2hic_projectinsiblingdir(testdir, mock_testclass):
+def test_pairs2hic__projectinsiblingdir(testdir, mock_testclass):
     directory = "new_current_dir"
     os.mkdir(directory)
     os.chdir(directory)
@@ -146,10 +148,10 @@ def test_pairs2hic_projectinsiblingdir(testdir, mock_testclass):
     shutil.copy(Path(__file__).parent.joinpath("project.yml"), project)
     juicer = "../project/juicer_tools.jar"
     Path(juicer).touch()
-    pairs1 = "CJ1_MicroC_WT.pairs.gz"
+    pairs1 = "CJ1_MicroC_WT.nodups.pairs.gz"
     Path(pairs1).touch()
     hic1 = "CJ1_MicroC_WT.hic"
-    pairs2 = "CJ2_MicroC_FACT.pairs.gz"
+    pairs2 = "CJ2_MicroC_FACT.nodups.pairs.gz"
     Path(pairs2).touch()
     hic2 = "CJ2_MicroC_FACT.hic"
     hic3 = "all_libraries.hic"
@@ -162,8 +164,8 @@ def test_pairs2hic_projectinsiblingdir(testdir, mock_testclass):
     Pairs2Hic.merge_pairs = MagicMock()
     Pairs2Hic.pairs2hic_(project, juicer)
     Pairs2Hic.resolve.assert_any_call(chromosome_sizes, ['../project', ''])
-    Pairs2Hic.resolve.assert_any_call("CJ1_MicroC_WT.*.pairs.gz", ['../project', ''])
-    Pairs2Hic.resolve.assert_any_call("CJ2_MicroC_FACT.*.pairs.gz", ['../project', ''])
+    Pairs2Hic.resolve.assert_any_call("CJ1_MicroC_WT*.nodups.pairs.gz", ['../project', ''])
+    Pairs2Hic.resolve.assert_any_call("CJ2_MicroC_FACT*.nodups.pairs.gz", ['../project', ''])
     Pairs2Hic.merge_pairs.assert_called_once_with([pairs1, pairs2], ANY)
     Pairs2Hic.pairs_to_hic.assert_any_call(pairs1, os.path.join(output_folder, hic1), resolutions, chromosome_sizes,
                                            juicer, ())
@@ -174,7 +176,7 @@ def test_pairs2hic_projectinsiblingdir(testdir, mock_testclass):
     assert Pairs2Hic.pairs_to_hic.call_args_list[2].args[0] == Pairs2Hic.merge_pairs.call_args_list[0].args[1]
 
 
-def test_pairs2hic_relativegenome(testdir, mock_testclass):
+def test_pairs2hic__relativegenome(testdir, mock_testclass):
     directory = "new_current_dir"
     os.mkdir(directory)
     os.chdir(directory)
@@ -183,10 +185,10 @@ def test_pairs2hic_relativegenome(testdir, mock_testclass):
     shutil.copy(Path(__file__).parent.joinpath("project_relativegenome.yml"), project)
     juicer = "../project/juicer_tools.jar"
     Path(juicer).touch()
-    pairs1 = "CJ1_MicroC_WT.pairs.gz"
+    pairs1 = "CJ1_MicroC_WT.nodups.pairs.gz"
     Path(pairs1).touch()
     hic1 = "CJ1_MicroC_WT.hic"
-    pairs2 = "CJ2_MicroC_FACT.pairs.gz"
+    pairs2 = "CJ2_MicroC_FACT.nodups.pairs.gz"
     Path(pairs2).touch()
     hic2 = "CJ2_MicroC_FACT.hic"
     hic3 = "all_libraries.hic"
@@ -200,8 +202,8 @@ def test_pairs2hic_relativegenome(testdir, mock_testclass):
     Pairs2Hic.merge_pairs = MagicMock()
     Pairs2Hic.pairs2hic_(project, juicer)
     Pairs2Hic.resolve.assert_any_call(chromosome_sizes, ['../project/sacCer3', '../project', ''])
-    Pairs2Hic.resolve.assert_any_call("CJ1_MicroC_WT.*.pairs.gz", ['../project', ''])
-    Pairs2Hic.resolve.assert_any_call("CJ2_MicroC_FACT.*.pairs.gz", ['../project', ''])
+    Pairs2Hic.resolve.assert_any_call("CJ1_MicroC_WT*.nodups.pairs.gz", ['../project', ''])
+    Pairs2Hic.resolve.assert_any_call("CJ2_MicroC_FACT*.nodups.pairs.gz", ['../project', ''])
     Pairs2Hic.merge_pairs.assert_called_once_with([pairs1, pairs2], ANY)
     Pairs2Hic.pairs_to_hic.assert_any_call(pairs1, os.path.join(output_folder, hic1), resolutions, chromosome_sizes,
                                            juicer, ())
@@ -217,11 +219,12 @@ def test_pairs2hic__parameters(testdir, mock_testclass):
     project = os.path.join(project_folder, "project.yml")
     juicer = "juicer_tools.jar"
     Path(juicer).touch()
+    input_suffix = "*.dups"
     output_suffix = "-mapq30"
-    pairs1 = "CJ1_MicroC_WT.pairs.gz"
+    pairs1 = "CJ1_MicroC_WT.dups.pairs.gz"
     Path(pairs1).touch()
     hic1 = "CJ1_MicroC_WT" + output_suffix + ".hic"
-    pairs2 = "CJ2_MicroC_FACT.pairs.gz"
+    pairs2 = "CJ2_MicroC_FACT.dups.pairs.gz"
     Path(pairs2).touch()
     hic2 = "CJ2_MicroC_FACT" + output_suffix + ".hic"
     hic3 = "all_libraries" + output_suffix + ".hic"
@@ -233,10 +236,10 @@ def test_pairs2hic__parameters(testdir, mock_testclass):
     Pairs2Hic.pairs_to_hic = MagicMock()
     Pairs2Hic.resolve = MagicMock(side_effect=[chromosome_sizes, pairs1, pairs2, pairs1, pairs2])
     Pairs2Hic.merge_pairs = MagicMock()
-    Pairs2Hic.pairs2hic_(project, juicer, output_suffix, output_folder, ("-m", "30"))
+    Pairs2Hic.pairs2hic_(project, juicer, input_suffix, output_suffix, output_folder, ("-m", "30"))
     Pairs2Hic.resolve.assert_any_call(chromosome_sizes, [str(project_folder), ''])
-    Pairs2Hic.resolve.assert_any_call("CJ1_MicroC_WT.*.pairs.gz", [str(project_folder), ''])
-    Pairs2Hic.resolve.assert_any_call("CJ2_MicroC_FACT.*.pairs.gz", [str(project_folder), ''])
+    Pairs2Hic.resolve.assert_any_call("CJ1_MicroC_WT*.dups.pairs.gz", [str(project_folder), ''])
+    Pairs2Hic.resolve.assert_any_call("CJ2_MicroC_FACT*.dups.pairs.gz", [str(project_folder), ''])
     Pairs2Hic.merge_pairs.assert_called_once_with([pairs1, pairs2], ANY)
     Pairs2Hic.pairs_to_hic.assert_any_call(pairs1, os.path.join(output_folder, hic1), resolutions, chromosome_sizes,
                                            juicer, ("-m", "30"))
@@ -305,8 +308,8 @@ def test_pairs2hic__pairs2notexists(testdir, mock_testclass):
     Pairs2Hic.merge_pairs = MagicMock()
     Pairs2Hic.pairs2hic_(project, juicer)
     Pairs2Hic.resolve.assert_any_call(chromosome_sizes, [''])
-    Pairs2Hic.resolve.assert_any_call("CJ1_MicroC_WT.*.pairs.gz", [''])
-    Pairs2Hic.resolve.assert_any_call("CJ2_MicroC_FACT.*.pairs.gz", [''])
+    Pairs2Hic.resolve.assert_any_call("CJ1_MicroC_WT*.nodups.pairs.gz", [''])
+    Pairs2Hic.resolve.assert_any_call("CJ2_MicroC_FACT*.nodups.pairs.gz", [''])
     Pairs2Hic.pairs_to_hic.assert_called_once_with(pairs1, os.path.join(output_folder, hic1), resolutions,
                                                    chromosome_sizes, juicer, ())
 

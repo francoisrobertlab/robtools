@@ -291,7 +291,7 @@ def test_robtools_pairs2hic(testdir, mock_testclass):
     result = runner.invoke(robtools.robtools, ['pairs2hic', '--project', project])
     logging.warning(result.output)
     assert result.exit_code == 0
-    Pairs2Hic.pairs2hic_.assert_called_once_with(project, juicer, None, None, ())
+    Pairs2Hic.pairs2hic_.assert_called_once_with(project, juicer, "*.nodups", None, None, ())
 
 
 def test_robtools_plot2do(testdir, mock_testclass):
