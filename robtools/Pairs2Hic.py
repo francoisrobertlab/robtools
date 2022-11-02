@@ -105,9 +105,9 @@ def pairs_to_medium(pairs, medium):
 def resolve(pathname, folders):
     """Return first pathname inside one of the folders"""
     for folder in folders:
-        files = glob.glob(pathname, root_dir=folder)
+        files = glob.glob(os.path.join(folder, '**', pathname), recursive=True)
         if files:
-            return os.path.join(folder, files[0])
+            return os.path.join(files[0])
     return None
 
 

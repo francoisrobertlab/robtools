@@ -391,6 +391,24 @@ def test_resolve_firstfile(testdir, mock_testclass):
     assert actual == pairs1 or actual == pairs2  # System dependent
 
 
+def test_resolve_firstfileinfirstfolder(testdir, mock_testclass):
+    folder1 = "test"
+    os.mkdir(folder1)
+    pairs1 = os.path.join(folder1, "CJ1_MicroC_WT.nodups.pairs.gz")
+    Path(pairs1).touch()
+    pairs2 = os.path.join(folder1, "CJ1_MicroC_WT.withdups.pairs.gz")
+    Path(pairs2).touch()
+    Path(os.path.join(folder1, "CJ2_MicroC_FACT.nodups.pairs.gz")).touch()
+    folder2 = "test2"
+    os.mkdir(folder2)
+    pairs3 = os.path.join(folder2, "CJ1_MicroC_WT.nodups.pairs.gz")
+    Path(pairs3).touch()
+    Path(os.path.join(folder2, "CJ2_MicroC_FACT.nodups.pairs.gz")).touch()
+    pattern = "CJ1_MicroC_WT.*.pairs.gz"
+    actual = Pairs2Hic.resolve(pattern, [''])
+    assert actual == pairs1 or actual == pairs2 or actual == pairs3  # System dependent
+
+
 def test_resolve_folder(testdir, mock_testclass):
     pairs = "CJ1_MicroC_WT.nodups.pairs.gz"
     pattern = "CJ1_MicroC_WT.*.pairs.gz"
