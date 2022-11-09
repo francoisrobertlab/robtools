@@ -85,6 +85,7 @@ def pairs_to_hic(pairs, hic, resolutions, chromosome_sizes, juicer="juicer_tools
     cmd.extend([medium, hic, chromosome_sizes])
     logging.debug(f'Running {cmd}')
     subprocess.run(cmd, check=True)
+    os.remove(medium)
 
 
 def pairs_to_medium(pairs, medium):
