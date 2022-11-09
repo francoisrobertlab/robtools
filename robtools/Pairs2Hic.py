@@ -10,9 +10,7 @@ import sys
 import yaml
 
 
-@click.command(context_settings=dict(
-    ignore_unknown_options=True,
-))
+@click.command(context_settings=dict(ignore_unknown_options=True, ))
 @click.option('--project', '-p', type=click.Path(exists=True), default="project.yml", show_default=True,
               help="Distiller project file.")
 @click.option('--juicer', '-j', type=click.Path(exists=True), default="juicer_tools.jar", show_default=True,
@@ -31,8 +29,7 @@ def pairs2hic(project, juicer, input_suffix, output_suffix, output_folder, juice
     pairs2hic_(project, juicer, input_suffix, output_suffix, output_folder, juicer_args)
 
 
-def pairs2hic_(project, juicer="juicer_tools.jar", input_suffix="*.nodups", output_suffix=None,
-               output_folder=None,
+def pairs2hic_(project, juicer="juicer_tools.jar", input_suffix="*.nodups", output_suffix=None, output_folder=None,
                juicer_args=()):
     with open(project) as project_in:
         config = yaml.safe_load(project_in)
