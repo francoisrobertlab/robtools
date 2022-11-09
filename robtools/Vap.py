@@ -1,4 +1,3 @@
-from distutils.command.check import check
 import glob
 import logging
 import os
@@ -18,11 +17,11 @@ from robtools.txt import Parser
               help='VAP parameters file.')
 @click.option('--selection', type=click.Path(exists=True), default=None, show_default=True,
               help='VAP selection_path file.')
-@click.option('--index', '-i', type=int, default=None,
-              help='Index of sample to process in samples file.')
+@click.option('--index', '-i', type=int, default=None, help='Index of sample to process in samples file.')
 def vap(samples, parameters, selection, index):
     '''Run VAP on samples.'''
-    logging.basicConfig(filename='robtools.log', level=logging.DEBUG, format='%(asctime)s %(levelname)-8s %(message)s', datefmt='%Y-%m-%d %H:%M:%S')
+    logging.basicConfig(filename='robtools.log', level=logging.DEBUG, format='%(asctime)s %(levelname)-8s %(message)s',
+                        datefmt='%Y-%m-%d %H:%M:%S')
     vap_samples(samples, parameters, selection, index)
 
 
@@ -37,7 +36,7 @@ def vap_samples(samples='samples.txt', parameters='parameters.txt', selection=No
 
 def vap_sample(sample, parameters, selection):
     '''Run VAP on a single sample.'''
-    print ('Running VAP on sample {}'.format(sample))
+    print('Running VAP on sample {}'.format(sample))
     output = sample + '-vap-output'
     if not os.path.exists(output):
         os.mkdir(output)
@@ -94,8 +93,8 @@ def parse_genes(parameters, selection=None):
                 genes_file = parameters_line.rstrip('\r\n')[index:]
     genes = Parser.first(genes_file)
     if selection:
-       selection_genes = Parser.first(selection)
-       genes = [gene for gene in genes if gene in selection_genes]
+        selection_genes = Parser.first(selection)
+        genes = [gene for gene in genes if gene in selection_genes]
     return genes
 
 

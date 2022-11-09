@@ -1,27 +1,26 @@
-from distutils.command.check import check
 import logging
 import os
 import subprocess
 import tempfile
 
 import click
-from robtools.bed import Bed
-
 import pandas as pd
+
+from robtools.bed import Bed
 
 
 @click.command()
 @click.option('--samples', '-s', type=click.Path(exists=True), default='samples-filter.txt', show_default=True,
               help='Tab-separated file containing '
-              'the sample names with tag in the first column and '
-              'the original sample names in the second column.')
+                   'the sample names with tag in the first column and '
+                   'the original sample names in the second column.')
 @click.option('--annotations', '-a', type=click.Path(exists=True), default='annotations.bed', show_default=True,
               help='Keep reads for which their center is located on specified annotations.')
-@click.option('--index', '-i', type=int, default=None,
-              help='Index of sample to process in samples file.')
+@click.option('--index', '-i', type=int, default=None, help='Index of sample to process in samples file.')
 def intersect(samples, annotations, index):
     '''Keep only reads that intersects specified annotations.'''
-    logging.basicConfig(filename='robtools.log', level=logging.DEBUG, format='%(asctime)s %(levelname)-8s %(message)s', datefmt='%Y-%m-%d %H:%M:%S')
+    logging.basicConfig(filename='robtools.log', level=logging.DEBUG, format='%(asctime)s %(levelname)-8s %(message)s',
+                        datefmt='%Y-%m-%d %H:%M:%S')
     intersect_samples(samples, annotations, index)
 
 
@@ -47,7 +46,7 @@ def annotations_length(annotations):
 
 def intersect_sample(sample, tag, annotations, annot_length):
     '''Keep only reads that intersects specified annotations for a single sample.'''
-    print ('Keep only reads that intersects specified annotations for sample {}'.format(sample))
+    print('Keep only reads that intersects specified annotations for sample {}'.format(sample))
     bed = sample + '.bed'
     bed_tag = tag + '.bed'
     intersect_temp_o, intersect_temp = tempfile.mkstemp(suffix='.bed')
@@ -71,6 +70,6 @@ def intersect_sample(sample, tag, annotations, annot_length):
     Bed.sort(sort_temp, bed_tag)
     os.remove(sort_temp)
 
-    
+
 if __name__ == '__main__':
     intersect()

@@ -1,4 +1,3 @@
-from distutils.command.check import check
 import logging
 import os
 import subprocess

@@ -1,11 +1,10 @@
-from distutils.command.check import check
 import logging
 import multiprocessing
 import os
 import re
-from shutil import copyfile
 import subprocess
 import tempfile
+from shutil import copyfile
 
 import click
 
@@ -18,8 +17,7 @@ from robtools.txt import Parser
               help='Sample names listed one sample name by line.')
 @click.option('--chromosomes', type=click.Path(exists=True), default='sacCer3.chrom.sizes', show_default=True,
               help='File containing chromosome names in the first column.')
-@click.option('--resolution', type=click.Path(exists=True), default='resi', show_default=True,
-              help='Resolution file.')
+@click.option('--resolution', type=click.Path(exists=True), default='resi', show_default=True, help='Resolution file.')
 @click.option('--input-suffix', default='-input-reads', show_default=True,
               help='Suffix to add to sample name to obtain input reads BED filename.')
 @click.option('--ip-suffix', default='-reads', show_default=True,
@@ -30,15 +28,17 @@ from robtools.txt import Parser
               help='Suffix added to sample name in output BED filename.')
 @click.option('--threads', '-p', default=1, show_default=True,
               help='Number of threads used to process data per sample.')
-@click.option('--index', type=int, default=None,
-              help='Index of sample to process in samples file.')
+@click.option('--index', type=int, default=None, help='Index of sample to process in samples file.')
 def siqchip(samples, chromosomes, resolution, input_suffix, ip_suffix, params_suffix, output_suffix, threads, index):
     '''Runs siQ-ChIP for samples.'''
-    logging.basicConfig(filename='robtools.log', level=logging.DEBUG, format='%(asctime)s %(levelname)-8s %(message)s', datefmt='%Y-%m-%d %H:%M:%S')
-    siqchip_samples(samples, chromosomes, resolution, input_suffix, ip_suffix, params_suffix, output_suffix, threads, index)
+    logging.basicConfig(filename='robtools.log', level=logging.DEBUG, format='%(asctime)s %(levelname)-8s %(message)s',
+                        datefmt='%Y-%m-%d %H:%M:%S')
+    siqchip_samples(samples, chromosomes, resolution, input_suffix, ip_suffix, params_suffix, output_suffix, threads,
+                    index)
 
 
-def siqchip_samples(samples, chromosomes='sacCer3.chrom.sizes', resolution='resi', input_suffix='-input-reads', ip_suffix='-reads', params_suffix='-params', output_suffix='-siqchip', threads=1, index=None):
+def siqchip_samples(samples, chromosomes='sacCer3.chrom.sizes', resolution='resi', input_suffix='-input-reads',
+                    ip_suffix='-reads', params_suffix='-params', output_suffix='-siqchip', threads=1, index=None):
     '''Runs siQ-ChIP for samples.'''
     sample_names = Parser.first(samples)
     if index != None:
@@ -47,9 +47,10 @@ def siqchip_samples(samples, chromosomes='sacCer3.chrom.sizes', resolution='resi
         siqchip_sample(sample, chromosomes, resolution, input_suffix, ip_suffix, params_suffix, output_suffix, threads)
 
 
-def siqchip_sample(sample, chromosomes='sacCer3.chrom.sizes', resolution='resi', input_suffix='-input-reads', ip_suffix='-reads', params_suffix='-params', output_suffix='-siqchip', threads=1):
+def siqchip_sample(sample, chromosomes='sacCer3.chrom.sizes', resolution='resi', input_suffix='-input-reads',
+                   ip_suffix='-reads', params_suffix='-params', output_suffix='-siqchip', threads=1):
     '''Runs siQ-ChIP for sample.'''
-    print ('Running siQ-ChIP for sample {}'.format(sample))
+    print('Running siQ-ChIP for sample {}'.format(sample))
     input = sample + input_suffix + '.bed'
     ip = sample + ip_suffix + '.bed'
     ce_output = sample + output_suffix + '.ce'
@@ -60,9 +61,11 @@ def siqchip_sample(sample, chromosomes='sacCer3.chrom.sizes', resolution='resi',
     chromosome_names = Parser.first(chromosomes)
     input_chromosomes = read_chromosomes(input, 2)
     ip_chromosomes = read_chromosomes(ip, 2)
-    chromosome_names = [chromosome for chromosome in chromosome_names if chromosome in input_chromosomes and chromosome in ip_chromosomes]
+    chromosome_names = [chromosome for chromosome in chromosome_names if
+                        chromosome in input_chromosomes and chromosome in ip_chromosomes]
     chromosome_pattern = re.compile('chr(.*)')
-    cmds = [['bash', 'Slave.sh', chromosome_pattern.match(chromosome).group(1), input, ip] for chromosome in chromosome_names]
+    cmds = [['bash', 'Slave.sh', chromosome_pattern.match(chromosome).group(1), input, ip] for chromosome in
+            chromosome_names]
     with tempfile.TemporaryDirectory() as folder:
         prepare_parameters(folder, input, ip, params, resolution)
         with multiprocessing.Pool(processes=threads) as pool:
@@ -106,7 +109,7 @@ def read_chromosomes(bed, minimum_count=1):
             chromosomes[columns[0]] = chromosomes[columns[0]] + 1
     return set([chromosome for chromosome in chromosomes if chromosomes[chromosome] >= minimum_count])
 
-    
+
 def prepare_parameters(folder, input, ip, params, resolution):
     siqchip_base = os.getenv('SIQ_CHIP_BASE', '')
     siqchip_source = (siqchip_base + '/' if siqchip_base else '') + '2Dlow-mem.f'
@@ -117,8 +120,8 @@ def prepare_parameters(folder, input, ip, params, resolution):
     copyfile(ip, folder + '/' + ip)
     copyfile(params, folder + '/params.in')
     copyfile(resolution, folder + '/resi')
-    
-    
+
+
 def run_siqchip(cmd, folder):
     logging.debug('Running {} in directory {}'.format(cmd, folder))
     subprocess.run(cmd, cwd=folder, check=True)

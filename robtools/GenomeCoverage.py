@@ -1,4 +1,3 @@
-from distutils.command.check import check
 import logging
 import os
 import subprocess
@@ -51,10 +50,8 @@ def validate_spike_control_suffix(ctx, param, value):
     else:
         return value
 
-    
-@click.command(context_settings=dict(
-    ignore_unknown_options=True,
-))
+
+@click.command(context_settings=dict(ignore_unknown_options=True, ))
 @click.option('--samples', '-s', type=click.Path(exists=True), default='samples.txt', show_default=True,
               help='Sample names listed one sample name by line.')
 @click.option('--genome', '-g', type=click.Path(exists=True), default='sacCer3.chrom.sizes', show_default=True,
@@ -73,10 +70,10 @@ def validate_spike_control_suffix(ctx, param, value):
               help='Suffix added to sample name of BED file containing control(input) reads.')
 @click.option('--spike-control-suffix', callback=validate_spike_control_suffix, default=None,
               help='Suffix added to sample name of BED file containing control(input) spiked reads.')
-@click.option('--index', '-i', type=int, default=None,
-              help='Index of sample to process in samples file.')
+@click.option('--index', '-i', type=int, default=None, help='Index of sample to process in samples file.')
 @click.argument('genomecov_args', nargs=-1, type=click.UNPROCESSED)
-def genomecov(samples, genome, scale, strand, input_suffix, output_suffix, spike_suffix, control_suffix, spike_control_suffix, index, genomecov_args):
+def genomecov(samples, genome, scale, strand, input_suffix, output_suffix, spike_suffix, control_suffix,
+              spike_control_suffix, index, genomecov_args):
     '''
     Compute genome coverage on samples.
 
@@ -90,29 +87,38 @@ def genomecov(samples, genome, scale, strand, input_suffix, output_suffix, spike
         - If --spike-suffix, --control-suffix and --spike-control-suffix are present, scaling becomes
           1000000 * control spiked reads / (spiked reads * control reads).
     '''
-    logging.basicConfig(filename='robtools.log', level=logging.DEBUG, format='%(asctime)s %(levelname)-8s %(message)s', datefmt='%Y-%m-%d %H:%M:%S')
-    genome_coverage_samples(samples, genome, scale, strand, input_suffix, output_suffix, spike_suffix, control_suffix, spike_control_suffix, index, genomecov_args)
+    logging.basicConfig(filename='robtools.log', level=logging.DEBUG, format='%(asctime)s %(levelname)-8s %(message)s',
+                        datefmt='%Y-%m-%d %H:%M:%S')
+    genome_coverage_samples(samples, genome, scale, strand, input_suffix, output_suffix, spike_suffix, control_suffix,
+                            spike_control_suffix, index, genomecov_args)
 
 
-def genome_coverage_samples(samples='samples.txt', genome='sacCer3.chrom.sizes', scale=None, strand=None, input_suffix='', output_suffix='-cov', spike_suffix=None, control_suffix=None, spike_control_suffix=None, index=None, genomecov_args=()):
+def genome_coverage_samples(samples='samples.txt', genome='sacCer3.chrom.sizes', scale=None, strand=None,
+                            input_suffix='', output_suffix='-cov', spike_suffix=None, control_suffix=None,
+                            spike_control_suffix=None, index=None, genomecov_args=()):
     '''Compute genome coverage on samples.'''
     sample_names = Parser.first(samples)
     if index != None:
         sample_names = [sample_names[index]]
     for sample in sample_names:
-        sample_splits_genome_coverage(sample, genome, scale, strand, input_suffix, output_suffix, spike_suffix, control_suffix, spike_control_suffix, genomecov_args)
+        sample_splits_genome_coverage(sample, genome, scale, strand, input_suffix, output_suffix, spike_suffix,
+                                      control_suffix, spike_control_suffix, genomecov_args)
 
 
-def sample_splits_genome_coverage(sample, genome, scale=None, strand=None, input_suffix='', output_suffix='-cov', spike_suffix=None, control_suffix=None, spike_control_suffix=None, genomecov_args=()):
+def sample_splits_genome_coverage(sample, genome, scale=None, strand=None, input_suffix='', output_suffix='-cov',
+                                  spike_suffix=None, control_suffix=None, spike_control_suffix=None, genomecov_args=()):
     '''Compute genome coverage on a single sample.'''
-    print ('Computing genome coverage on sample {}'.format(sample))
-    genome_coverage(sample, genome, scale, strand, input_suffix, output_suffix, spike_suffix, control_suffix, spike_control_suffix, genomecov_args)
+    print('Computing genome coverage on sample {}'.format(sample))
+    genome_coverage(sample, genome, scale, strand, input_suffix, output_suffix, spike_suffix, control_suffix,
+                    spike_control_suffix, genomecov_args)
     splits = Split.splits(sample)
     for split in splits:
-        genome_coverage(split, genome, scale, strand, input_suffix, output_suffix, spike_suffix, control_suffix, spike_control_suffix, genomecov_args)
+        genome_coverage(split, genome, scale, strand, input_suffix, output_suffix, spike_suffix, control_suffix,
+                        spike_control_suffix, genomecov_args)
 
 
-def genome_coverage(sample, genome, scale=None, strand=None, input_suffix='', output_suffix='-cov', spike_suffix=None, control_suffix=None, spike_control_suffix=None, genomecov_args=()):
+def genome_coverage(sample, genome, scale=None, strand=None, input_suffix='', output_suffix='-cov', spike_suffix=None,
+                    control_suffix=None, spike_control_suffix=None, genomecov_args=()):
     bed_source = sample + input_suffix + '.bed'
     if not scale:
         if spike_suffix:
@@ -140,9 +146,9 @@ def coverage(bed_input, bed_output, genome, sample, scale=None, strand=None, gen
     coverage_output_o, coverage_output = tempfile.mkstemp(suffix='.bed')
     cmd = ['bedtools', 'genomecov', '-bg', '-i', bed_input, '-g', genome] + list(genomecov_args)
     if scale:
-        cmd.extend(['-scale', str(scale)]) 
+        cmd.extend(['-scale', str(scale)])
     if strand:
-        cmd.extend(['-strand', strand]) 
+        cmd.extend(['-strand', strand])
     logging.debug('Running {}'.format(cmd))
     with open(coverage_output_o, 'w') as outfile:
         subprocess.run(cmd, stdout=outfile, check=True)

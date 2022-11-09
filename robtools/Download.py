@@ -1,9 +1,9 @@
-from distutils.command.check import check
 import logging
 import os
 import subprocess
 
 import click
+
 from robtools.seq import Fastq
 from robtools.txt import Parser
 
@@ -11,18 +11,16 @@ from robtools.txt import Parser
 @click.command()
 @click.option('--samples', '-s', type=click.Path(exists=True), default='samples.txt', show_default=True,
               help='Sample names listed one sample name by line.'
-              ' An SRR id can be provided (tab-separated) to download the FASTQ file automatically, otherwise FASTQ file must be provided.')
+                   ' An SRR id can be provided (tab-separated) to download the FASTQ file automatically, otherwise FASTQ file must be provided.')
 @click.option('--fast/--slow', default=True, show_default=True,
               help='Use faster or slower but safer program for download.')
-@click.option('--threads', '-e', default=6, show_default=True,
-              help='Number of threads used for download.')
-@click.option('--mem', '-m', default='100MB', show_default=True,
-              help='Memory allocated for sorting download.')
-@click.option('--index', '-i', type=int, default=None,
-              help='Index of sample to process in samples file.')
+@click.option('--threads', '-e', default=6, show_default=True, help='Number of threads used for download.')
+@click.option('--mem', '-m', default='100MB', show_default=True, help='Memory allocated for sorting download.')
+@click.option('--index', '-i', type=int, default=None, help='Index of sample to process in samples file.')
 def download(samples, fast, threads, mem, index):
     '''Download reads of all samples.'''
-    logging.basicConfig(filename='robtools.log', level=logging.DEBUG, format='%(asctime)s %(levelname)-8s %(message)s', datefmt='%Y-%m-%d %H:%M:%S')
+    logging.basicConfig(filename='robtools.log', level=logging.DEBUG, format='%(asctime)s %(levelname)-8s %(message)s',
+                        datefmt='%Y-%m-%d %H:%M:%S')
     download_samples(samples, fast, threads, mem, index)
 
 
@@ -42,7 +40,7 @@ def download_sample(sample, srr, fast, threads, mem):
     fastq = sample
     fastq_exists = Fastq.fastq(fastq, 1)
     if fastq_exists is None and srr:
-        print ('Downloading FASTQ for sample {} with SRR {}'.format(sample, srr))
+        print('Downloading FASTQ for sample {} with SRR {}'.format(sample, srr))
         fastq1 = fastq + '_1.fastq'
         fastq2 = fastq + '_2.fastq'
         srr_output1 = srr + '_1.fastq'
