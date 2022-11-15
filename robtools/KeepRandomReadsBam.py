@@ -21,7 +21,7 @@ from robtools.txt import Parser
 @click.option('--output-suffix', default='-random', show_default=True,
               help='Suffix added to sample name in output BAM filename.')
 @click.option('--index', type=int, default=None, help='Index of sample to process in samples file.')
-def keeprandomreads_bam(samples, count, paired, threads, input_suffix, output_suffix, index):
+def keeprandomreadsbam(samples, count, paired, threads, input_suffix, output_suffix, index):
     """Keep count number of reads from BAM file."""
     logging.basicConfig(filename='robtools.log', level=logging.DEBUG, format='%(asctime)s %(levelname)-8s %(message)s',
                         datefmt='%Y-%m-%d %H:%M:%S')
@@ -75,4 +75,4 @@ def keeprandomreads_sample(sample, count=10000000, paired=True, threads=None, in
 
 
 if __name__ == '__main__':
-    keeprandomreads_bam()
+    keeprandomreadsbam()

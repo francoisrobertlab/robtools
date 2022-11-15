@@ -51,7 +51,7 @@ def test_keeprandomreads(mock_testclass):
     samples = Path(__file__).parent.joinpath('samples.txt')
     KeepRandomReadsBam.keeprandomreads_samples = MagicMock()
     runner = CliRunner()
-    result = runner.invoke(KeepRandomReadsBam.keeprandomreads_bam, ['--samples', samples])
+    result = runner.invoke(KeepRandomReadsBam.keeprandomreadsbam, ['--samples', samples])
     assert result.exit_code == 0
     KeepRandomReadsBam.keeprandomreads_samples.assert_called_once_with(samples, 10000000, True, 1, '', '-random', None)
 
@@ -65,7 +65,7 @@ def test_keeprandomreads_parameters(mock_testclass):
     index = 0
     KeepRandomReadsBam.keeprandomreads_samples = MagicMock()
     runner = CliRunner()
-    result = runner.invoke(KeepRandomReadsBam.keeprandomreads_bam,
+    result = runner.invoke(KeepRandomReadsBam.keeprandomreadsbam,
                            ['--samples', samples, '--count', count, '--unpaired', '--threads', threads,
                             '--input-suffix', input_suffix, '--output-suffix', output_suffix, '--index', index])
     assert result.exit_code == 0
@@ -77,7 +77,7 @@ def test_keeprandomreads_samplesnotexists(mock_testclass):
     samples = 'samples.txt'
     KeepRandomReadsBam.keeprandomreads_samples = MagicMock()
     runner = CliRunner()
-    result = runner.invoke(KeepRandomReadsBam.keeprandomreads_bam, ['-s', samples])
+    result = runner.invoke(KeepRandomReadsBam.keeprandomreadsbam, ['-s', samples])
     assert result.exit_code > 0
     KeepRandomReadsBam.keeprandomreads_samples.assert_not_called()
 
