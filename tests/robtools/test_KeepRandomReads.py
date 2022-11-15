@@ -103,10 +103,20 @@ def test_keeprandomreads_sample_paired(testdir, mock_testclass):
     for i in range(0, len(output1_lines)):
         if output1_lines[0].startswith('@'):
             assert re.split('\\s', output1_lines[0])[0] == re.split('\\s', output2_lines[0])[0]
-    for line in output1_lines:
+    for i in range(0, int(len(output1_lines) / 4)):
+        line = output1_lines[i * 4]
         assert line in fastq1_lines
-    for line in output2_lines:
+        index = fastq1_lines.index(line)
+        for j in range(0, 4):
+            line = output1_lines[i * 4 + j]
+            assert line == fastq1_lines[index + j]
+    for i in range(0, int(len(output2_lines) / 4)):
+        line = output2_lines[i * 4]
         assert line in fastq2_lines
+        index = fastq2_lines.index(line)
+        for j in range(0, 4):
+            line = output2_lines[i * 4 + j]
+            assert line == fastq2_lines[index + j]
 
 
 def test_keeprandomreads_sample_paired_parameters(testdir, mock_testclass):
@@ -140,10 +150,20 @@ def test_keeprandomreads_sample_paired_parameters(testdir, mock_testclass):
     for i in range(0, len(output1_lines)):
         if output1_lines[0].startswith('@'):
             assert re.split('\\s', output1_lines[0])[0] == re.split('\\s', output2_lines[0])[0]
-    for line in output1_lines:
+    for i in range(0, int(len(output1_lines) / 4)):
+        line = output1_lines[i * 4]
         assert line in fastq1_lines
-    for line in output2_lines:
+        index = fastq1_lines.index(line)
+        for j in range(0, 4):
+            line = output1_lines[i * 4 + j]
+            assert line == fastq1_lines[index + j]
+    for i in range(0, int(len(output2_lines) / 4)):
+        line = output2_lines[i * 4]
         assert line in fastq2_lines
+        index = fastq2_lines.index(line)
+        for j in range(0, 4):
+            line = output2_lines[i * 4 + j]
+            assert line == fastq2_lines[index + j]
 
 
 def test_keeprandomreads_sample_paired_wrong_second(testdir, mock_testclass):
@@ -161,8 +181,6 @@ def test_keeprandomreads_sample_paired_wrong_second(testdir, mock_testclass):
     with gzip.open(fastq2, 'wt') as zip_out:
         for line in fastq2_lines:
             zip_out.write(line)
-    output1 = sample + '-random_R1.fastq.gz'
-    output2 = sample + '-random_R2.fastq.gz'
     with pytest.raises(AssertionError) as assert_error:
         KeepRandomReads.keeprandomreads_sample(sample)
     assert assert_error
@@ -184,8 +202,13 @@ def test_keeprandomreads_sample_unpaired(testdir, mock_testclass):
     with gzip.open(output1, 'rt') as output1_out:
         output1_lines = output1_out.readlines()
     assert 100 == len(output1_lines)
-    for line in output1_lines:
+    for i in range(0, int(len(output1_lines) / 4)):
+        line = output1_lines[i * 4]
         assert line in fastq1_lines
+        index = fastq1_lines.index(line)
+        for j in range(0, 4):
+            line = output1_lines[i * 4 + j]
+            assert line == fastq1_lines[index + j]
 
 
 def test_keeprandomreads_sample_unpaired_parameters(testdir, mock_testclass):
@@ -207,5 +230,10 @@ def test_keeprandomreads_sample_unpaired_parameters(testdir, mock_testclass):
     with gzip.open(output1, 'rt') as output1_out:
         output1_lines = output1_out.readlines()
     assert count * 4 == len(output1_lines)
-    for line in output1_lines:
+    for i in range(0, int(len(output1_lines) / 4)):
+        line = output1_lines[i * 4]
         assert line in fastq1_lines
+        index = fastq1_lines.index(line)
+        for j in range(0, 4):
+            line = output1_lines[i * 4 + j]
+            assert line == fastq1_lines[index + j]
