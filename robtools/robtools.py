@@ -13,7 +13,7 @@ from robtools import GenomeCoverage
 from robtools import IgnoreStrand
 from robtools import Intersect
 from robtools import IntersectAnnotations
-from robtools import KeepRandomReads
+from robtools import KeepRandomReadsBam
 from robtools import Merge
 from robtools import MergeBam
 from robtools import MergeBigwigs
@@ -50,7 +50,7 @@ robtools.add_command(GenomeCoverage.genomecov)
 robtools.add_command(IgnoreStrand.ignorestrand)
 robtools.add_command(Intersect.intersect)
 robtools.add_command(IntersectAnnotations.intersectannotations)
-robtools.add_command(KeepRandomReads.keeprandomreads)
+robtools.add_command(KeepRandomReadsBam.keeprandomreads_bam)
 robtools.add_command(Merge.merge)
 robtools.add_command(MergeBam.mergebam)
 robtools.add_command(MergeBigwigs.mergebw)

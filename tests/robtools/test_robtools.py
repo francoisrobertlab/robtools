@@ -16,7 +16,7 @@ from robtools import Fixmd5
 from robtools import GenomeCoverage
 from robtools import IgnoreStrand
 from robtools import Intersect
-from robtools import KeepRandomReads
+from robtools import KeepRandomReadsBam
 from robtools import Merge
 from robtools import MergeBam
 from robtools import MergeBigwigs
@@ -49,7 +49,7 @@ def mock_testclass():
     genome_coverage_samples = GenomeCoverage.genome_coverage_samples
     ignore_strand_samples = IgnoreStrand.ignore_strand_samples
     intersect_samples = Intersect.intersect_samples
-    keeprandomreads_samples = KeepRandomReads.keeprandomreads_samples
+    keeprandomreads_samples = KeepRandomReadsBam.keeprandomreads_samples
     merge_datasets = Merge.merge_datasets
     merge_datasets_bam = MergeBam.merge_datasets
     merge_datasets_bw = MergeBigwigs.merge_datasets
@@ -78,7 +78,7 @@ def mock_testclass():
     GenomeCoverage.genome_coverage_samples = genome_coverage_samples
     IgnoreStrand.ignore_strand_samples = ignore_strand_samples
     Intersect.intersect_samples = intersect_samples
-    KeepRandomReads.keeprandomreads_samples = keeprandomreads_samples
+    KeepRandomReadsBam.keeprandomreads_samples = keeprandomreads_samples
     Merge.merge_datasets = merge_datasets
     MergeBam.merge_datasets = merge_datasets_bam
     MergeBigwigs.merge_datasets = merge_datasets_bw
@@ -156,8 +156,7 @@ def test_robtools_chipexoqual(testdir, mock_testclass):
 def test_robtools_distillerresolutions(testdir, mock_testclass):
     project = Path(__file__).parent.joinpath('project.yml')
     runner = CliRunner()
-    result = runner.invoke(robtools.robtools,
-                           ['distillerresolutions', '--project', project])
+    result = runner.invoke(robtools.robtools, ['distillerresolutions', '--project', project])
     logging.warning(result.output)
     assert result.exit_code == 0
     assert result.stdout == '10000\n5000\n2000\n1000\n500\n200\n100\n50\n20\n10\n'
@@ -240,12 +239,12 @@ def test_robtools_intersect(testdir, mock_testclass):
 
 def test_robtools_keeprandomreads(mock_testclass):
     samples = Path(__file__).parent.joinpath('samples.txt')
-    KeepRandomReads.keeprandomreads_samples = MagicMock()
+    KeepRandomReadsBam.keeprandomreads_samples = MagicMock()
     runner = CliRunner()
-    result = runner.invoke(robtools.robtools, ['keeprandomreads', '--samples', samples])
+    result = runner.invoke(robtools.robtools, ['keeprandomreads_bam', '--samples', samples])
     logging.warning(result.output)
     assert result.exit_code == 0
-    KeepRandomReads.keeprandomreads_samples.assert_called_once_with(samples, 10000000, True, 1, '', '-random', None)
+    KeepRandomReadsBam.keeprandomreads_samples.assert_called_once_with(samples, 10000000, True, 1, '', '-random', None)
 
 
 def test_robtools_merge(testdir, mock_testclass):
