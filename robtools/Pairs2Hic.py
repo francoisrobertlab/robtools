@@ -20,7 +20,7 @@ import yaml
 @click.option('--output-suffix', '-os', default=None,
               help="Suffix added to sample/group name in HIC filename for output.")
 @click.option('--output-folder', '-o', type=click.Path(exists=True), default=None,
-              help="Output folder.  Defaults to folder where project.xml file is located")
+              help="Output folder.  Defaults to current folder.")
 @click.argument('juicer_args', nargs=-1, type=click.UNPROCESSED)
 def pairs2hic(project, juicer, input_suffix, output_suffix, output_folder, juicer_args):
     """Converts distiller-nf's pairs file to HIC format"""
@@ -38,7 +38,7 @@ def pairs2hic_(project, juicer="juicer_tools.jar", input_suffix="*.nodups", outp
     resolutions = config['bin']['resolutions']
     chrom_sizes_path = config['input']['genome']['chrom_sizes_path']
     if not output_folder:
-        output_folder = os.path.dirname(project) if os.path.isabs(project) else '.'
+        output_folder = '.'
     folders = []
     if os.path.abspath(os.path.dirname(project)) != os.path.abspath(os.curdir):
         folders.append(os.path.dirname(project))
