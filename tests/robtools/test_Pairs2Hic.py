@@ -10,6 +10,7 @@ from click.testing import CliRunner
 from yaml.scanner import ScannerError
 
 from robtools import Pairs2Hic
+from robtools.Pairs2Hic import SBATCH_JAVA_MEM_ENV
 
 
 @pytest.fixture
@@ -19,6 +20,7 @@ def mock_testclass():
     pairs_to_medium = Pairs2Hic.pairs_to_medium
     resolve = Pairs2Hic.resolve
     merge_pairs = Pairs2Hic.merge_pairs
+    sbatch_memory = Pairs2Hic.sbatch_memory
     run = subprocess.run
     os_remove = os.remove
     yield
@@ -28,7 +30,10 @@ def mock_testclass():
     Pairs2Hic.pairs_to_medium = pairs_to_medium
     Pairs2Hic.resolve = resolve
     Pairs2Hic.merge_pairs = merge_pairs
+    Pairs2Hic.sbatch_memory = sbatch_memory
     os.remove = os_remove
+    if SBATCH_JAVA_MEM_ENV in os.environ:
+        del os.environ[SBATCH_JAVA_MEM_ENV]
 
 
 def copy_sort(*args, **kwargs):
@@ -353,6 +358,29 @@ def test_pairs_to_hic_parameters(testdir, mock_testclass):
     assert subprocess.run.call_args_list[0].args[0][8] == Pairs2Hic.pairs_to_medium.call_args_list[0].args[1]
 
 
+def test_pairs_to_hic_sbatchmemenv(testdir, mock_testclass):
+    juicer = "juicer_tools.jar"
+    Path(juicer).touch()
+    pairs = "CJ1_MicroC_WT.pairs.gz"
+    Path(pairs).touch()
+    hic = "CJ1_MicroC_WT.hic"
+    resolutions = [10000, 5000, 2000, 1000, 500, 200, 100, 50, 20, 10]
+    chromosome_sizes = "sacCer3.chrom.sizes"
+    Path(chromosome_sizes).touch()
+    mem = '48G'
+    os.environ[SBATCH_JAVA_MEM_ENV] = mem
+    Pairs2Hic.pairs_to_medium = MagicMock()
+    subprocess.run = MagicMock()
+    Pairs2Hic.sbatch_memory = MagicMock(return_value=100)
+    Pairs2Hic.pairs_to_hic(pairs, hic, resolutions, chromosome_sizes)
+    Pairs2Hic.pairs_to_medium.assert_called_once_with(pairs, ANY)
+    Pairs2Hic.sbatch_memory.assert_called_once_with('48G')
+    subprocess.run.assert_called_once_with(
+        ["java", '-Xmx100M', "-jar", juicer, "pre", "-r", ','.join([str(resolution) for resolution in resolutions]),
+         ANY, hic, chromosome_sizes], check=True)
+    assert subprocess.run.call_args_list[0].args[0][7] == Pairs2Hic.pairs_to_medium.call_args_list[0].args[1]
+
+
 def test_pairs_to_medium(testdir, mock_testclass):
     pairs = "CJ1_MicroC_WT.pairs.gz"
     with open(Path(__file__).parent.joinpath("CJ1_MicroC_WT.pairs")) as pairs_in, gzip.open(pairs, 'wt') as pairs_out:
@@ -514,3 +542,37 @@ def test_merge_pairs(testdir, mock_testclass):
     assert len(output_lines) == len(merged_pairs_lines)
     for i in range(0, len(output_lines)):
         assert output_lines[i] == merged_pairs_lines[len(merged_pairs_lines) - i - 1]
+
+
+def test_sbatch_memory_kilo(mock_testclass):
+    assert 2 == Pairs2Hic.sbatch_memory('2048K')
+    assert 1 == Pairs2Hic.sbatch_memory('1100K')
+    assert 0 == Pairs2Hic.sbatch_memory('512K')
+
+
+def test_sbatch_memory_meg(mock_testclass):
+    assert 2048 == Pairs2Hic.sbatch_memory('2048M')
+    assert 1100 == Pairs2Hic.sbatch_memory('1100M')
+    assert 512 == Pairs2Hic.sbatch_memory('512M')
+
+
+def test_sbatch_memory_nounit(mock_testclass):
+    assert 2048 == Pairs2Hic.sbatch_memory('2048')
+    assert 1100 == Pairs2Hic.sbatch_memory('1100')
+    assert 512 == Pairs2Hic.sbatch_memory('512')
+
+
+def test_sbatch_memory_gig(mock_testclass):
+    assert 2048 == Pairs2Hic.sbatch_memory('2G')
+    assert 1024 == Pairs2Hic.sbatch_memory('1G')
+    assert 5120 == Pairs2Hic.sbatch_memory('5G')
+
+
+def test_sbatch_memory_tera(mock_testclass):
+    assert 2097152 == Pairs2Hic.sbatch_memory('2T')
+    assert 1048576 == Pairs2Hic.sbatch_memory('1T')
+    assert 5242880 == Pairs2Hic.sbatch_memory('5T')
+
+
+def test_sbatch_memory_none(mock_testclass):
+    assert not Pairs2Hic.sbatch_memory(None)

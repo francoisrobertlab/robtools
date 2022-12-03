@@ -9,6 +9,8 @@ import click
 import sys
 import yaml
 
+SBATCH_JAVA_MEM_ENV = 'SLURM_MEM_PER_NODE'
+
 
 @click.command(context_settings=dict(ignore_unknown_options=True, ))
 @click.option('--project', '-p', type=click.Path(exists=True), default="project.yml", show_default=True,
@@ -80,12 +82,29 @@ def pairs_to_hic(pairs, hic, resolutions, chromosome_sizes, juicer="juicer_tools
     medium_o, medium = tempfile.mkstemp(suffix=".tsv")
     pairs_to_medium(pairs, medium)
     logging.debug(f'Converting medium format {medium} to HIC {hic}')
-    cmd = ["java", "-jar", juicer, "pre"] + list(juicer_args)
+    mem = sbatch_memory(os.getenv(SBATCH_JAVA_MEM_ENV, None))
+    cmd = ['java']
+    if mem:
+        cmd.extend(['-Xmx' + str(mem) + 'M'])
+    cmd.extend(["-jar", juicer, "pre"] + list(juicer_args))
     cmd.extend(["-r", ','.join([str(resolution) for resolution in resolutions])])
     cmd.extend([medium, hic, chromosome_sizes])
     logging.debug(f'Running {cmd}')
     subprocess.run(cmd, check=True)
     os.remove(medium)
+
+
+def sbatch_memory(mem_string):
+    if not mem_string:
+        return None
+    mem = int(mem_string if mem_string.isnumeric() else mem_string[:-1])
+    if mem_string.endswith('K'):
+        mem = int(mem / 1024)
+    elif mem_string.endswith('G'):
+        mem = mem * 1024
+    elif mem_string.endswith('T'):
+        mem = mem * pow(1024, 2)
+    return mem
 
 
 def pairs_to_medium(pairs, medium):
