@@ -352,7 +352,7 @@ def test_trimmomatic_single_sbatchmemenv(testdir, mock_testclass):
     subprocess.run = MagicMock()
     t.sbatch_memory = MagicMock(return_value=100)
     t.trimmomatic_single(fastq, output, None, ())
-    t.sbatch_memory('48G')
+    t.sbatch_memory.assert_called_once_with('48G')
     subprocess.run.assert_any_call(['java', '-Xmx100M', '-jar', jar, 'SE', fastq, output], check=True)
 
 
@@ -369,7 +369,7 @@ def test_trimmomatic_paired(testdir, mock_testclass):
     subprocess.run = MagicMock()
     t.sbatch_memory = MagicMock(return_value=None)
     t.trimmomatic_paired(fastq1, paired1, unpaired1, fastq2, paired2, unpaired2, None, ())
-    t.sbatch_memory(None)
+    t.sbatch_memory.assert_called_once_with(None)
     subprocess.run.assert_any_call(['java', '-jar', jar, 'PE', fastq1, fastq2, paired1, unpaired1, paired2, unpaired2],
                                    check=True)
 
@@ -389,7 +389,7 @@ def test_trimmomatic_paired_parameters(testdir, mock_testclass):
     subprocess.run = MagicMock()
     t.sbatch_memory = MagicMock(return_value=None)
     t.trimmomatic_paired(fastq1, paired1, unpaired1, fastq2, paired2, unpaired2, trimmers, trim_args)
-    t.sbatch_memory(None)
+    t.sbatch_memory.assert_called_once_with(None)
     subprocess.run.assert_any_call(
         ['java', '-jar', jar, 'PE', '-trimlog', 'trim.log', fastq1, fastq2, paired1, unpaired1, paired2, unpaired2,
          'ILLUMINACLIP:TruSeq3-PE-2.fa:2:30:10:2:keepBothReads', 'MINLEN:36'], check=True)
@@ -406,7 +406,7 @@ def test_trimmomatic_paired_nojarenv(testdir, mock_testclass):
     subprocess.run = MagicMock()
     t.sbatch_memory = MagicMock(return_value=None)
     t.trimmomatic_paired(fastq1, paired1, unpaired1, fastq2, paired2, unpaired2, None, ())
-    t.sbatch_memory(None)
+    t.sbatch_memory.assert_called_once_with(None)
     subprocess.run.assert_any_call(
         ['java', '-jar', 'trimmomatic.jar', 'PE', fastq1, fastq2, paired1, unpaired1, paired2, unpaired2], check=True)
 
@@ -426,7 +426,7 @@ def test_trimmomatic_paired_sbatchmemenv(testdir, mock_testclass):
     subprocess.run = MagicMock()
     t.sbatch_memory = MagicMock(return_value=100)
     t.trimmomatic_paired(fastq1, paired1, unpaired1, fastq2, paired2, unpaired2, None, ())
-    t.sbatch_memory('48G')
+    t.sbatch_memory.assert_called_once_with('48G')
     subprocess.run.assert_any_call(
         ['java', '-Xmx100M', '-jar', 'trimmomatic/trimmomatic.jar', 'PE', fastq1, fastq2, paired1, unpaired1, paired2,
          unpaired2], check=True)
