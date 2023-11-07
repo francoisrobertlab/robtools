@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='RobTools',
-    version='2.0-SNAPSHOT',
+    version='2.0.dev1',
     packages=find_packages(),
     author='Christian Poitras',
     author_email='christian.poitras@ircm.qc.ca',
