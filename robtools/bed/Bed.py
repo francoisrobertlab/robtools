@@ -34,7 +34,9 @@ def sort(input, output):
     if os.name == 'posix':
         cmd = ['sort', '-k', '1,1', '-k', '2,2n', '-k', '3,3n', '-o', output, input]
         logging.debug('Running {}'.format(cmd))
-        subprocess.run(cmd, check=True)
+        sort_env = os.environ.copy()
+        sort_env["LC_COLLATE"] = "C"
+        subprocess.run(cmd, check=True, env=sort_env)
     else:
         cmd = ['bedtools', 'sort', '-i', input]
         logging.debug('Running {}'.format(cmd))

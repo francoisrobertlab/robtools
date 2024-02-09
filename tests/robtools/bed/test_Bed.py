@@ -1,7 +1,6 @@
-import logging
 import os
-from pathlib import Path
 import subprocess
+from pathlib import Path
 from unittest.mock import MagicMock, ANY
 
 import pytest
@@ -72,23 +71,30 @@ def test_empty_bed_minusstrand(testdir, mock_testclass):
 
 def test_sort(testdir, mock_testclass):
     bed = Path(__file__).parent.parent.joinpath('sample.bed')
-    os.name = 'nt'
     output = 'test.bed'
     subprocess.run = MagicMock(side_effect=create_file)
+    os_name = os.name
+    os.name = 'nt'
     Bed.sort(bed, output)
+    os.name = os_name
     subprocess.run.assert_called_with(['bedtools', 'sort', '-i', bed], stdout=ANY, check=True)
     assert os.path.exists(output)
 
 
 def test_sort_linux(testdir, mock_testclass):
     bed = Path(__file__).parent.parent.joinpath('sample.bed')
-    os.name = 'posix'
     output = 'test.bed'
     subprocess.run = MagicMock(side_effect=create_file)
+    os_name = os.name
+    os.name = 'posix'
     Bed.sort(bed, output)
-    logging.warning(Bed.sort)
-    subprocess.run.assert_called_with(['sort', '-k', '1,1', '-k', '2,2n', '-k', '3,3n', '-o', output, bed], check=True)
+    os.name = os_name
+    subprocess.run.assert_called_with(['sort', '-k', '1,1', '-k', '2,2n', '-k', '3,3n', '-o', output, bed], check=True,
+                                      env=ANY)
     assert os.path.exists(output)
+    assert subprocess.run.call_args_list[0].kwargs["env"]["LC_COLLATE"] == "C"
+    for env in os.environ:
+        assert subprocess.run.call_args_list[0].kwargs["env"][env] == os.environ[env]
 
 
 def test_sort_bysize(testdir, mock_testclass):
